@@ -114,6 +114,14 @@ Also bind `class' to ((class color) (min-colors 89))."
     `(font-lock-warning-face
        ((t (:foreground ,orange))))
 
+;; Compilation
+    `(compilation-info
+       ((t (:foreground ,yellow))))
+    `(compilation-info
+       ((t (:foreground ,orange))))
+    `(compilation-error
+       ((t (:foreground ,red))))
+
 ;;; Packages
 
     ;; IDO
@@ -149,6 +157,12 @@ Also bind `class' to ((class color) (min-colors 89))."
        ((t (:foreground ,grey))))
     `(org-link
        ((t (:foreground ,foreground))))
+
+    ;; Eglot / flymake
+    `(flymake-warning
+       ((t (:underline nil))))
+    `(flymake-error
+       ((t (:underline nil))))
 
   )) 
 

@@ -30,6 +30,7 @@
   'evil
   'evil-collection
 ; Editor confiurations
+  'hungry-delete
   'editorconfig
   'exec-path-from-shell
   'eglot
@@ -50,9 +51,8 @@
 (global-set-key (kbd "C-x 3 d") (rhuibjr/open-bookmark-window))
 
 ;;
-;;; Package configurations
+;;; Language servers and auto-completion 
 ;;
-;; Auto-complete and editing text 
 (use-package eglot
   :ensure t
   :hook
@@ -63,11 +63,8 @@
     eglot-ignored-server-capabilites
     '(:documentHighlightProvider :hoverProvider))
   (add-to-list 'eglot-server-programs
-    '((c-mode c++-mode ) . ("clangd-11"))))
- 
-(use-package cape
-  :init
-  (add-to-list 'completion-at-point-functions 'cape-file))
+    ;'((c-mode c++-mode ) . ("clangd-11"))))
+    '((c-mode c++-mode ) . ("clangd"))))
 
 (use-package corfu
   :ensure t
@@ -88,8 +85,12 @@
   :init
   (global-corfu-mode))
 
+(use-package cape
+  :init
+  (add-to-list 'completion-at-point-functions 'cape-file))
+
 ;;
-;;; Organisational configurations 
+;;; Writing and editing text 
 ;;
 (use-package org
   :ensure t
@@ -101,15 +102,8 @@
   (setq
     org-hide-emphasis-markers t))
 
-;;
-(setq
-  font-latex-fontify-script nil
-  font-latex-fontify-sectioning ' color
-  TeX-master "research-paper"
-  Tex-source-correlate-start-server t)
-
-  (add-hook 'TeX-after-compilation-finished-functions
-    'TeX-revert-document-buffer)
+(use-package hungry-delete
+  :init (global-hungry-delete-mode))
 
 ;;
 ;;; Custom functions
