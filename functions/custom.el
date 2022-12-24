@@ -1,4 +1,4 @@
-;;; custom.el --- rhuibjr's emacs configurations          -*- lexical-binding: t; -*-
+;;; custom.el --- rhuibjr's emacs configurations     -*- lexical-binding: t; -*-
 ;;
 ;; Author: Rhuibjr
 ;; Maintainer: Rhuibjr <rhuibjr.business@gmail.com>
@@ -26,6 +26,15 @@
 
 (defun display-startup-echo-area-message ()
   (rhjr/startup-message))
+
+;; Buffers
+(defun rhuibjr/open-bookmark-window ()
+  "Jump to custom bookmarks in other frame."
+  (lambda ()
+    (interactive)
+    (bookmark-jump
+      (ido-completing-read "Jump to bookmark: " (bookmark-all-names))
+      'switch-to-buffer-other-window)))
 
 ;; Mini buffers
 (defun rhjr/semi-mini-buffer-mode (buffer-name)

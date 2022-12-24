@@ -1,4 +1,4 @@
-;;; modeline.el --- rhuibjr's emacs configurations        -*- lexical-binding: t; -*-
+;;; modeline.el --- rhuibjr's emacs configurations   -*- lexical-binding: t; -*-
 ;;
 ;; author: rhuibjr
 ;; maintainer: rhuibjr <rhuibjr.business@gmail.com>

@@ -1,4 +1,4 @@
-;;; init.el --- rhuibjr's emacs configurations            -*- lexical-binding: t; -*-
+;;; init.el --- rhuibjr's emacs configurations       -*- lexical-binding: t; -*-
 ;;
 ;; Author: Rhuibjr
 ;; Maintainer: Rhuibjr <rhuibjr.business@gmail.com>
@@ -29,18 +29,25 @@
 ; Keybindings management
   'evil
   'evil-collection
-; Editor configurations
+; Editor confiurations
   'editorconfig
   'exec-path-from-shell
   'eglot
   'corfu
+  'cape
+; Documents
+  'pdf-tools
 ; Appearance
   'ansi-color
   'olivetti)
 
-;; Keybindings 
+;; Unset keybindings
+(global-unset-key (kbd "C-x 3"))
+
+;; Set keybindings 
 (global-set-key (kbd "C-x C-r") 'recompile)
 (global-set-key (kbd "C-x C-d") 'ido-dired)
+(global-set-key (kbd "C-x 3 d") (rhuibjr/open-bookmark-window))
 
 ;;
 ;;; Package configurations
@@ -58,13 +65,24 @@
   (add-to-list 'eglot-server-programs
     '((c-mode c++-mode ) . ("clangd-11"))))
  
+(use-package cape
+  :init
+  (add-to-list 'completion-at-point-functions 'cape-file))
+
 (use-package corfu
   :ensure t
+  :bind
+  (:map corfu-map
+    ("TAB"     . corfu-next)
+    ([tab]     . corfu-next)
+    ("S-TAB"   . corfu-previous)
+    ([backtab] . corfu-previous))
   :hook
-  ((prog-mode . corfu-mode))
+  ((prog-mode . corfu-mode)
+   (org-mode  . corfu-mode))
   :custom
-  (corfu-cycle t)
   (corfu-auto t)
+  (corfu-cycle t)
   (corfu-auto-prefix 2)
   (corfu-auto-delay 0.0)
   :init
@@ -84,6 +102,16 @@
     org-hide-emphasis-markers t))
 
 ;;
+(setq
+  font-latex-fontify-script nil
+  font-latex-fontify-sectioning ' color
+  TeX-master "research-paper"
+  Tex-source-correlate-start-server t)
+
+  (add-hook 'TeX-after-compilation-finished-functions
+    'TeX-revert-document-buffer)
+
+;;
 ;;; Custom functions
 ;;
 (add-hook 'compilation-mode-hook
@@ -96,7 +124,7 @@
 
 (add-hook 'prog-mode-hook
   (lambda () (progn
-               (set-variable 'display-fill-column-indicator-column 84)
-               (display-fill-column-indicator-mode))))
+              (electric-pair-mode)
+              (display-fill-column-indicator-mode))))
 ;;
 ;;; init.el ends here

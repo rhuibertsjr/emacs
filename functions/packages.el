@@ -1,4 +1,4 @@
-;;; packages.el --- rhuibjr's emacs configurations        -*- lexical-binding: t; -*-
+;;; packages.el --- rhuibjr's emacs configurations   -*- lexical-binding: t; -*-
 ;;
 ;; Author: Rhuibjr
 ;; Maintainer: Rhuibjr <rhuibjr.business@gmail.com>
