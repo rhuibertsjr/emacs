@@ -21,8 +21,7 @@
 ;; Default
 (use-package emacs
   :hook
-  ((prog-mode . show-paren-mode)
-   (prog-mode . visual-line-mode))
+  ((prog-mode . show-paren-mode))
   :config
   (setq-default
 
@@ -39,17 +38,14 @@
     gc-cons-threshold         100000000
     tab-width                 10
     ring-bell-function        'ignore
+    split-width-threshold     1
 
     select-enable-clipboard   t
-
-    ; Appearance
-    fci-rule-color            "#1c1c1e"
 
     ; Editor
     custom-safe-themes        t
     custom-theme-load-path
      '("~/.config/emacs/themes/")
-    
 
     ; Package
     use-package-always-ensure t
@@ -61,6 +57,7 @@
     display-line-numbers-type 'relative
     display-fill-column-indicator-column 80
     display-fill-column-indicator-character '32
+    fill-column 86
 
     ; Scrolling
     scroll-margin             3
@@ -109,6 +106,7 @@
   (ido-mode 1))
 
 (use-package dired-x
+  :ensure nil
   :config
   (add-hook 'dired-mode-hook 'dired-omit-mode)
   (setq dired-omit-files

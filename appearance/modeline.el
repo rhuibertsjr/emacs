@@ -30,10 +30,6 @@
                                        'font-lock-warning-face
                                        'font-lock-defaults))))
 
-     ;; major modes
-     (:propertize "%m: " face font-lock-defaults
-       help-echo buffer-file-coding-system)
-
      ;; shortened directory (if buffer have a corresponding file)
      (:eval
        (when (buffer-file-name)

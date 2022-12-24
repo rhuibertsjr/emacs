@@ -63,6 +63,10 @@ Also bind `class' to ((class color) (min-colors 89))."
        ((t (:foreground ,foreground :background ,dark-grey))))
     `(button
        ((t (:foreground ,yellow))))
+    `(highlight
+       ((t (:background ,yellow :foreground ,foreground))))
+    `(lazy-highlight
+       ((t (:background ,yellow :foreground ,foreground))))
     `(minibuffer-prompt
        ((t (:foreground ,yellow))))
   
@@ -91,6 +95,14 @@ Also bind `class' to ((class color) (min-colors 89))."
        ((t (:foreground ,grey :background ,background))))
     `(line-number-current-line
        ((t (:foreground ,orange :background ,background))))
+
+;; Searching
+    `(isearch
+       ((t (:foreground ,foreground :background ,orange))))
+    `(isearch-fail
+       ((t (:background ,red))))
+    `(match
+       ((t (:background ,yellow))))
 
 ;; Font-lock
     `(font-lock-comment-face
@@ -151,12 +163,22 @@ Also bind `class' to ((class color) (min-colors 89))."
        ((t (:foreground ,foreground))))
     `(org-level-3
        ((t (:foreground ,foreground))))
+    `(org-level-4
+       ((t (:foreground ,foreground))))
     `(org-date
        ((t (:foreground ,grey))))
     `(org-table
        ((t (:foreground ,grey))))
     `(org-link
        ((t (:foreground ,foreground))))
+    `(org-drawer
+       ((t (:foreground ,yellow))))
+    `(org-document-title
+       ((t (:foreground ,grey))))
+    `(org-special-keyword
+       ((t (:foreground ,orange))))
+    `(org-document-info-keyword
+       ((t (:foreground ,grey))))
 
     ;; Eglot / flymake
     `(flymake-warning

@@ -29,8 +29,10 @@
 ; Keybindings management
   'evil
   'evil-collection
-; Editor confiurations
+; Writing and editing
   'hungry-delete
+  'visual-fill-column
+; Editor confiurations
   'editorconfig
   'exec-path-from-shell
   'eglot
@@ -39,8 +41,7 @@
 ; Documents
   'pdf-tools
 ; Appearance
-  'ansi-color
-  'olivetti)
+  'ansi-color)
 
 ;; Unset keybindings
 (global-unset-key (kbd "C-x 3"))
@@ -95,8 +96,8 @@
 (use-package org
   :ensure t
   :hook
-  (( org-mode . olivetti-mode   )
-   ( org-mode . org-indent-mode )
+  (( org-mode . org-indent-mode )
+   ( org-mode . visual-line-mode)
    ( org-mode . display-fill-column-indicator-mode ))
   :config
   (setq
@@ -111,14 +112,26 @@
 (add-hook 'compilation-mode-hook
   (lambda () (rhjr/semi-mini-buffer-mode "*compilation*")))
 
-(add-hook 'olivetti-mode-on-hook
+(add-hook 'visual-line-mode-hook 'visual-fill-column-mode)
+(add-hook 'org-mode-hook
   (lambda () (progn
-               (olivetti-set-width 80)
-               (set-variable 'display-fill-column-indicator-column 69))))
+               (setq
+                 visual-fill-column-center-text t))))
+
+(add-hook 'latex-mode-hook
+  (lambda () (progn
+               (visual-line-mode 1))))
+
+(add-hook 'doc-view-mode-hook
+  (lambda () (progn
+               (display-line-numbers-mode -1))))
 
 (add-hook 'prog-mode-hook
   (lambda () (progn
-              (electric-pair-mode)
-              (display-fill-column-indicator-mode))))
+               (electric-pair-mode)
+               (setq
+                 visual-fill-column-center-text nil)
+               (visual-line-mode 1)
+               (display-fill-column-indicator-mode))))
 ;;
 ;;; init.el ends here
