@@ -1,4 +1,4 @@
-;;; default.el --- rhuibjr's emacs configurations         -*- lexical-binding: t; -*-
+;;; default.el --- rhuibjr's emacs configurations    -*- lexical-binding: t; -*-
 ;;
 ;; Author: rhuibjr
 ;; Maintainer: rhuibjr <rhuibjr.business@gmail.com>
@@ -8,8 +8,7 @@
 ;;;
 ;;
 ;; This program is free software; you can redistribute it and/or
-;; modify it under the terms of the GNU General Public License as
-;; published by the Free Software Foundation; either version 3, or
+;; modify it under the terms of the GNU General Public License, or
 ;; (at your option) any later version.
 ;; 
 ;; This program is distributed in the hope that it will be useful,
@@ -30,7 +29,7 @@
     ; Garbage
     initial-scratch-message   nil
     initial-major-mode        'org-mode
-    inhibit-startup-message   t 
+    inhibit-startup-message   t
     create-lockfiles          nil
     auto-save-default         nil
     make-backup-files         nil
@@ -39,11 +38,18 @@
     frame-title-format        " "
     gc-cons-threshold         100000000
     tab-width                 10
+    ring-bell-function        'ignore
 
     select-enable-clipboard   t
 
+    ; Appearance
+    fci-rule-color            "#1c1c1e"
+
     ; Editor
     custom-safe-themes        t
+    custom-theme-load-path
+     '("~/.config/emacs/themes/")
+    
 
     ; Package
     use-package-always-ensure t
@@ -53,12 +59,12 @@
     compile-command           "make"
 
     display-line-numbers-type 'relative
-    display-fill-column-indicator-column 85
-    display-fill-column-indicator-character '32 
+    display-fill-column-indicator-column 80
+    display-fill-column-indicator-character '32
 
     ; Scrolling
     scroll-margin             3
-    scroll-conservatively   101
+    scroll-conservatively     101
     scroll-up-aggressively    0.01
     scroll-down-aggressively  0.01
     scroll-preserve-screen-position t
@@ -69,14 +75,16 @@
     backup-directory-alist
       `(("." . ,(concat user-emacs-directory "backups"))))
 
-  ; Appearance 
+  ; Appearance
+  (load-theme 'rhuibjr-minimal t)
   (set-face-attribute 'default nil
    :family "Roboto Mono Medium"
-   :height 130
+   ;:height 130
+   :height 160 
    :weight 'normal
    :width 'normal)
-  (set-face-background 'fill-column-indicator
-   "#3c3836")
+  (set-fringe-mode 0)
+  (visual-line-mode 1)
 
   ; Hooks
   (add-hook 'minibuffer-setup-hook
@@ -93,9 +101,9 @@
 ;;; File and directory management
 ;;
 (use-package ido ; smex
-  :init 
+  :init
   (setq default-directory "~/")
-  :bind 
+  :bind
   (( "M-x" . 'smex ))
   :config
   (ido-mode 1))
@@ -110,15 +118,19 @@
           (seq bol ".cache" eol)
           (seq bol "compile_commands.json" eol)
 	        (seq bol ".git" eol))))
-  (setq 
-    dired-use-ls-dired t 
-    insert-directory-program "/usr/bin/ls"
-    dired-recursive-copies 'always
-    dired-recursive-deletes 'always
-    dired-listing-switches "-laGh1v --group-directories-first"))
+  (setq
+      dired-dwim-target t
+      insert-directory-program "gls" dired-use-ls-dired t
+      dired-listing-switches "-laGh1v --group-directories-first")
+   ;dired-use-ls-dired t
+   ;insert-directory-program "/usr/bin/ls"
+   ;dired-recursive-copies 'always
+   ;   dired-recursive-deletes 'always
+   ;   dired-listing-switches "-laGh1v --group-directories-first"))
+   )
 
 ;;
-;;; Writing  
+;;; Writing
 ;;
 (use-package evil
   :ensure t
