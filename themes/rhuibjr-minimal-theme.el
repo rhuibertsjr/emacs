@@ -126,13 +126,18 @@ Also bind `class' to ((class color) (min-colors 89))."
     `(font-lock-warning-face
        ((t (:foreground ,orange))))
 
-;; Compilation
+;;; Compilation
     `(compilation-info
        ((t (:foreground ,yellow))))
     `(compilation-info
        ((t (:foreground ,orange))))
     `(compilation-error
        ((t (:foreground ,red))))
+
+    ;; Makefile
+    `(makefile-targets
+       ((t (:foreground ,yellow))))
+
 
 ;;; Packages
 
@@ -181,10 +186,12 @@ Also bind `class' to ((class color) (min-colors 89))."
        ((t (:foreground ,grey))))
 
     ;; Eglot / flymake
+    `(flymake-note
+       ((t (:underline nil))))
     `(flymake-warning
-       ((t (:underline nil))))
+       ((t (:background ,background :underline nil))))
     `(flymake-error
-       ((t (:underline nil))))
+       ((t (:background ,background :underline nil))))
 
   )) 
 
