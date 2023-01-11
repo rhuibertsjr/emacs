@@ -59,6 +59,10 @@
     display-fill-column-indicator-character '32
     fill-column 86
 
+    ; GDB
+    gdb-show-main             t
+    gdb-many-windows          t
+
     ; Scrolling
     scroll-margin             3
     scroll-conservatively     101

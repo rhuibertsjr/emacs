@@ -45,11 +45,13 @@
 
 ;; Unset keybindings
 (global-unset-key (kbd "C-x 3"))
+(global-unset-key (kbd "C-x o"))
 
 ;; Set keybindings 
 (global-set-key (kbd "C-x C-r") 'recompile)
 (global-set-key (kbd "C-x C-d") 'ido-dired)
 (global-set-key (kbd "C-x 3 d") (rhuibjr/open-bookmark-window))
+(global-set-key (kbd "C-x o")   'previous-buffer)
 
 ;;
 ;;; Language servers and auto-completion 
