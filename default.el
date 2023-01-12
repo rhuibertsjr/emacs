@@ -118,6 +118,7 @@
           (seq bol (? ".") "#")
           (seq bol "." eol)
           (seq bol ".cache" eol)
+          (seq bol ".DS_Store" eol)
           (seq bol "compile_commands.json" eol)
 	        (seq bol ".git" eol))))
   (setq

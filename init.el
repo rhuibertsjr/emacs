@@ -108,6 +108,27 @@
 (use-package hungry-delete
   :init (global-hungry-delete-mode))
 
+(use-package pdf-tools
+  :pin manual
+  :init
+  (pdf-tools-install)
+  :config
+  (setq
+    ; LaTeX font facing
+    font-latex-fontify-script      nil
+    font-latex-fontify-sectioning 'color
+    ; LaTeX pdf-viewer
+    TeX-master nil
+    TeX-view-program-selection         '((output-pdf "PDF Tools"))
+    TeX-source-correlate-start-server  t
+    ; PDF viewer
+    pdf-view-display-size 'fit-page))
+
+;;
+;;; Enviroment variables
+;;
+(setenv "PKG_CONFIG_PATH" "/usr/local/lib/pkgconfig") ;; TODO Debian version
+
 ;;
 ;;; Custom functions
 ;;
@@ -120,12 +141,21 @@
                (setq
                  visual-fill-column-center-text t))))
 
-(add-hook 'latex-mode-hook
+(add-hook 'LaTeX-mode-hook
   (lambda () (progn
+               (display-fill-column-indicator-mode)
                (visual-line-mode 1))))
 
 (add-hook 'doc-view-mode-hook
   (lambda () (progn
+               (display-line-numbers-mode -1))))
+
+(add-hook 'TeX-after-compilation-finished-functions
+  #'TeX-revert-document-buffer)
+
+(add-hook 'pdf-view-mode-hook
+  (lambda () (progn
+               (pdf-view-fit-page-to-window)
                (display-line-numbers-mode -1))))
 
 (add-hook 'prog-mode-hook
