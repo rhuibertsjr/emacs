@@ -128,42 +128,5 @@
 ;;; Enviroment variables
 ;;
 (setenv "PKG_CONFIG_PATH" "/usr/local/lib/pkgconfig") ;; TODO Debian version
-
-;;
-;;; Custom functions
-;;
-(add-hook 'compilation-mode-hook
-  (lambda () (rhjr/semi-mini-buffer-mode "*compilation*")))
-
-(add-hook 'visual-line-mode-hook 'visual-fill-column-mode)
-(add-hook 'org-mode-hook
-  (lambda () (progn
-               (setq
-                 visual-fill-column-center-text t))))
-
-(add-hook 'LaTeX-mode-hook
-  (lambda () (progn
-               (display-fill-column-indicator-mode)
-               (visual-line-mode 1))))
-
-(add-hook 'doc-view-mode-hook
-  (lambda () (progn
-               (display-line-numbers-mode -1))))
-
-(add-hook 'TeX-after-compilation-finished-functions
-  #'TeX-revert-document-buffer)
-
-(add-hook 'pdf-view-mode-hook
-  (lambda () (progn
-               (pdf-view-fit-page-to-window)
-               (display-line-numbers-mode -1))))
-
-(add-hook 'prog-mode-hook
-  (lambda () (progn
-               (electric-pair-mode)
-               (setq
-                 visual-fill-column-center-text nil)
-               (visual-line-mode 1)
-               (display-fill-column-indicator-mode))))
 ;;
 ;;; init.el ends here
