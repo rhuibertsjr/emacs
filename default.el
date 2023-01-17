@@ -92,7 +92,7 @@
 	   (lambda () (setq truncate-lines t)))
   ; Modes
   (global-display-line-numbers-mode 1)
-  (save-place-mode  1)
+  (save-place-mode -1)
   (scroll-bar-mode -1)
   (tooltip-mode    -1)
   (menu-bar-mode   -1)

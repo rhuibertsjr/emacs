@@ -138,6 +138,18 @@ Also bind `class' to ((class color) (min-colors 89))."
     `(makefile-targets
        ((t (:foreground ,yellow))))
 
+;;; LaTeX
+
+    `(font-latex-sedate-face
+       ((t (:foreground ,orange))))
+    `(font-latex-string-face
+       ((t (:foreground ,green))))
+    `(font-latex-bold-face
+       ((t (:foreground ,green))))
+    `(font-latex-italic-face
+       ((t (:foreground ,green))))
+    `(font-latex-warning-face
+       ((t (:foreground ,orange))))
 
 ;;; Packages
 

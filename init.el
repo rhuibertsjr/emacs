@@ -118,7 +118,7 @@
     font-latex-fontify-script      nil
     font-latex-fontify-sectioning 'color
     ; LaTeX pdf-viewer
-    TeX-master nil
+    TeX-master                     nil 
     TeX-view-program-selection         '((output-pdf "PDF Tools"))
     TeX-source-correlate-start-server  t
     ; PDF viewer
