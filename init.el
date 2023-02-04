@@ -53,6 +53,7 @@
 (global-set-key (kbd "C-x 3 d") (rhuibjr/open-bookmark-window))
 (global-set-key (kbd "C-x o")   'previous-buffer)
 
+
 ;;
 ;;; Language servers and auto-completion 
 ;;

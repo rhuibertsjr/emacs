@@ -64,7 +64,7 @@ Also bind `class' to ((class color) (min-colors 89))."
     `(button
        ((t (:foreground ,yellow))))
     `(highlight
-       ((t (:background ,yellow :foreground ,foreground))))
+       ((t (:background ,background :foreground ,foreground))))
     `(lazy-highlight
        ((t (:background ,yellow :foreground ,foreground))))
     `(minibuffer-prompt
@@ -169,7 +169,7 @@ Also bind `class' to ((class color) (min-colors 89))."
 
     ;; Show-paren mode
     `(show-paren-match
-       ((t (:foreground ,foreground))))
+       ((t (:foreground ,orange))))
     `(show-paren-mismatch
        ((t (:foreground ,red))))
 
@@ -188,6 +188,8 @@ Also bind `class' to ((class color) (min-colors 89))."
        ((t (:foreground ,grey))))
     `(org-link
        ((t (:foreground ,foreground))))
+    `(org-todo
+       ((t (:foreground ,red))))
     `(org-drawer
        ((t (:foreground ,yellow))))
     `(org-document-title
@@ -195,6 +197,15 @@ Also bind `class' to ((class color) (min-colors 89))."
     `(org-special-keyword
        ((t (:foreground ,orange))))
     `(org-document-info-keyword
+       ((t (:foreground ,grey))))
+
+    `(org-agenda-structure
+       ((t (:foreground ,yellow))))
+    `(org-agenda-date-today
+       ((t (:foreground ,orange :italic t))))
+    `(org-agenda-date
+       ((t (:foreground ,foreground))))
+    `(org-agenda-calendar-event
        ((t (:foreground ,grey))))
 
     ;; Eglot / flymake
