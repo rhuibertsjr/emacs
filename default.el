@@ -78,14 +78,6 @@
 
   ; Appearance
   (load-theme 'rhuibjr-minimal t)
-  (set-face-attribute 'default nil
-   :family "Roboto Mono Medium"
-   ;:height 130
-   :height 160 
-   :weight 'normal
-   :width 'normal)
-  (set-fringe-mode 0)
-  (visual-line-mode 1)
 
   ; Hooks
   (add-hook 'minibuffer-setup-hook
@@ -97,6 +89,18 @@
   (tooltip-mode    -1)
   (menu-bar-mode   -1)
   (tool-bar-mode   -1))
+
+(if (eq system-type 'darwin)
+ (set-face-attribute 'default nil
+  :family "Roboto Mono Medium"
+  :height 160 
+  :weight 'normal
+  :width 'normal)
+ (set-face-attribute 'default nil
+  :family "Roboto Mono Medium"
+  :height 130 
+  :weight 'normal
+  :width 'normal))
 
 ;;
 ;;; File and directory management
@@ -122,17 +126,19 @@
           (seq bol ".paper.log" eol)
           (seq bol ".DS_Store" eol)
           (seq bol "compile_commands.json" eol)
-	        (seq bol ".git" eol))))
-  (setq
-      dired-dwim-target t
-      insert-directory-program "gls" dired-use-ls-dired t
-      dired-listing-switches "-laGh1v --group-directories-first")
-   ;dired-use-ls-dired t
-   ;insert-directory-program "/usr/bin/ls"
-   ;dired-recursive-copies 'always
-   ;   dired-recursive-deletes 'always
-   ;   dired-listing-switches "-laGh1v --group-directories-first"))
-   )
+	        (seq bol ".git" eol)))))
+
+(if (eq system-type 'darwin)
+ (setq
+  dired-dwim-target t
+  insert-directory-program "gls" dired-use-ls-dired t
+  dired-listing-switches "-laGh1v --group-directories-first")
+ (setq
+  dired-use-ls-dired t
+  insert-directory-program "/usr/bin/ls"
+  dired-recursive-copies 'always
+  dired-recursive-deletes 'always
+  dired-listing-switches "-laGh1v --group-directories-first"))
 
 ;;
 ;;; Writing
