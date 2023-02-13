@@ -175,20 +175,24 @@ Also bind `class' to ((class color) (min-colors 89))."
 
     ;; Org mode
     `(org-level-1
-       ((t (:foreground ,foreground))))
+       ((t (:foreground ,foreground :bold t))))
     `(org-level-2
-       ((t (:foreground ,foreground))))
+       ((t (:foreground ,foreground :bold t))))
     `(org-level-3
-       ((t (:foreground ,foreground))))
+       ((t (:foreground ,foreground :bold t))))
     `(org-level-4
-       ((t (:foreground ,foreground))))
+       ((t (:foreground ,foreground :bold t))))
     `(org-date
        ((t (:foreground ,grey))))
     `(org-table
        ((t (:foreground ,grey))))
     `(org-link
-       ((t (:foreground ,foreground))))
+       ((t (:foreground ,yellow))))
     `(org-todo
+       ((t (:foreground ,red :bold t))))
+    `(org-done
+       ((t (:foreground ,green :bold t))))
+    `(org-priority
        ((t (:foreground ,red))))
     `(org-drawer
        ((t (:foreground ,yellow))))
@@ -200,13 +204,28 @@ Also bind `class' to ((class color) (min-colors 89))."
        ((t (:foreground ,grey))))
 
     `(org-agenda-structure
-       ((t (:foreground ,yellow))))
+       ((t (:foreground ,yellow :bold t))))
     `(org-agenda-date-today
-       ((t (:foreground ,orange :italic t))))
+       ((t (:foreground ,orange :bold t))))
     `(org-agenda-date
-       ((t (:foreground ,foreground))))
+       ((t (:foreground ,yellow :bold nil ))))
+    `(org-agenda-date-weekend
+       ((t (:foreground ,orange :bold nil ))))
     `(org-agenda-calendar-event
-       ((t (:foreground ,grey))))
+       ((t (:foreground ,foreground))))
+
+    `(org-headline-done
+       ((t (:foreground ,foreground))))
+
+    `(org-time-grid
+       ((t (:foreground ,foreground))))
+    `(org-agenda-current-time
+       ((t (:foreground ,orange))))
+
+    `(org-upcoming-distant-deadline
+       ((t (:foreground ,yellow))))
+    `(org-imminent-deadline
+       ((t (:foreground ,red :bold t))))
 
     ;; Eglot / flymake
     `(flymake-note
