@@ -32,7 +32,6 @@
   "Jump to custom bookmarks in other frame."
   (lambda ()
     (interactive)
-    (bookmark-delete "org-capture-last-stored")
     (bookmark-jump
       (ido-completing-read "Jump to bookmark: " (bookmark-all-names))
       'switch-to-buffer-other-window)))
