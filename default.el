@@ -111,7 +111,11 @@
   :bind
   (( "M-x" . 'smex ))
   :config
+  (ido-everywhere t)
   (ido-mode 1))
+
+(require 'ido-completing-read+)
+(ido-ubiquitous-mode 1)
 
 (use-package dired-x
   :ensure nil
@@ -125,6 +129,7 @@
           (seq bol ".dir-locals" eol)
           (seq bol ".paper.log" eol)
           (seq bol ".DS_Store" eol)
+          (seq bol ".ipynb_checkpoints" eol)
           (seq bol "compile_commands.json" eol)
 	        (seq bol ".git" eol)))))
 
