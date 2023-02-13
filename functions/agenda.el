@@ -1,4 +1,3 @@
-
 ;;; agenda.el --- rhuibjr's agenda configurations    -*- lexical-binding: t; -*-
 ;;
 ;; Author: Rhuibjr
@@ -23,9 +22,22 @@
 (setq
   org-agenda-files '("~/Documentations/agenda")
 
-  org-agenda-span 10
+  org-agenda-span             10
   org-agenda-start-on-weekday nil
-  org-agenda-start-day "-2d")
+  org-agenda-start-day        "-2d"
+  org-agenda-use-time-grid    nil
+  org-capture-bookmark        nil ; Thank god 
+  org-agenda-prefix-format
+    '((agenda . "%i %-12:c%?-12t% s")
+      (todo . " %i %-12:c")
+      (tags . " %i %-12:c")
+      (search . " %i %-12:c"))
+  org-refile-targets
+  '(("~/Documentations/agenda/archive/study-archive.org" :maxlevel . 1))
+  org-blank-before-new-entry '((heading . always) (plain-list-item . auto))
+)
+
+(advice-add 'org-refile :after 'org-save-all-org-buffers)
 
 ;;
 ;;; Org bindings

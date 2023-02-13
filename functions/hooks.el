@@ -59,5 +59,8 @@
 (add-hook 'TeX-after-compilation-finished-functions
   #'TeX-revert-document-buffer)
 
-;;
+
+;; IDO allow `SPC'
+(define-key minibuffer-local-completion-map " " 'self-insert-command);;
+
 ;;; hook.el ends here
