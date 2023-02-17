@@ -20,7 +20,7 @@
 ;;; Package
 ;;
 (setq
-  org-roam-v2-ack t
+  org-roam-v2-ack                t
   org-roam-completion-everywhere t)
 
 (use-package org-roam

@@ -111,11 +111,15 @@
   :bind
   (( "M-x" . 'smex ))
   :config
-  (ido-everywhere t)
+  (ido-everywhere 1)
   (ido-mode 1))
 
+;; NOTE: Org-roam nodes with spaces require `C-q SPC`.
 (require 'ido-completing-read+)
 (ido-ubiquitous-mode 1)
+
+(require 'ido-complete-space-or-hyphen)
+(ido-complete-space-or-hyphen-mode 1)
 
 (use-package dired-x
   :ensure nil
@@ -183,14 +187,5 @@
       (ansi-color-apply-on-region compilation-filter-start (point-max))))
   :hook (compilation-filter . my-colorize-compilation-buffer))
 
-;;
-;;; Important functions on startup
-;;
-(defun rhjr/bookmark-jump ()
-  "Jump to custom bookmark via C-x C-g."
-  (lambda ()
-    (interactive)
-    (bookmark-jump
-      (ido-completing-read "Jump to bookmark: " (bookmark-all-names)))))
 ;;
 ;;; default.el ends here

@@ -20,20 +20,20 @@
 ;;; Org
 ;;
 (setq
-  org-agenda-files '("~/Documentations/agenda")
-
   org-agenda-span             10
   org-agenda-start-on-weekday nil
   org-agenda-start-day        "-2d"
   org-agenda-use-time-grid    nil
   org-capture-bookmark        nil ; Thank god 
+  org-bookmark-names-plist    nil
+  org-hide-block-startup      t
   org-agenda-prefix-format
     '((agenda . "%i %-12:c%?-12t% s")
       (todo . " %i %-12:c")
       (tags . " %i %-12:c")
       (search . " %i %-12:c"))
   org-refile-targets
-  '(("~/Documentations/agenda/archive/study-archive.org" :maxlevel . 1))
+  '(("~/Documentations/wiki/20230214161036-archive.org" :maxlevel . 1))
   org-blank-before-new-entry '((heading . always) (plain-list-item . auto))
 )
 
@@ -55,6 +55,10 @@
     (sequence "MEETING"              "|" "CANCELLED" "SKIPPED" "ATTENDED")
 ))
 
+;;
+;;; Org tags
+;;
+(setq org-agenda-hide-tags-regexp (regexp-opt '("Agenda")))
 ;;
 ;;; Org capture  
 ;;

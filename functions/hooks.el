@@ -20,7 +20,7 @@
 ;;; Code:
 ;;
 (add-hook 'compilation-mode-hook
-  (lambda () (rhjr/semi-mini-buffer-mode "*compilation*")))
+  (lambda () (rhuibjr/semi-mini-buffer-mode "*compilation*")))
 
 (add-hook 'prog-mode-hook
   (lambda () (progn
@@ -58,9 +58,5 @@
 
 (add-hook 'TeX-after-compilation-finished-functions
   #'TeX-revert-document-buffer)
-
-
-;; IDO allow `SPC'
-(define-key minibuffer-local-completion-map " " 'self-insert-command);;
 
 ;;; hook.el ends here

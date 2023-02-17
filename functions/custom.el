@@ -20,12 +20,12 @@
 ;;; Code:
 ;;
 ;; On startup 
-(defun rhjr/startup-message ()
+(defun rhuibjr/startup-message ()
   "Welcome message on startup."
   (message " "))
 
 (defun display-startup-echo-area-message ()
-  (rhjr/startup-message))
+  (rhuibjr/startup-message))
 
 ;; Buffers
 (defun rhuibjr/open-bookmark-window ()
@@ -37,7 +37,7 @@
       'switch-to-buffer-other-window)))
 
 ;; Mini buffers
-(defun rhjr/semi-mini-buffer-mode (buffer-name)
+(defun rhuibjr/semi-mini-buffer-mode (buffer-name)
  "Compile window always at the bottom."
  (when (not (get-buffer-window buffer-name))
   (save-selected-window
@@ -47,5 +47,23 @@
      (select-window w)
      (switch-to-buffer buffer-name)
      (delete-other-windows))))))
+
+;;
+;;; Agenda entries in org-roam
+;;
+(defun rhuibjr/org-roam-filter-by-tag (tag-name)
+  (lambda (node)
+    (member tag-name (org-roam-node-tags node))))
+
+(defun rhuibjr/org-roam-list-notes-by-tag (tag-name)
+  (mapcar #'org-roam-node-file
+    (seq-filter
+      (rhuibjr/org-roam-filter-by-tag tag-name)
+      (org-roam-node-list))))
+
+(defun rhuibjr/org-roam-refresh-agenda-list ()
+  (interactive)
+  (setq org-agenda-files (rhuibjr/org-roam-list-notes-by-tag "Agenda")))
+
 ;;
 ;;; custom.el ends here
