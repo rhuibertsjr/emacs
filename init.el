@@ -17,9 +17,9 @@
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ;; General Public License for more details.
 ;;
-;;; Code:
+;;; Packages
 ;;
-;; Packages
+
 (rhjr/require
 ; Package management
   'use-package
@@ -35,9 +35,10 @@
 ; Editor confiurations
   'editorconfig
   'exec-path-from-shell
-  'eglot
+  ;; Completion frameworks
   'corfu
   'cape
+  'tempel
 ; Documents
   'pdf-tools
 ; Appearance
@@ -46,31 +47,21 @@
 ;; Unset keybindings
 (global-unset-key (kbd "C-x 3"))
 (global-unset-key (kbd "C-x o"))
+(global-unset-key (kbd "C-x e"))
+(global-unset-key (kbd "M-="))
 
 ;; Set keybindings 
 (global-set-key (kbd "C-x C-r") 'recompile)
 (global-set-key (kbd "C-x C-d") 'ido-dired)
-(global-set-key (kbd "C-x 3 d") (rhuibjr/open-bookmark-window))
+(global-set-key (kbd "C-x 4 g") (rhuibjr/open-bookmark-window))
 (global-set-key (kbd "C-x o")   'previous-buffer)
+(global-set-key (kbd "C-x e")   'org-emphasize)
 
 ;;
-;;; Language servers and auto-completion 
-;;
-(use-package eglot
-  :ensure t
-  :hook
-  (( c-mode   . eglot-ensure)
-   ( c++-mode . eglot-ensure))
-  :config
-  (setq
-    eglot-ignored-server-capabilites
-    '(:documentHighlightProvider :hoverProvider))
-  (add-to-list 'eglot-server-programs
-    ;'((c-mode c++-mode ) . ("clangd-11"))))
-    '((c-mode c++-mode ) . ("clangd"))))
-
+;;; Completion frameworks
+;;;  ~ @Minad is a beautiful man.
+;; 
 (use-package corfu
-  :ensure t
   :bind
   (:map corfu-map
     ("TAB"     . corfu-next)
@@ -88,8 +79,25 @@
   :init
   (global-corfu-mode))
 
+(use-package tempel
+  :bind
+  (("M-=" . tempel-complete)) 
+  :config
+  (setq
+    tempel-path "~/.config/emacs/templates/template")
+  :init
+  (defun tempel-setup-capf ()
+    (setq-local completion-at-point-functions
+                (cons #'tempel-expand
+                      completion-at-point-functions)))
+
+  (add-hook 'prog-mode-hook 'tempel-setup-capf)
+  (add-hook 'text-mode-hook 'tempel-setup-capf)
+  (add-hook 'org-mode-hook  'tempel-setup-capf))
+
 (use-package cape
   :init
+  (add-to-list 'completion-at-point-functions 'cape-dabbrev)
   (add-to-list 'completion-at-point-functions 'cape-file))
 
 ;;
@@ -99,8 +107,7 @@
   :ensure t
   :hook
   (( org-mode . org-indent-mode )
-   ( org-mode . visual-line-mode)
-   ( org-mode . display-fill-column-indicator-mode ))
+   ( org-mode . visual-line-mode))
   :config
   (setq
     org-hide-emphasis-markers t))
@@ -115,18 +122,14 @@
   :config
   (setq
     ; LaTeX font facing
-    font-latex-fontify-script      nil
-    font-latex-fontify-sectioning 'color
+    font-latex-fontify-script          nil
+    font-latex-fontify-sectioning      'color
     ; LaTeX pdf-viewer
-    TeX-master                     nil 
+    TeX-master                         nil 
     TeX-view-program-selection         '((output-pdf "PDF Tools"))
     TeX-source-correlate-start-server  t
     ; PDF viewer
     pdf-view-display-size 'fit-page))
 
-;;
-;;; Enviroment variables
-;;
-(setenv "PKG_CONFIG_PATH" "/usr/local/lib/pkgconfig") ;; TODO Debian version
 ;;
 ;;; init.el ends here

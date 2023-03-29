@@ -35,7 +35,6 @@
     use-dialog-box            nil
     truncate-lines            t
     frame-title-format        " "
-    gc-cons-threshold         100000000
     tab-width                 10
     ring-bell-function        'ignore
     split-width-threshold     1
@@ -55,9 +54,10 @@
     compile-command           "make"
 
     display-line-numbers-type 'relative
-    display-fill-column-indicator-column 80
+    display-fill-column-indicator-column 80 
     display-fill-column-indicator-character '32
-    fill-column 86
+    visual-fill-column-width 84 
+    fill-column 80
 
     ; GDB
     gdb-show-main             t
@@ -82,6 +82,8 @@
   ; Hooks
   (add-hook 'minibuffer-setup-hook
 	   (lambda () (setq truncate-lines t)))
+  ; Enviroment variables
+  (setenv "PKG_CONFIG_PATH" "/usr/local/lib/pkgconfig") 
   ; Modes
   (global-display-line-numbers-mode 1)
   (save-place-mode -1)
@@ -186,6 +188,31 @@
     (when (eq major-mode 'compilation-mode)
       (ansi-color-apply-on-region compilation-filter-start (point-max))))
   :hook (compilation-filter . my-colorize-compilation-buffer))
+
+;;
+;;; Code style/conventions
+;;; - GNU'ish with BSD indentation.
+;;
+(defconst gnuish-c-style
+	'("bsd" 
+     (c-basic-offset . 4)
+	   (c-cleanup-list brace-elseif-brace brace-else-brace defun-close-semi)
+	   (c-comment-continuation-stars . "* ")
+	   (c-electric-pound-behavior alignleft)
+	   (c-hanging-braces-alist
+	     (brace-list-open)
+	     (class-open after)
+	     (substatement-open after)
+	     (block-close . c-snug-do-while)
+	     (extern-lang-open after))
+	   (c-hanging-colons-alist
+	     (case-label after)
+	     (label after))
+	   (c-hanging-comment-starter-p)
+	   (c-hanging-comment-ender-p)
+	   (c-indent-comments-syntactically-p . t)
+	   (c-label-minimum-indentation . 0)
+	   (c-special-indent-hook)))
 
 ;;
 ;;; default.el ends here

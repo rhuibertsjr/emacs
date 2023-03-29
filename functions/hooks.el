@@ -24,11 +24,12 @@
 
 (add-hook 'prog-mode-hook
   (lambda () (progn
-               (electric-pair-mode)
+               (electric-pair-mode -1)
                (setq
                  visual-fill-column-center-text nil)
                (visual-line-mode 1)
-               (display-fill-column-indicator-mode))))
+               (display-fill-column-indicator-mode +1)
+               (display-line-numbers-mode +1))))
 
 ;;
 ;;; Organizational files
@@ -36,6 +37,9 @@
 (add-hook 'visual-line-mode-hook 'visual-fill-column-mode)
 (add-hook 'org-mode-hook
   (lambda () (progn
+               (display-line-numbers-mode -1)
+               (display-fill-column-indicator-mode -1)
+               (auto-fill-mode +1)
                (setq
                  visual-fill-column-center-text t))))
 
@@ -59,4 +63,37 @@
 (add-hook 'TeX-after-compilation-finished-functions
   #'TeX-revert-document-buffer)
 
+;;
+;;; Language settings 
+;;
+(add-hook 'c-mode-common-hook 'rhuibjr/gnuish-c-hook)
+
+(add-hook 'c-mode-hook (lambda ()
+                         (interactive)
+                         (c-toggle-comment-style -1)))
+
+;;
+;;; Orgmode 
+;;
+(add-hook 'org-mode-hook
+  (lambda ()
+    "Remove ugly symbols"
+    (push '("#+title: "        . "") prettify-symbols-alist)
+    (push '("#+filetags: "     . "") prettify-symbols-alist)
+    (push '("#+category: "     . "") prettify-symbols-alist)
+    (push '("* "               . "") prettify-symbols-alist)
+    (push '("** "              . "") prettify-symbols-alist)
+    (push '("*** "             . "") prettify-symbols-alist)
+    (push '("**** "            . "") prettify-symbols-alist)
+    (push '("***** "           . "") prettify-symbols-alist)
+    (prettify-symbols-mode)
+    (rhuibjr/org-hide-properties)
+    (org-num-mode)))
+
+;;
+;;; Others
+;;
+(add-hook 'emacs-startup-hook #'rhuibjr/startup-time-metric)
+
+;;
 ;;; hook.el ends here

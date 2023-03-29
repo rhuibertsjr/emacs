@@ -1,0 +1,76 @@
+;;; template --- rhuibjr's tempel templates                -*- mode: scheme; -*-
+
+c-mode
+
+;; Preprocessor
+(inc
+ "#include <" q ".h>")
+(incc
+ "#include \"" q ".h\"")
+
+(guard
+ "#ifndef " (s file) "_H" n "#define " file "_H" n n "#endif /* " file "_H */")
+
+;; Functions
+(main
+ "int main(int argc, char *argv[])" n "{" n > q n> "return 0;" n "}")
+
+(print
+ "printf(\"" q "\");")
+
+;; Statements
+(for
+ "for (" p ") {" q "}")
+(while
+ "while (" p ") {" q "}")
+(if
+ "if (" p ") {" n q n> "}")
+(elif
+ "else if (" p ") {" q "}")
+(else
+ "else {" q "}")
+
+;; Others
+(note
+ "// NOTE(rhuibjr)" pq)
+(todo
+ "// TODO(rhuibjr)" pq)
+
+org-mode
+
+(tex   "\\( " q " \\)")
+
+(sqrt  "\\sqrt{" q "}")
+(frac  "\\frac{" p "}{" q "}")
+(dot   "\\cdot")
+
+(sum   "\\sum_{" p "}^" q)
+
+(lim   "\\lim_{" q "}")
+(deriv "\\frac{d" p "}{d" p "}" q ) 
+
+(sin "\\sin")
+(cos "\\cos")
+(tan "\\tan")
+
+(log "\\log")
+(ln  "\\ln")
+
+;; Linear Algabra
+(vec "\\begin{pmatrix} " p " \\end{pmatrix}" q)
+(mat "\\begin{bmatrix} " p " \\end{bmatrix}" q)
+
+;; Symbols & Variables
+(alpha "\\alpha")
+(delta "\\delta")
+(Delta "\\Delta")
+(theta "\\theta")
+(Theta "\\Theta")
+(phi   "\\phi")
+(Phi   "\\Phi")
+
+(omega  "\\omega")
+(omega  "\\nabla")
+
+(hat   "\\hat{" p "}" q)
+(arrow "\\vec{" p "}" q)

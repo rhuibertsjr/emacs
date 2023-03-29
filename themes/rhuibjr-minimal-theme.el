@@ -197,7 +197,7 @@ Also bind `class' to ((class color) (min-colors 89))."
     `(org-drawer
        ((t (:foreground ,yellow))))
     `(org-document-title
-       ((t (:foreground ,grey))))
+       ((t (:foreground ,orange :bold t :height 1.2))))
     `(org-special-keyword
        ((t (:foreground ,orange))))
     `(org-document-info-keyword
