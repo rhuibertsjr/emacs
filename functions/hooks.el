@@ -24,6 +24,7 @@
 
 (add-hook 'prog-mode-hook
   (lambda () (progn
+               (show-paren-mode 1)
                (electric-pair-mode -1)
                (setq
                  visual-fill-column-center-text nil)
@@ -81,19 +82,17 @@
     (push '("#+title: "        . "") prettify-symbols-alist)
     (push '("#+filetags: "     . "") prettify-symbols-alist)
     (push '("#+category: "     . "") prettify-symbols-alist)
-    (push '("* "               . "") prettify-symbols-alist)
-    (push '("** "              . "") prettify-symbols-alist)
-    (push '("*** "             . "") prettify-symbols-alist)
-    (push '("**** "            . "") prettify-symbols-alist)
-    (push '("***** "           . "") prettify-symbols-alist)
     (prettify-symbols-mode)
-    (rhuibjr/org-hide-properties)
-    (org-num-mode)))
+    (rhuibjr/org-hide-properties)))
 
 ;;
 ;;; Others
 ;;
-(add-hook 'emacs-startup-hook #'rhuibjr/startup-time-metric)
+(add-hook 'emacs-startup-hook
+  #'rhuibjr/startup-time-metric)
+
+(add-hook 'minibuffer-setup-hook
+	(lambda () (setq truncate-lines t)))
 
 ;;
 ;;; hook.el ends here

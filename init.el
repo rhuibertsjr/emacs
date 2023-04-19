@@ -49,6 +49,8 @@
 (global-unset-key (kbd "C-x o"))
 (global-unset-key (kbd "C-x e"))
 (global-unset-key (kbd "M-="))
+(global-unset-key (kbd "M-["))
+(global-unset-key (kbd "M-]"))
 
 ;; Set keybindings 
 (global-set-key (kbd "C-x C-r") 'recompile)
@@ -56,6 +58,8 @@
 (global-set-key (kbd "C-x 4 g") (rhuibjr/open-bookmark-window))
 (global-set-key (kbd "C-x o")   'previous-buffer)
 (global-set-key (kbd "C-x e")   'org-emphasize)
+(global-set-key (kbd "M-[")     'tempel-previous)
+(global-set-key (kbd "M-]")     'tempel-next)
 
 ;;
 ;;; Completion frameworks
@@ -112,13 +116,18 @@
   (setq
     org-hide-emphasis-markers t))
 
+(use-package org-cliplink
+  :ensure t
+  :defer  t)
+
 (use-package hungry-delete
   :init (global-hungry-delete-mode))
 
 (use-package pdf-tools
   :pin manual
-  :init
-  (pdf-tools-install)
+  :defer t
+  ;;:init                ; Disabeling saves 1s in startup time.
+  ;;(pdf-tools-install)  ;
   :config
   (setq
     ; LaTeX font facing

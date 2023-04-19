@@ -48,14 +48,6 @@
      (switch-to-buffer buffer-name)
      (delete-other-windows))))))
 
-;; Startup metrics
-(defun rhuibjr/startup-time-metric ()
-  (message
-    "Emacs loaded in %s with %d garbage collections."
-    (format "%.2f seconds"
-      (float-time (time-subtract after-init-time before-init-time)))
-    gcs-done))
-
 ;; C code conventions
 (defun rhuibjr/gnuish-c-hook ()
 	(c-add-style "gnuish" gnuish-c-style t)
@@ -63,6 +55,14 @@
     c-default-style "gnuish"
     tab-width 4
     indent-tabs-mode t))
+
+;; Startup metrics
+(defun rhuibjr/startup-time-metric ()
+  (message
+    "Emacs loaded in %s with %d garbage collections."
+    (format "%.2f seconds"
+      (float-time (time-subtract after-init-time before-init-time)))
+    gcs-done))
 
 ;;
 ;;; Agenda entries in org-roam

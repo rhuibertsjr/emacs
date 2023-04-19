@@ -23,14 +23,30 @@
 (setq-default
   ;; Window divider margins
   window-divider-default-right-width 24
-  window-divider-default-places 'right-only)
+  window-divider-default-places 'right-only
+
+  ; Editor
+  custom-safe-themes        t
+  custom-theme-load-path
+  '("~/.config/emacs/themes/"))
 
 ;; Internal border
 (add-to-list 'default-frame-alist '(internal-border-width . 24)) 
 (setq-default left-margin-width 2 right-margin-width 2)
 (set-window-buffer nil (current-buffer))      
 
+;; Remove toolbar
+(push '(tool-bar-lines . 0) default-frame-alist)
+
 ;; Turn on window divider
 (window-divider-mode 1)
+
+(load-theme 'rhuibjr-minimal t)
+(global-display-line-numbers-mode 1)
+(save-place-mode -1)
+(scroll-bar-mode -1)
+(tooltip-mode    -1)
+(menu-bar-mode   -1)
+
 ;;
 ;;; layout.el ends here

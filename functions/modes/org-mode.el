@@ -20,6 +20,7 @@
 ;;; Org
 ;;
 (setq
+  org-image-actual-width (list 300)
   org-agenda-span                10
   org-agenda-start-on-weekday    nil
   org-agenda-start-day           "d"
@@ -55,7 +56,7 @@
     (sequence "ASSIGNMENT" "WAITING"  "|" "CANCELLED" "DONE")
     (sequence "MEETING"               "|" "CANCELLED" "SKIPPED" "ATTENDED")
     (sequence "DELIVERY"   "EXTENDED"
-                            "RETURN"  "|" "CANCELLED" "DELIVERED")
+                           "RETURN"  "|" "CANCELLED" "DELIVERED")
     (sequence "UNASSIGNED" "|")
 ))
 
@@ -95,6 +96,7 @@
 
 (use-package org-roam
   :ensure t
+  :defer t
   :custom
   (org-roam-directory
     (file-truename "/Users/renehuiberts/Documentations/wiki/"))
@@ -104,8 +106,8 @@
   :bind-keymap
   ("C-c n d" . org-roam-dailies-map)
   :config
+  (require 'org-roam-dailies)
   (org-roam-db-autosync-mode))
-(require 'org-roam-dailies)
 
 (defun rhuibjr/org-hide-properties ()
   "Hide all org-mode headline property drawers in buffer. Could be slow if
@@ -126,20 +128,35 @@
   (remove-overlays (point-min) (point-max) 'hidden-prop-drawer t)
   (put 'org-toggle-properties-hide-state 'state 'shown))
 
-
-;;
-;;; Org code blocks
-;;
-(org-babel-do-load-languages
-  'org-babel-load-languages
-  '((python . t)))
-
 ;;
 ;;; Org journaling
 ;;   -> https://systemcrafters.net/build-a-second-brain-in-emacs/keep-a-journal/
 (setq
   org-roam-dailies-directory "journal/")
 
+
+;;
+;;; Others
+;; 
+(require 'holidays)
+
+(defvar holiday-netherlands-holidays
+  '((holiday-fixed 1 1     "Nieuwjaarsdag")
+    (holiday-easter-etc -2 "Goede Vrijdag")
+    (holiday-easter-etc 0  "Eerste paasdag")
+    (holiday-easter-etc 1  "Tweede paasdag")
+    (holiday-fixed 4 27    "Koningsdag")
+    (holiday-fixed 5 5     "Bevrijdingsdag")
+    (holiday-easter-etc 39 "Hemelvaartsdag")
+    (holiday-easter-etc 49 "Eerste pinksterdag")
+    (holiday-easter-etc 50 "Tweede pinksterdag")
+    (holiday-fixed 12 5    "Sinterklaasavond")
+    (holiday-fixed 12 25   "Eerste kerstdag")
+    (holiday-fixed 12 26   "Tweede kerstdag"))
+  "Netherlands holidays.")
+
+(setq calendar-holidays
+  (append holiday-netherlands-holidays))
 
 ;;
 ;;; org-mode.el ends here

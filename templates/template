@@ -60,17 +60,33 @@ org-mode
 (vec "\\begin{pmatrix} " p " \\end{pmatrix}" q)
 (mat "\\begin{bmatrix} " p " \\end{bmatrix}" q)
 
+;; Calculus
+(lim "\\lim_{" p "\\to" p "}" q)
+
 ;; Symbols & Variables
-(alpha "\\alpha")
-(delta "\\delta")
-(Delta "\\Delta")
-(theta "\\theta")
-(Theta "\\Theta")
-(phi   "\\phi")
-(Phi   "\\Phi")
+(alpha  "\\alpha")
+(delta  "\\delta")
+(Delta  "\\Delta")
+(theta  "\\theta")
+(Theta  "\\Theta")
+(phi    "\\phi")
+(Phi    "\\Phi")
+(sigma  "\\sigma")
+(Sigma  "\\Sigma")
+(lambda "\\lambda")
+(pi     "\\pi")
+(Pi     "\\Pi")
 
 (omega  "\\omega")
-(omega  "\\nabla")
+(nabla  "\\nabla")
+(mu     "\\mu")
 
 (hat   "\\hat{" p "}" q)
 (arrow "\\vec{" p "}" q)
+
+;; Numbers
+(natural   "\\mathbb{N}")
+(integer   "\\mathbb{Z}")
+(rational  "\\mathbb{Q}")
+(real      "\\mathbb{R}")
+(complex   "\\mathbb{C}")
