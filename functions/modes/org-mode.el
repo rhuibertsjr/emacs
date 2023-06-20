@@ -107,6 +107,7 @@
   ("C-c n d" . org-roam-dailies-map)
   :config
   (require 'org-roam-dailies)
+  (setq org-roam-completion-system 'ido)
   (org-roam-db-autosync-mode))
 
 (defun rhuibjr/org-hide-properties ()

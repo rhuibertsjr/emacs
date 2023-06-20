@@ -1,6 +1,6 @@
 ;;; template --- rhuibjr's tempel templates                -*- mode: scheme; -*-
 
-c-mode
+c-mode c++-mode
 
 ;; Preprocessor
 (inc

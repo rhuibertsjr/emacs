@@ -139,7 +139,11 @@ Also bind `class' to ((class color) (min-colors 89))."
        ((t (:foreground ,yellow))))
 
 ;;; LaTeX
-
+ 
+    `(font-latex-sectioning-2-face
+       ((t (:foreground ,orange :bold t))))
+    `(font-latex-sectioning-3-face
+       ((t (:foreground ,orange :bold t))))
     `(font-latex-sedate-face
        ((t (:foreground ,orange))))
     `(font-latex-string-face

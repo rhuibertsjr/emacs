@@ -126,19 +126,27 @@
 (use-package pdf-tools
   :pin manual
   :defer t
-  ;;:init                ; Disabeling saves 1s in startup time.
-  ;;(pdf-tools-install)  ;
+  :init                ; Disabeling saves 1s in startup time.
+  ;(pdf-tools-install)  ;
   :config
   (setq
     ; LaTeX font facing
     font-latex-fontify-script          nil
     font-latex-fontify-sectioning      'color
     ; LaTeX pdf-viewer
-    TeX-master                         nil 
+    TeX-PDF-mode                       t 
+    TeX-Master                         nil 
     TeX-view-program-selection         '((output-pdf "PDF Tools"))
     TeX-source-correlate-start-server  t
     ; PDF viewer
     pdf-view-display-size 'fit-page))
+
+(setq TeX-view-program-selection '((output-pdf "PDF Tools"))
+      TeX-source-correlate-start-server t)
+
+;; Update PDF buffers after successful LaTeX runs
+(add-hook 'TeX-after-compilation-finished-functions
+           #'TeX-revert-document-buffer)
 
 ;;
 ;;; init.el ends here
