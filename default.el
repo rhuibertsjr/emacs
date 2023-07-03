@@ -34,6 +34,7 @@
   tab-width                 10
   ring-bell-function        'ignore
   split-width-threshold     1
+  bookmark-set-fringe-mark  nil
 
   select-enable-clipboard   t
   
@@ -68,25 +69,15 @@
   `(("." . ,(concat user-emacs-directory "backups")))
 )
 
-(if (eq system-type 'darwin)
- (set-face-attribute 'default nil
-  :family "Roboto Mono Medium"
-  :height 160 
-  :weight 'normal
-  :width 'normal)
- (set-face-attribute 'default nil
-  :family "Roboto Mono Medium"
-  :height 130 
-  :weight 'normal
-  :width 'normal))
-
 ;;
 ;;; File and directory management
 ;;
 (use-package ido ; smex
   :defer 0
   :init
-  (setq default-directory "~/")
+  (setq
+    default-directory        "~/"
+    ido-enable-flex-matching t)
   :bind
   (( "M-x" . 'smex ))
   :config

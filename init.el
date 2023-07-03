@@ -126,7 +126,7 @@
 (use-package pdf-tools
   :pin manual
   :defer t
-  :init                ; Disabeling saves 1s in startup time.
+  :init                 ; Disabeling saves 1s in startup time.
   ;(pdf-tools-install)  ;
   :config
   (setq

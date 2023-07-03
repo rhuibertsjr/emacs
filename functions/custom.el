@@ -79,7 +79,10 @@
 
 (defun rhuibjr/org-roam-refresh-agenda-list ()
   (interactive)
-  (setq org-agenda-files (rhuibjr/org-roam-list-notes-by-tag "Schedule")))
+  (setq org-agenda-files  
+    (cons 
+      "~/Documentations/wiki/20230329180818-agenda.org"
+      (rhuibjr/org-roam-list-notes-by-tag "Schedule"))))
 
 ;;
 ;;; custom.el ends here

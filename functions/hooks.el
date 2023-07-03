@@ -44,6 +44,14 @@
                (setq
                  visual-fill-column-center-text t))))
 
+(add-hook 'org-agenda-mode-hook
+  (lambda ()
+    (progn
+      (org-roam-version) ; Initializes org-roam
+      (rhuibjr/org-roam-refresh-agenda-list))))
+
+(add-to-list 'auto-mode-alist '("\\.el\\'" . lisp-mode))
+
 ;;
 ;;; LaTeX & PDF-viewing
 ;;

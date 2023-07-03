@@ -37,8 +37,17 @@
   org-refile-targets
   '(("~/Documentations/wiki/20230214161036-archive.org" :maxlevel . 1))
   org-blank-before-new-entry '((heading . always) (plain-list-item . auto))
+  org-hidden-keywords '(title author date startup)
+
+  line-spacing                 1
+  org-startup-folded         nil
+  org-level-color-stars-only nil
+  org-hide-leading-stars     nil
 )
 
+(org-indent-mode)
+
+;; Numbering
 (advice-add 'org-refile :after 'org-save-all-org-buffers)
 
 ;;
@@ -68,24 +77,22 @@
 ;;
 ;;; Org capture  
 ;;
-(setq
-  org-capture-templates
-  ;; Overall
-  '(("t" "Task"
-      entry (file+headline "~/Documentations/agenda/agenda.org" "Task")
-      "*** TODO %? ")
-    ("m" "Meeting"
-      entry (file+headline "~/Documentations/agenda/agenda.org" "Meeting")
-      "*** MEETING %?\n")
-  ;; Study
-    ("a" "Assignments"
-      entry (file+headline "~/Documentations/agenda/study.org" "Assignments")
-      "*** ASSIGNMENT %?\nDEADLINE: ")
-    ("c" "Course: Appl. Artificial Intelligence"
-      entry (file+headline "~/Documentations/agenda/study.org" "Course")
-      "*** Appl. Artificial Intelligence %?\n")
-
-))
+(setq org-capture-templates
+  '(
+     ("t" "Task"
+       entry (file+headline
+               "~/Documentations/wiki/20230329180818-agenda.org" "Tasks")
+       "\n** TODO %? ")
+     ("m" "Meeting"
+       entry (file+headline
+               "~/Documentations/wiki/20230329180818-agenda.org" "Meetings")
+       "\n** MEETING %? ")
+     ("u" "Unassigned"
+       entry (file+headline
+               "~/Documentations/wiki/20230329180818-agenda.org" "Unassigned")
+       "\n** UNASSIGNED %? ")
+   )
+)
 
 ;;
 ;;; Org note-taking
