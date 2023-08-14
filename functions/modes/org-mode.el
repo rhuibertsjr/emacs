@@ -34,8 +34,8 @@
       (todo . " %i %-12:c")
       (tags . " %i %-12:c")
       (search . " %i %-12:c"))
-  org-refile-targets
-  '(("~/Documentations/wiki/20230214161036-archive.org" :maxlevel . 1))
+;  org-refile-targets
+;  '(("~/Documentations/wiki/20230214161036-archive.org" :maxlevel . 1))
   org-blank-before-new-entry '((heading . always) (plain-list-item . auto))
   org-hidden-keywords '(title author date startup)
 
@@ -77,22 +77,22 @@
 ;;
 ;;; Org capture  
 ;;
-(setq org-capture-templates
-  '(
-     ("t" "Task"
-       entry (file+headline
-               "~/Documentations/wiki/20230329180818-agenda.org" "Tasks")
-       "\n** TODO %? ")
-     ("m" "Meeting"
-       entry (file+headline
-               "~/Documentations/wiki/20230329180818-agenda.org" "Meetings")
-       "\n** MEETING %? ")
-     ("u" "Unassigned"
-       entry (file+headline
-               "~/Documentations/wiki/20230329180818-agenda.org" "Unassigned")
-       "\n** UNASSIGNED %? ")
-   )
-)
+;(setq org-capture-templates
+;  '(
+;     ("t" "Task"
+;       entry (file+headline
+;               "~/Documentations/wiki/20230329180818-agenda.org" "Tasks")
+;       "\n** TODO %? ")
+;     ("m" "Meeting"
+;       entry (file+headline
+;               "~/Documentations/wiki/20230329180818-agenda.org" "Meetings")
+;       "\n** MEETING %? ")
+;     ("u" "Unassigned"
+;       entry (file+headline
+;               "~/Documentations/wiki/20230329180818-agenda.org" "Unassigned")
+;       "\n** UNASSIGNED %? ")
+;   )
+;)
 
 ;;
 ;;; Org note-taking
@@ -106,7 +106,7 @@
   :defer t
   :custom
   (org-roam-directory
-    (file-truename "/Users/renehuiberts/Documentations/wiki/"))
+    (file-truename "w:/entries"))
   :bind (("C-c n l" . org-roam-buffer-toggle)
          ("C-c n f" . org-roam-node-find)
          ("C-c n i" . org-roam-node-insert))

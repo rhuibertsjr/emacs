@@ -17,6 +17,26 @@
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ;; General Public License for more details.
 ;;
+;;; Start-up
+;;
+(defun rhuibjr/bookmark-jump ()
+  "Jump to custom bookmark via C-x C-g."
+  (lambda ()
+    (interactive)
+    (bookmark-jump
+      (ido-completing-read "Jump to bookmark: " (bookmark-all-names)))))
+
+(global-set-key (kbd "C-x C-g") (rhuibjr/bookmark-jump))
+
+;;
+;;; Prerequisite
+;;
+(load "~/.emacs.d/functions/packages.el")
+(load "~/.emacs.d/default.el")
+(load "~/.emacs.d/appearance/layout.el")
+
+(load "~/.emacs.d/functions/custom.el")
+
 ;;; Packages
 ;;
 
@@ -88,7 +108,7 @@
   (("M-=" . tempel-complete)) 
   :config
   (setq
-    tempel-path "~/.config/emacs/templates/template")
+    tempel-path "~/.emacs.d/templates/template")
   :init
   (defun tempel-setup-capf ()
     (setq-local completion-at-point-functions
@@ -126,6 +146,7 @@
 (use-package pdf-tools
   :pin manual
   :defer t
+  :mode  ("\\.pdf\\'" . pdf-view-mode)
   :init                 ; Disabeling saves 1s in startup time.
   ;(pdf-tools-install)  ;
   :config
@@ -148,5 +169,28 @@
 (add-hook 'TeX-after-compilation-finished-functions
            #'TeX-revert-document-buffer)
 
+(load "~/.emacs.d/functions/modes/org-mode.el" 'nomessage)
+(load "~/.emacs.d/functions/hooks.el" 'nomessage)
+
+;;
+;;; Ending
+;;
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (setq gc-cons-threshold (expt 2 23))))
+
 ;;
 ;;; init.el ends here
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(org-cliplink pdf-tools tempel cape corfu exec-path-from-shell visual-fill-column hungry-delete magit smex use-package ido-completing-read+ ido-complete-space-or-hyphen evil-collection esup editorconfig)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

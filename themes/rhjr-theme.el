@@ -47,7 +47,10 @@
 
   (rhjr-set-face 'region                'rhjr-face-fill)
   (rhjr-set-face 'highlight             'rhjr-face-fill)
-  (rhjr-set-face 'fill-column-indicator 'rhjr-face-highlight)
+
+  (set-face-attribute 'fill-column-indicator nil
+    :foreground rhjr-colour-fill
+    :background rhjr-colour-fill)
 
   (rhjr-set-face 'error                 'rhjr-face-error)
   (rhjr-set-face 'success               'rhjr-face-succeed)

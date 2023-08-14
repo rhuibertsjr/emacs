@@ -20,8 +20,8 @@
 ;;; Code:
 ;;
 ;; Layout 
-(add-to-list 'load-path "/Users/renehuiberts/.config/emacs/themes")
-(add-to-list 'load-path "/Users/renehuiberts/.config/emacs/themes/themes")
+(add-to-list 'load-path "~/.emacs.d/themes")
+(add-to-list 'load-path "~/.emacs.d/themes/themes")
 
 (require 'rhjr-faces)
 (require 'rhjr-theme)
@@ -51,9 +51,7 @@
 
 (global-display-line-numbers-mode 1)
 (save-place-mode -1)
-(scroll-bar-mode -1)
 (tooltip-mode    -1)
-(menu-bar-mode   -1)
 
 ;;
 ;;; Helper

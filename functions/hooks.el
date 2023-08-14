@@ -24,6 +24,7 @@
 
 (add-hook 'prog-mode-hook
   (lambda () (progn
+	     (blink-cursor-mode 10)
                (show-paren-mode 1)
                (electric-pair-mode -1)
                (setq
@@ -38,6 +39,7 @@
 (add-hook 'visual-line-mode-hook 'visual-fill-column-mode)
 (add-hook 'org-mode-hook
   (lambda () (progn
+	     (blink-cursor-mode 10)
                (display-line-numbers-mode -1)
                (display-fill-column-indicator-mode -1)
                (auto-fill-mode +1)
@@ -57,6 +59,7 @@
 ;;
 (add-hook 'pdf-view-mode-hook
   (lambda () (progn
+	     (blink-cursor-mode 0)
                (pdf-view-fit-page-to-window)
                (display-line-numbers-mode -1))))
 

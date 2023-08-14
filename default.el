@@ -37,6 +37,9 @@
   bookmark-set-fringe-mark  nil
 
   select-enable-clipboard   t
+
+  ;; grep
+  grep-program "C:\\ProgramData\\chocolatey\\bin\\grep.exe"
   
   ; Package
   use-package-always-ensure t
@@ -47,7 +50,7 @@
 
   display-line-numbers-type 'relative
   display-fill-column-indicator-column 80 
-  display-fill-column-indicator-character '32
+  display-fill-column-indicator-character '24
   visual-fill-column-width 84 
   fill-column 80
 
@@ -109,6 +112,7 @@
           (seq bol ".dir-locals" eol)
           (seq bol ".paper.log" eol)
           (seq bol ".DS_Store" eol)
+          (seq bol "desktop.ini" eol)
           (seq bol "__pycache__" eol)
           (seq bol ".ipynb_checkpoints" eol)
           (seq bol "compile_commands.json" eol)

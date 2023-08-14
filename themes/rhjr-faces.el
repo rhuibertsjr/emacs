@@ -79,7 +79,7 @@
 (defcustom rhjr-font-family "Roboto Mono"
   "" :type 'string :group 'rhjr)
 
-(defcustom rhjr-font-size 16 
+(defcustom rhjr-font-size 12 
   "" :type 'integer :group 'rhjr) 
 
 ;;
