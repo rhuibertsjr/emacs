@@ -46,7 +46,7 @@
 
   show-paren-delay          0
   compilation-scroll-output t
-  compile-command           "make"
+  compile-command           "build"
 
   display-line-numbers-type 'relative
   display-fill-column-indicator-column 80 
@@ -70,7 +70,7 @@
   backup-directory-alist '(("." . "~/.emacs.d/emacs_saves"))
   backup-directory-alist
   `(("." . ,(concat user-emacs-directory "backups")))
-)
+  )
 
 ;;
 ;;; File and directory management

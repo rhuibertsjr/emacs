@@ -36,9 +36,11 @@
       (ido-completing-read "Jump to bookmark: " (bookmark-all-names))
       'switch-to-buffer-other-window)))
 
-;; Mini buffers
-(defun rhuibjr/semi-mini-buffer-mode (buffer-name)
- "Compile window always at the bottom."
+;;
+;;; Compilation 
+;;
+(defun rhjr/compilation-buffer-fullscreen (buffer-name)
+ "Compile window to fullscreen."
  (when (not (get-buffer-window buffer-name))
   (save-selected-window
    (save-excursion
@@ -47,6 +49,25 @@
      (select-window w)
      (switch-to-buffer buffer-name)
      (delete-other-windows))))))
+
+(defun rhjr/close-compilation-buffer ()
+  "Close the compilation buffer and current split window if they exist."
+  (interactive)
+  (let ((compilation-buffer (get-buffer "*compilation*")))
+    (when compilation-buffer
+      (delete-window (get-buffer-window compilation-buffer))
+      (kill-buffer compilation-buffer))))
+
+(defun rhjr/compilation-buffer-bottom ()
+  "Compile window always at the bottom."
+  (when (not (get-buffer-window "*compilation*"))
+    (save-selected-window
+      (save-excursion
+        (let* ((w (split-window-vertically))
+               (h (window-height w)))
+          (select-window w)
+          (switch-to-buffer "*compilation*")
+            (shrink-window (- h 15)))))))
 
 ;; C code conventions
 (defun rhuibjr/gnuish-c-hook ()
@@ -81,8 +102,10 @@
   (interactive)
   (setq org-agenda-files  
     (cons 
-      "~/Documentations/wiki/20230329180818-agenda.org"
-      (rhuibjr/org-roam-list-notes-by-tag "Schedule"))))
+     "w:\\agenda\\agenda.org"
+     (cons 
+     "w:\\agenda\\study.org"
+      (rhuibjr/org-roam-list-notes-by-tag "Schedule")))))
 
 ;;
 ;;; custom.el ends here

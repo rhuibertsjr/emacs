@@ -11,6 +11,9 @@ c-mode c++-mode
 (guard
  "#ifndef " (s file) "_H" n "#define " file "_H" n n "#endif /* " file "_H */")
 
+(title
+ "// - rhjr: " q "---------------------------------------------------------------------")
+
 ;; Functions
 (main
  "int main(int argc, char *argv[])" n "{" n > q n> "return 0;" n "}")

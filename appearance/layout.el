@@ -34,7 +34,7 @@
   window-divider-default-places 'right-only)
 
 ;; Internal border
-(add-to-list 'default-frame-alist '(internal-border-width . 24)) 
+(add-to-list 'default-frame-alist '(internal-border-width . 12)) 
 (setq-default left-margin-width 2 right-margin-width 2)
 (set-window-buffer nil (current-buffer))      
 
@@ -84,9 +84,9 @@
 
      ;; Directory
      (:propertize (:eval (shorten-directory default-directory 20))
-       face 'rhjr-face-modeline-folder)
+       face rhjr-face-modeline-folder)
      (:propertize "%b"
-       face 'rhjr-face-modeline-file)
+       face rhjr-face-modeline-file)
 
      ;; Cursor position
      (:propertize "::%l" face default)

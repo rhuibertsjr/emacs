@@ -37,13 +37,13 @@
 
 (load "~/.emacs.d/functions/custom.el")
 
+;;
 ;;; Packages
 ;;
-
 (rhjr/require
-; Package management
+ ; Package management
   'use-package
-; File and directory management 
+ ; File and directory management 
   'smex
   'magit
 ; Keybindings management
@@ -62,24 +62,27 @@
 ; Documents
   'pdf-tools
 ; Appearance
-  'ansi-color)
+  'ansi-color
+  'hl-todo)
 
 ;; Unset keybindings
 (global-unset-key (kbd "C-x 3"))
 (global-unset-key (kbd "C-x o"))
 (global-unset-key (kbd "C-x e"))
+(global-unset-key (kbd "C-x C-q"))
 (global-unset-key (kbd "M-="))
 (global-unset-key (kbd "M-["))
 (global-unset-key (kbd "M-]"))
 
 ;; Set keybindings 
-(global-set-key (kbd "C-x C-r") 'recompile)
-(global-set-key (kbd "C-x C-d") 'ido-dired)
-(global-set-key (kbd "C-x 4 g") (rhuibjr/open-bookmark-window))
-(global-set-key (kbd "C-x o")   'previous-buffer)
-(global-set-key (kbd "C-x e")   'org-emphasize)
-(global-set-key (kbd "M-[")     'tempel-previous)
-(global-set-key (kbd "M-]")     'tempel-next)
+(global-set-key (kbd "C-x C-r")   'recompile)
+(global-set-key (kbd "C-x C-q")   'rhjr/close-compilation-buffer)
+(global-set-key (kbd "C-x C-d")   'ido-dired)
+(global-set-key (kbd "C-x 4 g")   (rhuibjr/open-bookmark-window))
+(global-set-key (kbd "C-x o")     'previous-buffer)
+(global-set-key (kbd "C-x e")     'org-emphasize)
+(global-set-key (kbd "M-[")       'tempel-previous)
+(global-set-key (kbd "M-]")       'tempel-next)
 
 ;;
 ;;; Completion frameworks
@@ -124,6 +127,13 @@
   (add-to-list 'completion-at-point-functions 'cape-dabbrev)
   (add-to-list 'completion-at-point-functions 'cape-file))
 
+(use-package dumb-jump
+   :init
+  (setq
+   xref-show-definitions-function #'xref-show-definitions-completing-read)
+   :config
+   (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
+
 ;;
 ;;; Writing and editing text 
 ;;
@@ -165,6 +175,16 @@
 (setq TeX-view-program-selection '((output-pdf "PDF Tools"))
       TeX-source-correlate-start-server t)
 
+;;
+(use-package hl-todo
+  :hook (prog-mode . hl-todo-mode)
+  :config
+  (setq hl-todo-highlight-punctuation ":"
+        hl-todo-keyword-faces
+        `(("TODO"  font-lock-string-face   bold)
+          ("NOTE"  font-lock-keyword-face  bold)
+          ("rhjr"  font-lock-builtin-face  bold))))
+
 ;; Update PDF buffers after successful LaTeX runs
 (add-hook 'TeX-after-compilation-finished-functions
            #'TeX-revert-document-buffer)
@@ -186,8 +206,9 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(org-agenda-files nil)
  '(package-selected-packages
-   '(org-cliplink pdf-tools tempel cape corfu exec-path-from-shell visual-fill-column hungry-delete magit smex use-package ido-completing-read+ ido-complete-space-or-hyphen evil-collection esup editorconfig)))
+   '(dumb-jump org-cliplink pdf-tools tempel cape corfu exec-path-from-shell visual-fill-column hungry-delete magit smex use-package ido-completing-read+ ido-complete-space-or-hyphen evil-collection esup editorconfig)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

@@ -19,8 +19,7 @@
 ;;
 ;;; Code:
 ;;
-;(add-hook 'compilation-mode-hook
-;  (lambda () (rhuibjr/semi-mini-buffer-mode "*compilation*")))
+(add-hook 'compilation-mode-hook #'rhjr/compilation-buffer-bottom)
 
 (add-hook 'prog-mode-hook
   (lambda () (progn
