@@ -49,9 +49,6 @@
   fill-column 80)
 
 ;;appearance
-(dolist (mode '(menu-bar-mode tool-bar-mode scroll-bar-mode))
-  (when (fboundp mode) (funcall mode -1)))
-
 (add-to-list 'default-frame-alist '(internal-border-width . 24)) 
 
 (setq-default header-line-format
@@ -162,9 +159,17 @@
   :ensure t
   :init
   (setq
+     evil-want-integration t
+     evil-want-keybinding nil
      evil-respect-visual-line-mode t)
   :config
   (evil-mode 1))
+
+(use-package evil-collection
+  :after evil
+  :ensure t
+  :init
+  (evil-collection-init))
 
 ;;completion
 ;; @Minad you beautiful man.
