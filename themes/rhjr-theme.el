@@ -45,19 +45,21 @@
     :family     (face-attribute 'rhjr-face-default :family)
     :height     (face-attribute 'rhjr-face-default :height))
 
-  (rhjr-set-face 'region                'rhjr-face-fill)
-  (rhjr-set-face 'highlight             'rhjr-face-fill)
+  (rhjr-set-face 'region                 'rhjr-face-fill)
+  (rhjr-set-face 'highlight              'rhjr-face-fill)
+
+  (set-face-attribute 'orderless-match-face-0 nil
+    :foreground (face-foreground 'rhjr-face-strong))
 
   (set-face-attribute 'fill-column-indicator nil
-    :foreground rhjr-colour-fill
-    :background rhjr-colour-fill)
+    :foreground "#0b0b0b"
+    :background "#0b0b0b")
 
   (rhjr-set-face 'error                 'rhjr-face-error)
   (rhjr-set-face 'success               'rhjr-face-succeed)
 
   ;; frame
   (set-face-attribute 'fringe nil
-    :foreground (face-background 'rhjr-face-default)
     :background (face-background 'default))
 
   (set-face-attribute 'cursor nil
@@ -71,6 +73,9 @@
 
   (set-face-attribute 'window-divider-last-pixel nil
     :foreground rhjr-colour-background)
+
+  (set-face-attribute 'vertical-border nil
+    :foreground rhjr-colour-new)
 
   ;; Emacs GUI
   (rhjr-set-face 'button                'rhjr-face-highlight)
@@ -165,28 +170,60 @@
   (rhjr-set-face 'font-lock-keyword-face       'rhjr-face-highlight))
 
 (defun rhjr-theme-languages ()
+  (set-face-attribute 'flycheck-info nil
+    :underline nil)
+  (set-face-attribute 'flycheck-warning nil
+    :underline nil)
+  (set-face-attribute 'flycheck-error nil
+    :foreground rhjr-colour-foreground
+    :background "#700202"
+    :underline nil)
+
+  ;(set-face-attribute 'hl-line nil
+  ;  :foreground rhjr-colour-foreground
+  ;  :background "#700202"
+  ;  :underline nil)
+
+
+
   (with-eval-after-load 'makefile
     (rhjr-set-face 'makefile-targets           'rhjr-face-highlight)))
 
 (defun rhjr-theme-modeline ()
+  (set-face-attribute 'header-line nil
+    :background (face-background 'default)
+
+    :overline nil
+    :underline nil
+    :box nil
+    :box `(:line-width 10
+            :color ,(face-background 'default)
+            :style nil)
+    :inherit nil)
   (set-face-attribute 'mode-line nil
-    :foreground  rhjr-colour-highlight
-    :background  rhjr-colour-background
-    :box         `(:line-width 4
-                   :color      ,(face-background 'rhjr-face-default)
-                   :style      nil)
-    :overline    `(:line-width 4
-                   :color      ,(face-background 'rhjr-face-default)
-                   :style      nil)
-    :underline   nil)
+    :background (face-background 'default)
+    :foreground (face-foreground 'rhjr-face-highlight)
+
+    :overline nil
+    :underline nil
+    :box nil
+    :box `(:line-width 10
+            :color ,(face-background 'default)
+            :style nil)
+    :inherit nil)
   (set-face-attribute 'mode-line-inactive nil
-    :foreground  rhjr-colour-highlight
-    :background  rhjr-colour-background
-    :box         `(:line-width 4
-                   :color      ,(face-background 'rhjr-face-default)
-                   :style      nil)
-    :overline    nil
-    :underline   nil))
+    :background (face-background 'default)
+    :foreground (face-foreground 'rhjr-face-highlight)
+
+    :overline nil
+    :underline nil
+    :box nil
+    :box `(:line-width 10
+            :color ,(face-background 'default)
+            :style nil)
+    :inherit nil)
+  )
+  
 
 (defun rhjr-theme ()
   "The core of the rhuibertsjr theme."

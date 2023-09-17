@@ -34,8 +34,8 @@
   window-divider-default-places 'right-only)
 
 ;; Internal border
-(add-to-list 'default-frame-alist '(internal-border-width . 12)) 
-(setq-default left-margin-width 2 right-margin-width 2)
+(add-to-list 'default-frame-alist '(internal-border-width . 20)) 
+(setq-default left-margin-width 10 right-margin-width 10)
 (set-window-buffer nil (current-buffer))      
 
 ;; Remove toolbar

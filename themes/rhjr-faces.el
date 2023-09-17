@@ -36,6 +36,10 @@
   "(rhjr) Colour ment for informative- or sub-texts."
   :type 'color :group 'rhjr)
 
+(defcustom rhjr-colour-new nil 
+  "(rhjr) new"
+  :type 'color :group 'rhjr)
+
 (defcustom rhjr-colour-const nil 
   "(rhjr) Constants like strings and texts."
   :type 'color :group 'rhjr)
@@ -87,6 +91,10 @@
 ;;
 
 (defface rhjr-face-default nil
+  "(rhjr) The default inherit face."
+  :group 'rhjr)
+
+(defface rhjr-face-new nil
   "(rhjr) The default inherit face."
   :group 'rhjr)
 
@@ -169,6 +177,9 @@
   (set-face-attribute 'rhjr-face-fill nil
     :background  rhjr-colour-fill)
 
+  (set-face-attribute 'rhjr-face-new nil
+    :inherit    'rhjr-face-default
+    :foreground  rhjr-colour-new)
 
   ;; Modeline
   (set-face-attribute 'rhjr-face-modeline-folder nil

@@ -27,8 +27,9 @@
   (setq ; Custom variables
     rhjr-theme-variant     "dark"
     rhjr-colour-foreground "#f5f5f7"
-    rhjr-colour-background "#1c1c1e"
+    rhjr-colour-background "#000000"
     rhjr-colour-mute       "#8e8e93"
+    rhjr-colour-new        "#1e1e1e"
     rhjr-colour-const      "#b8bb26"
     rhjr-colour-fill       "#3a3a3c"
     rhjr-colour-succeed    "#3bcf5e"

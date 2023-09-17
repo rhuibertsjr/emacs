@@ -11,12 +11,17 @@ c-mode c++-mode
 (guard
  "#ifndef " (s file) "_H" n "#define " file "_H" n n "#endif /* " file "_H */")
 
+(n
+ "// - rhjr: " q )
+
 (title
- "// - rhjr: " q "---------------------------------------------------------------------")
+"//------------------------------------------------------------------------------\n" q )
 
 ;; Functions
 (main
  "int main(int argc, char *argv[])" n "{" n > q n> "return 0;" n "}")
+(vmain
+ "int main(void)" n "{" n > q n> "return 0;" n "}")
 
 (print
  "printf(\"" q "\");")
@@ -32,12 +37,6 @@ c-mode c++-mode
  "else if (" p ") {" q "}")
 (else
  "else {" q "}")
-
-;; Others
-(note
- "// NOTE(rhuibjr)" pq)
-(todo
- "// TODO(rhuibjr)" pq)
 
 org-mode
 
