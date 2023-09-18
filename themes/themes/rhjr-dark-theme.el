@@ -1,9 +1,7 @@
-;;; rhjr-dark-theme.el --- Rhuibertsjr dark theme.   -*- lexical-binding: t; -*-
+;;; rhjr-dark-theme.el --- rhjr's dark theme.        -*- lexical-binding: t; -*-
 ;;
 ;; Author: Rhuibertsjr 
 ;; Maintainer: Rhuibertsjr <rhuibjr.business@gmail.com>
-;;
-;; Copyright (C) 2022, Rhuibertsjr 
 ;;
 ;;;
 ;;
@@ -17,27 +15,28 @@
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ;; General Public License for more details.
 ;;
+;;;
 
 (require 'rhjr-faces)
 
 (defun rhjr-set-dark-theme ()
-  "(RHJR) Dark theme colours"
+  "(rhjr) Custom Emacs dark theme."
   (setq ; Emacs variables 
     frame-background-mode  'dark)
   (setq ; Custom variables
     rhjr-theme-variant     "dark"
     rhjr-colour-foreground "#f5f5f7"
     rhjr-colour-background "#000000"
+    rhjr-colour-main       "#fabd2f"
+    rhjr-colour-accent     "#fe8019"
+    rhjr-colour-region     "#1e1e1e"
     rhjr-colour-mute       "#8e8e93"
-    rhjr-colour-new        "#1e1e1e"
-    rhjr-colour-const      "#b8bb26"
-    rhjr-colour-fill       "#3a3a3c"
-    rhjr-colour-succeed    "#3bcf5e"
+    rhjr-colour-doc        "#b8bb26"
+    rhjr-colour-complete   "#b8bb26"
     rhjr-colour-error      "#ff453a"
-    rhjr-colour-highlight  "#fabd2f"
-    rhjr-colour-strong     "#fe8019"))
+    rhjr-colour-border     "#1e1e1e"))
 
 (provide 'rhjr-dark-theme)
 
 ;;
-;;; rhjr-light-theme.el ends here.  
+;;; rhjr-dark-theme.el ends here.  

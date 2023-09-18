@@ -25,4 +25,10 @@
 (dolist (mode '(menu-bar-mode tool-bar-mode scroll-bar-mode))
   (when (fboundp mode) (funcall mode -1)))
 
+;; Only available on Emacs v29.1 
+(when (fboundp 'startup-redirect-eln-cache)
+  (startup-redirect-eln-cache
+   (convert-standard-filename
+    (expand-file-name  "var/eln-cache/" user-emacs-directory))))
+
 (setenv "PATH" (concat "C:\\ProgramData\\chocolatey\\bin\\grep.exe;" (getenv "PATH")))

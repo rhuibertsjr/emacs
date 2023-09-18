@@ -1,9 +1,7 @@
-;;; rhjr-faces.el --- Rhuibertsjr theme faces.       -*- lexical-binding: t; -*-
+;;; rhjr-faces.el --- rhjr's theme faces.            -*- lexical-binding: t; -*-
 ;;
 ;; Author: Rhuibertsjr 
 ;; Maintainer: Rhuibertsjr <rhuibjr.business@gmail.com>
-;;
-;; Copyright (C) 2022, Rhuibertsjr 
 ;;
 ;;;
 ;;
@@ -17,148 +15,90 @@
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ;; General Public License for more details.
 ;;
-;;; Faces & Colours
-;;
+;;; 
 
 (defgroup rhjr '()
-  "Rhuibertsjr emacs theme, colours and faces.")
+  "(rhjr) Customizable Emacs themes.")
 
+;;defaults
 (defcustom rhjr-colour-foreground (face-foreground 'default nil t) 
   "" :type 'color :group 'rhjr)
 
 (defcustom rhjr-colour-background (face-background 'default nil t) 
   "" :type 'color :group 'rhjr)
 
-;;
-;;; Colours
-;;
+
+(defcustom rhjr-colour-main nil 
+  "(rhjr)" :type 'color :group 'rhjr)
+
+(defcustom rhjr-colour-accent nil 
+  "(rhjr)" :type 'color :group 'rhjr)
+
+(defcustom rhjr-colour-region nil 
+  "(rhjr)" :type 'color :group 'rhjr)
+
 (defcustom rhjr-colour-mute nil 
-  "(rhjr) Colour ment for informative- or sub-texts."
-  :type 'color :group 'rhjr)
+  "(rhjr)" :type 'color :group 'rhjr)
 
-(defcustom rhjr-colour-new nil 
-  "(rhjr) new"
-  :type 'color :group 'rhjr)
+(defcustom rhjr-colour-doc nil 
+  "(rhjr)" :type 'color :group 'rhjr)
 
-(defcustom rhjr-colour-const nil 
-  "(rhjr) Constants like strings and texts."
-  :type 'color :group 'rhjr)
-
-(defcustom rhjr-colour-fill nil 
-  "(rhjr) Fill / Regions"
-  :type 'color :group 'rhjr)
-
-;;
-;;; Statusses
-;;
-(defcustom rhjr-colour-succeed nil 
-  "(rhjr) Colour to show a completion or succes."
-  :type 'color :group 'rhjr)
+(defcustom rhjr-colour-complete nil 
+  "(rhjr)" :type 'color :group 'rhjr)
 
 (defcustom rhjr-colour-error nil 
-  "(rhjr) Colour to show an error / danger ."
-  :type 'color :group 'rhjr)
+  "(rhjr)" :type 'color :group 'rhjr)
 
+(defcustom rhjr-colour-border nil 
+  "(rhjr)" :type 'color :group 'rhjr)
 
-(defcustom rhjr-colour-main nil
-  "(RHJR) The main colour of the theme."
-  :type 'color :group 'rhjr)
-
-(defcustom rhjr-colour-strong nil
-  "(RHJR) Comments, line-numbers, etc."
-  :type 'color :group 'rhjr)
-
-(defcustom rhjr-colour-highlight nil
-  "(RHJR) Comments, line-numbers, etc."
-  :type 'color :group 'rhjr)
-
-(defcustom rhjr-colour-indistinct nil
-  "(RHJR) A (main) side colour of the theme."
-  :type 'color :group 'rhjr)
-
-;;
-;;; Fonts
-;;
-
+;;fonts
 (defcustom rhjr-font-family "Roboto Mono"
-  "" :type 'string :group 'rhjr)
+  "(rhjr)" :type 'string :group 'rhjr)
 
 (defcustom rhjr-font-size 12 
-  "" :type 'integer :group 'rhjr) 
+  "(rhjr)" :type 'integer :group 'rhjr) 
 
-;;
-;;; Faces
-;;
-
+;;faces
 (defface rhjr-face-default nil
   "(rhjr) The default inherit face."
   :group 'rhjr)
 
-(defface rhjr-face-new nil
-  "(rhjr) The default inherit face."
+(defface rhjr-face-main nil
+  "(rhjr) The default coloured face."
+  :group 'rhjr)
+
+(defface rhjr-face-accent nil
+  "(rhjr) The sub-default coloured face."
+  :group 'rhjr)
+
+(defface rhjr-face-region nil
+  "(rhjr) Background colour for regions."
   :group 'rhjr)
 
 (defface rhjr-face-mute nil
-  "(rhjr) A default face with the mute colour."
+  "(rhjr) Comments, disabled, unchecked, etc."
   :group 'rhjr)
 
-(defface rhjr-face-const nil
-  "(rhjr) A default face with the const colour."
+(defface rhjr-face-doc nil
+  "(rhjr) Comments, disabled, unchecked, etc."
   :group 'rhjr)
 
-(defface rhjr-face-fill nil
-  "(rhjr) Selection, region, 'highlight'."
-  :group 'rhjr)
-
-;; Modeline
-(defface rhjr-face-modeline-folder nil
-  ""
-  :group 'rhjr)
-
-(defface rhjr-face-modeline-file   nil
-  ""
-  :group 'rhjr)
-
-
-;;
-;;; Statusses
-;;
-(defface rhjr-face-succeed nil
-  "(rhjr) Succesion or completion."
+(defface rhjr-face-complete nil
+  "(rhjr) Complete, succes, done."
   :group 'rhjr)
 
 (defface rhjr-face-error nil
-  "(rhjr) Error, danger and failed."
+  "(rhjr) Error, bug, watch out!"
   :group 'rhjr)
 
-
-(defface rhjr-face-highlight nil
-  "(RHJR) Default face for unspecified faces."
+(defface rhjr-face-border nil
+  "(rhjr) Vertical-border, dashes, etc."
   :group 'rhjr)
 
-(defface rhjr-face-strong nil
-  "(RHJR) Default face for unspecified faces."
-  :group 'rhjr)
-
-;; Documents
-(defface rhjr-face-document-title nil
-  "(RHJR) Document title for org-mode."
-  :group 'rhjr)
-
-(defface rhjr-face-document-info nil
-  "(RHJR) Document information like tags, category, etc. for org-mode."
-  :group 'rhjr)
-
-(defface rhjr-face-document-section nil
-  "(RHJR) All document sections for org-mode."
-  :group 'rhjr)
-
-;;
-;;; Initialization
-;;
-
+;;- rhjr: initialize all the faces. 
 (defun rhjr-faces ()
-  "(RHJR) Initialize all the faces for the rhjr theme."
+  "(rhjr) Initialize all the faces for the 'rhjr' theme."
 
   (set-face-attribute 'rhjr-face-default nil
     :foreground  rhjr-colour-foreground
@@ -166,65 +106,36 @@
     :family      rhjr-font-family
     :height      (* rhjr-font-size 10))
 
+  (set-face-attribute 'rhjr-face-main nil
+    :inherit    'rhjr-face-default
+    :foreground  rhjr-colour-main)
+
+  (set-face-attribute 'rhjr-face-accent nil
+    :inherit    'rhjr-face-default
+    :foreground  rhjr-colour-accent)
+
+  (set-face-attribute 'rhjr-face-region nil
+    :background  rhjr-colour-region)
+
+  (set-face-attribute 'rhjr-face-border nil
+    :foreground  rhjr-colour-border
+    :background  rhjr-colour-background)
+
   (set-face-attribute 'rhjr-face-mute nil
     :inherit    'rhjr-face-default
     :foreground  rhjr-colour-mute)
 
-  (set-face-attribute 'rhjr-face-const nil
+  (set-face-attribute 'rhjr-face-complete nil
     :inherit    'rhjr-face-default
-    :foreground  rhjr-colour-const)
-
-  (set-face-attribute 'rhjr-face-fill nil
-    :background  rhjr-colour-fill)
-
-  (set-face-attribute 'rhjr-face-new nil
-    :inherit    'rhjr-face-default
-    :foreground  rhjr-colour-new)
-
-  ;; Modeline
-  (set-face-attribute 'rhjr-face-modeline-folder nil
-    :inherit    'rhjr-face-default)
-
-  (set-face-attribute 'rhjr-face-modeline-file nil
-    :foreground rhjr-colour-highlight
-    :inherit    'rhjr-face-default)
-
-  ;; Status
-  (set-face-attribute 'rhjr-face-succeed nil
-    :inherit    'rhjr-face-default
-    :foreground  rhjr-colour-succeed)
+    :foreground  rhjr-colour-complete)
 
   (set-face-attribute 'rhjr-face-error nil
     :inherit    'rhjr-face-default
     :foreground  rhjr-colour-error)
 
-
-  (set-face-attribute 'rhjr-face-highlight nil
+  (set-face-attribute 'rhjr-face-doc nil
     :inherit    'rhjr-face-default
-    :foreground  rhjr-colour-highlight)
-
-  (set-face-attribute 'rhjr-face-strong nil
-    :inherit    'rhjr-face-default
-    :foreground  rhjr-colour-strong)
-
-  ;; Documents
-  (set-face-attribute 'rhjr-face-document-title nil
-    :foreground  rhjr-colour-foreground
-    :background  rhjr-colour-background
-    :family      rhjr-font-family
-    :height      (* 20 10))
-
-  (set-face-attribute 'rhjr-face-document-info nil
-    :foreground  rhjr-colour-foreground
-    :background  rhjr-colour-background
-    :family      rhjr-font-family
-    :height      (* rhjr-font-size 10))
-
-  (set-face-attribute 'rhjr-face-document-section nil
-    :foreground  rhjr-colour-foreground
-    :background  rhjr-colour-background
-    :bold        t)
-  )
+    :foreground  rhjr-colour-doc))
 
 (provide 'rhjr-faces)
 

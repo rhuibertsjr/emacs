@@ -5,6 +5,9 @@
 (setq package-user-dir "~/.emacs.d/elpa/"
   package-archives '(("melpa" . "https://melpa.org/packages/")
                      ("gnu" . "http://elpa.gnu.org/packages/")))
+
+(require 'no-littering)
+
 ;; defaults
 (setq-default
   ;;frame
@@ -38,6 +41,10 @@
   compile-command "build"
   compilation-scroll-output t
 
+  ;;corfu
+  completion-cycle-threshold 3
+  tab-always-indent 'complete
+
   ;;annoyances
   ring-bell-function 'ignore
   bookmark-set-fringe-mark nil
@@ -53,24 +60,33 @@
 
 (setq-default header-line-format
   '(;;mode
-     (:propertize "%m" face rhjr-face-const)
-     (:propertize " - " face default)
+     (:propertize "%m" face rhjr-face-doc)
+     (:propertize " - " face rhjr-face-border)
 
-     ;; Directory
-     (:propertize (:eval (shorten-directory default-directory 20))
-       face rhjr-face-modeline-folder)
-     (:propertize "%b"
-       face rhjr-face-modeline-file)
+     ;directory path
+     (:eval
+       (if (eq major-mode 'dired-mode)
+         (if (string-match-p "\\`\\*.*\\*\\'" (buffer-name))
+           ;; Buffer is a special buffer
+           ""
+           ;; Buffer is not a special buffer, display directory
+           (concat " " (shorten-directory default-directory 20)))))
 
-     ;; Cursor position
-     (:propertize "::%l " face default)
+     ;;buffer
+     (:propertize "%b" face rhjr-face-main)
 
-     (:propertize "%-" face rhjr-face-new)
-     ))
+     ;;position
+     (:propertize " - " face rhjr-face-border)
+     (:propertize "Row: %l" face default)
+     (:propertize " - " face rhjr-face-border)
+     (:propertize "Col: %C" face default)
+
+     ;;etc
+     (:propertize "%-" face rhjr-face-border)))
 
 (setq-default mode-line-format
   '(;;mode
-     (:propertize "%-" face rhjr-face-new)
+     (:propertize "%-" face rhjr-face-border)
      ))
 
 ;(setq-default mode-line-format nil)
@@ -106,6 +122,10 @@
     output))
 
 ;;language
+(setq treesit-language-source-alist
+  '((c   "https://github.com/tree-sitter/tree-sitter-c")
+    (cpp "https://github.com/tree-sitter/tree-sitter-cpp")))
+
 (defconst rhjr/gnuish-c-style
   '((c-basic-offset . 2)
     (c-indent-level . 2)
@@ -127,9 +147,8 @@
 
       )))
   "rhjr/gnuish-c-style")
-(c-add-style "rhjr/gnuish-c-style" rhjr/gnuish-c-style)
 
-(require 'esup)
+(c-add-style "rhjr/gnuish-c-style" rhjr/gnuish-c-style)
 
 (setq-default
   indent-tabs-mode nil
@@ -137,11 +156,15 @@
   c-default-style "rhjr/gnuish-c-style"
   lisp-indent-offset 2)
 
+;;files
 (use-package dired-x
-  :ensure nil)
+  :ensure nil
+  :config
+  (setq
+    dired-free-space nil))
 
 (setq-default
-  default-directory "~"
+  default-directory "c:\\Users\\Rhjr"
   ;; dired
   dired-omit-files
   (rx (or
@@ -174,12 +197,7 @@
 ;;completion
 ;; @Minad you beautiful man.
 (use-package corfu
-  :bind
-  (:map corfu-map
-    ("TAB"     . corfu-next)
-    ([tab]     . corfu-next)
-    ("S-TAB"   . corfu-previous)
-    ([backtab] . corfu-previous))
+  :ensure t
   :hook
   ((prog-mode . corfu-mode)
    (org-mode  . corfu-mode))
@@ -187,16 +205,17 @@
   (corfu-auto t)
   (corfu-cycle t)
   (corfu-auto-prefix 2)
-  (corfu-auto-delay 0.0)
-  :init
+  (corfu-auto-delay 0.1)
+  :config
   (global-corfu-mode))
 
 (use-package tempel
+  :ensure t
   :bind
   (("M-=" . tempel-complete))
   :config
   (setq
-    tempel-path "~/.emacs.d/templates/template")
+    tempel-path "c:\\Users\\Rhjr\\AppData\\Roaming\\.emacs.d\\templates\\template")
   :init
   (defun tempel-setup-capf ()
     (setq-local completion-at-point-functions
@@ -206,6 +225,7 @@
   (add-hook 'prog-mode-hook 'tempel-setup-capf)
   (add-hook 'text-mode-hook 'tempel-setup-capf)
   (add-hook 'org-mode-hook  'tempel-setup-capf))
+
 
 (use-package cape
   :init
@@ -287,6 +307,9 @@
 
 (global-unset-key (kbd "C-x b"))
 (global-set-key (kbd "C-x b") 'consult-buffer)
+
+(global-unset-key (kbd "C-x 4 g"))
+(global-set-key (kbd "C-x 4 g") 'bookmark-jump-other-window)
 
 ;;modes
 (tool-bar-mode   0)
