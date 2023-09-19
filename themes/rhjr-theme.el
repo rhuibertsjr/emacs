@@ -49,17 +49,18 @@
 
   (rhjr-set-face 'success                'rhjr-face-complete)
 
-  (set-face-attribute 'orderless-match-face-0 nil
-    :foreground (face-foreground 'rhjr-face-accent))
+  (with-eval-after-load 'orderless 
+    (set-face-attribute 'orderless-match-face-0 nil
+      :foreground (face-foreground 'rhjr-face-accent))
 
-  (set-face-attribute 'orderless-match-face-1 nil
-    :foreground (face-foreground 'rhjr-face-main))
+    (set-face-attribute 'orderless-match-face-1 nil
+      :foreground (face-foreground 'rhjr-face-main))
 
-  (set-face-attribute 'orderless-match-face-2 nil
-    :foreground (face-foreground 'rhjr-face-doc))
+    (set-face-attribute 'orderless-match-face-2 nil
+      :foreground (face-foreground 'rhjr-face-doc))
 
-  (set-face-attribute 'orderless-match-face-3 nil
-    :foreground (face-foreground 'rhjr-face-error))
+    (set-face-attribute 'orderless-match-face-3 nil
+      :foreground (face-foreground 'rhjr-face-error)))
 
   (set-face-attribute 'fill-column-indicator nil
     :foreground (face-background 'rhjr-face-region)
@@ -80,6 +81,10 @@
 
   (set-face-attribute 'window-divider-last-pixel nil
     :foreground rhjr-colour-background)
+
+  (with-eval-after-load 'hl-line
+    (set-face-attribute 'hl-line nil
+      :background "#090909"))
 
   (rhjr-set-face 'vertical-border 'rhjr-face-border)
 
@@ -114,7 +119,31 @@
   (rhjr-set-face 'font-lock-variable-name-face 'rhjr-face-default)
   (rhjr-set-face 'font-lock-builtin-face       'rhjr-face-accent)
   (rhjr-set-face 'font-lock-type-face          'rhjr-face-main)
-  (rhjr-set-face 'font-lock-keyword-face       'rhjr-face-main))
+  (rhjr-set-face 'font-lock-keyword-face       'rhjr-face-main)
+
+  (rhjr-set-face 'font-lock-keyword-face       'rhjr-face-main)
+
+  (with-eval-after-load 'treesit
+    (rhjr-set-face 'font-lock-bracket-face 'rhjr-face-accent)
+    (rhjr-set-face 'font-lock-delimiter-face 'rhjr-face-accent)
+
+    ;;function
+    (set-face-attribute 'font-lock-function-name-face nil
+      :foreground "#b8bb26")
+    (set-face-attribute 'font-lock-function-call-face nil
+      :foreground "#b8bb26")
+
+    ;;variables
+    (set-face-attribute 'font-lock-variable-name-face nil
+      :foreground (face-foreground 'default))
+
+    ;;numbers
+    (set-face-attribute 'font-lock-number-face nil
+      :foreground "#d3869b")
+    (set-face-attribute 'font-lock-escape-face nil
+      :foreground (face-foreground 'rhjr-face-accent))
+
+    ))
 
 (defun rhjr-theme-languages ()
   ;;flycheck
@@ -123,17 +152,19 @@
   (set-face-attribute 'flycheck-warning nil
     :underline nil)
   (set-face-attribute 'flycheck-error nil
+    :background (face-foreground 'rhjr-face-error) 
     :underline nil)
 
-  ;;corfu
   (with-eval-after-load 'corfu
-    (set-face-attribute 'corfu-default nil
-      :background (face-background 'rhjr-face-mute))
-    (set-face-attribute 'corfu-current nil
-      :background (face-background 'rhjr-face-mute)
-      :bold t)
-    (set-face-attribute 'completions-common-part nil
-      :foreground (face-foreground 'rhjr-face-accent))))
+    (rhjr-set-face 'corfu-default 'rhjr-face-default)
+    (rhjr-set-face 'corfu-current 'rhjr-face-accent))
+
+  (with-eval-after-load 'corfu-candidate-overlay
+    (set-face-attribute 'corfu-candidate-overlay-face nil
+      :foreground (face-foreground 'rhjr-face-mute))
+    (set-face-attribute 'corfu-candidate-overlay-face-exact-match nil
+      :foreground (face-foreground 'rhjr-face-mute)
+      :underline nil)))
 
 (defun rhjr-theme-modeline ()
   (set-face-attribute 'header-line nil
@@ -162,40 +193,40 @@
     :foreground (face-foreground 'rhjr-face-main)
 
     :overline nil
-    :underline nil
-    :box nil
-    :box `(:line-width 10
-            :color ,(face-background 'default)
-            :style nil)
-    :inherit nil))
+      :underline nil
+      :box nil
+      :box `(:line-width 10
+              :color ,(face-background 'default)
+              :style nil)
+      :inherit nil))
 
-(defun rhjr-theme ()
-  "The core of the rhuibertsjr theme."
-  (rhjr-theme-basics)
-  (rhjr-theme-modeline)
-  (rhjr-theme-navigation)
-  (rhjr-theme-fontlock)
-  (rhjr-theme-languages))
+  (defun rhjr-theme ()
+    "The core of the rhuibertsjr theme."
+    (rhjr-theme-basics)
+    (rhjr-theme-modeline)
+    (rhjr-theme-navigation)
+    (rhjr-theme-fontlock)
+    (rhjr-theme-languages))
 
-(defun rhjr/refresh-theme ()
-  ""
-  (interactive)
-  (progn
-    (rhjr-faces)
-    (rhjr-theme)))
+  (defun rhjr/refresh-theme ()
+    ""
+    (interactive)
+    (progn
+      (rhjr-faces)
+      (rhjr-theme)))
 
-(defun rhjr/toggle-theme ()
-  ""
-  (interactive)
-  (cond ((string= rhjr-theme-variant "light")
-          (rhjr-set-dark-theme))
-        ((string= rhjr-theme-variant "dark")
-          (rhjr-set-light-theme))
-        (t nil))
-  (rhjr/refresh-theme))
+  (defun rhjr/toggle-theme ()
+    ""
+    (interactive)
+    (cond ((string= rhjr-theme-variant "light")
+            (rhjr-set-dark-theme))
+      ((string= rhjr-theme-variant "dark")
+        (rhjr-set-light-theme))
+      (t nil))
+    (rhjr/refresh-theme))
 
-;; package
-(provide 'rhjr-theme)
+  ;; package
+  (provide 'rhjr-theme)
 
-;;
+  ;;
 ;;; rhjr-theme.el ends here.

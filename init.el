@@ -8,10 +8,15 @@
 
 (require 'no-littering)
 
+;;important!
+(global-set-key (kbd "C-x C-g") 'bookmark-jump)
+
 ;; defaults
 (setq-default
   ;;frame
   frame-title-format "%b"
+  split-width-threshold 0
+  split-height-threshold nil
 
   ;;initial
   initial-major-mode 'lisp-mode
@@ -41,19 +46,22 @@
   compile-command "build"
   compilation-scroll-output t
 
-  ;;corfu
-  completion-cycle-threshold 3
-  tab-always-indent 'complete
+;;corfu
+completion-cycle-threshold 3
+tab-always-indent 'complete
+dabbrev-case-fold-search nil
+dabbrev-case-replace nil
 
-  ;;annoyances
-  ring-bell-function 'ignore
-  bookmark-set-fringe-mark nil
+;;annoyances
+ring-bell-function 'ignore
+bookmark-set-fringe-mark nil
+esup-depth 0
 
-  ;; fill
-  display-fill-column-indicator-column 80
-  display-fill-column-indicator-character '24
-  visual-fill-column-width 80 
-  fill-column 80)
+;; fill
+display-fill-column-indicator-column 80
+display-fill-column-indicator-character '24
+visual-fill-column-width 80 
+fill-column 80)
 
 ;;appearance
 (add-to-list 'default-frame-alist '(internal-border-width . 24)) 
@@ -86,10 +94,7 @@
 
 (setq-default mode-line-format
   '(;;mode
-     (:propertize "%-" face rhjr-face-border)
-     ))
-
-;(setq-default mode-line-format nil)
+     (:propertize "%-" face rhjr-face-border)))
 
 ;;functions
 (defun rhjr/profile-startup ()
@@ -121,14 +126,24 @@
       (setq output (concat "./" output)))
     output))
 
-;;language
-(setq treesit-language-source-alist
-  '((c   "https://github.com/tree-sitter/tree-sitter-c")
-    (cpp "https://github.com/tree-sitter/tree-sitter-cpp")))
+;;tree-sitter
+(if (= emacs-major-version 29)
+  (progn
+    (require 'treesit)
+    (defun rhjr/setup-treesitter ()
+      (setq
+        treesit-font-lock-level 4
+        treesit-language-source-alist
+        '((c   "https://github.com/tree-sitter/tree-sitter-c")
+           (cpp "https://github.com/tree-sitter/tree-sitter-cpp")))
+      (treesit-font-lock-recompute-features
+        '(function variable) '(definition)))
+    (add-hook 'c-ts-mode-hook #'rhjr/setup-treesitter)))
 
+;;language
 (defconst rhjr/gnuish-c-style
   '((c-basic-offset . 2)
-    (c-indent-level . 2)
+     (c-indent-level . 2)
 
      (c-offsets-alist .
        ((statement-cont . +)
@@ -145,7 +160,7 @@
          ;;switch-case
          (case-label             . +)
 
-      )))
+         )))
   "rhjr/gnuish-c-style")
 
 (c-add-style "rhjr/gnuish-c-style" rhjr/gnuish-c-style)
@@ -200,34 +215,41 @@
   :ensure t
   :hook
   ((prog-mode . corfu-mode)
-   (org-mode  . corfu-mode))
+    (org-mode  . corfu-mode))
   :custom
   (corfu-auto t)
-  (corfu-cycle t)
-  (corfu-auto-prefix 2)
-  (corfu-auto-delay 0.1)
+  (corfu-auto-prefix 3)
+  (corfu-auto-delay 0.3)
   :config
-  (global-corfu-mode))
+  (global-corfu-mode)
+  (corfu-history-mode))
+
+(use-package corfu-candidate-overlay
+  :ensure t
+  :after corfu
+  :config
+  (corfu-candidate-overlay-mode +1))
 
 (use-package tempel
+  :after corfu
   :ensure t
-  :bind
-  (("M-=" . tempel-complete))
+  :bind (("M-=" . tempel-complete)
+          ("M-*" . tempel-insert))
   :config
-  (setq
-    tempel-path "c:\\Users\\Rhjr\\AppData\\Roaming\\.emacs.d\\templates\\template")
+  (setq tempel-path
+    "~\\.emacs.d\\templates\\template")
   :init
   (defun tempel-setup-capf ()
     (setq-local completion-at-point-functions
-                (cons #'tempel-expand
-                      completion-at-point-functions)))
+      (cons #'tempel-expand
+        completion-at-point-functions)))
 
   (add-hook 'prog-mode-hook 'tempel-setup-capf)
   (add-hook 'text-mode-hook 'tempel-setup-capf)
   (add-hook 'org-mode-hook  'tempel-setup-capf))
 
-
 (use-package cape
+  :ensure t
   :init
   (add-to-list 'completion-at-point-functions 'cape-abbrev)
   (add-to-list 'completion-at-point-functions 'cape-dabbrev)
@@ -236,11 +258,11 @@
 (use-package vertico
   :ensure t
   :bind (:map vertico-map
-         ("C-j" . vertico-next)
-         ("C-k" . vertico-previous)
-         ("C-f" . vertico-exit)
-         :map minibuffer-local-map
-         ("M-h" . backward-kill-word))
+          ("C-j" . vertico-next)
+          ("C-k" . vertico-previous)
+          ("C-f" . vertico-exit)
+          :map minibuffer-local-map
+          ("M-h" . backward-kill-word))
   :init
   (vertico-mode)
   (vertico-buffer-mode)
@@ -248,11 +270,19 @@
     vertico-cycle t
     vertico-count 10))
 
-(use-package orderless
+(use-package marginalia
+  :bind (:map minibuffer-local-map
+          ("M-A" . marginalia-cycle))
   :init
-  (setq completion-styles '(orderless basic)
-        completion-category-defaults nil
-        completion-category-overrides '((file (styles partial-completion)))))
+  (marginalia-mode))
+
+(use-package orderless
+  :ensure t
+  :init
+  (setq
+    completion-styles '(orderless basic)
+    completion-category-defaults nil
+    completion-category-overrides '((file (styles partial-completion)))))
 
 (use-package savehist
   :init
@@ -266,6 +296,7 @@
   :config
   (setq
     flycheck-highlighting-mode 'lines
+    flycheck-check-syntax-automatically '(save)
     flycheck-indication-mode nil))
 
 ;;misc 
@@ -284,6 +315,23 @@
     hl-todo-keyword-faces
     `(("rhjr"  font-lock-builtin-face   bold))))
 
+(add-to-list 'load-path "~\\.emacs.d\\thirdparty")
+(require 'indentinator)
+
+;;theme
+(add-to-list 'load-path "~\\.emacs.d\\themes")
+(add-to-list 'load-path "~\\.emacs.d\\themes\\themes")
+
+(require 'rhjr-faces)
+(require 'rhjr-theme)
+(require 'rhjr-light-theme)
+(require 'rhjr-dark-theme)
+
+(rhjr-faces)
+(rhjr-theme)
+(rhjr-set-dark-theme)
+(rhjr/refresh-theme)
+
 ;;keybindings
 (global-unset-key (kbd "C-x 3"))
 (global-unset-key (kbd "C-x o"))
@@ -300,8 +348,6 @@
 (global-set-key (kbd "M-[")     'tempel-previous)
 (global-set-key (kbd "M-]")     'tempel-next)
 
-(global-set-key (kbd "C-x C-g") 'bookmark-jump)
-
 (global-unset-key (kbd "C-s"))
 (global-set-key (kbd "C-s") 'consult-ripgrep)
 
@@ -311,24 +357,14 @@
 (global-unset-key (kbd "C-x 4 g"))
 (global-set-key (kbd "C-x 4 g") 'bookmark-jump-other-window)
 
+
+(global-set-key (kbd "C-u") 'evil-scroll-up)
+(global-set-key (kbd "C-d") 'evil-scroll-down)
+
 ;;modes
 (tool-bar-mode   0)
 (menu-bar-mode   0)
 (scroll-bar-mode 0)
-
-;;theme
-(add-to-list 'load-path "~\\.emacs.d\\themes")
-(add-to-list 'load-path "~\\.emacs.d\\themes\\themes")
-
-(require 'rhjr-faces)
-(require 'rhjr-theme)
-(require 'rhjr-light-theme)
-(require 'rhjr-dark-theme)
-
-(rhjr-faces)
-(rhjr-theme)
-(rhjr-set-dark-theme)
-(rhjr/refresh-theme)
 
 ;;hooks
 (add-hook 'emacs-startup-hook
@@ -336,12 +372,13 @@
     (rhjr/profile-startup)
     (setq gc-cons-threshold (expt 2 23))))
 
+(add-hook 'visual-line-mode-hook #'visual-fill-column-mode)
 (add-hook 'prog-mode-hook
   (lambda ()
-    (electric-pair-mode 1)
+    (hl-line-mode)
+    (indentinator-mode)
     (show-paren-mode 1)
     (visual-line-mode 1)
-    (flycheck-mode 1)
     (display-fill-column-indicator-mode 1)))
 
 (add-hook 'dired-mode-hook
@@ -366,7 +403,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-    '(vertico orderless consult visual-fill-column use-package tempel pdf-tools org-roam org-cliplink magit hungry-delete hl-todo goto-chg flycheck exec-path-from-shell evil-collection esup corfu cape)))
+    '(marginalia aggressive-indent esup magit evil corfu-candidate-overlay vertico orderless consult visual-fill-column use-package tempel pdf-tools org-roam org-cliplink hungry-delete hl-todo goto-chg flycheck exec-path-from-shell corfu cape)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

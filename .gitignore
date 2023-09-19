@@ -3,6 +3,7 @@
 !appearance
 !functions
 !templates
+!thirdparty  
 !themes
 !.gitignore
 !early-init.el

@@ -108,7 +108,8 @@
 
   (set-face-attribute 'rhjr-face-main nil
     :inherit    'rhjr-face-default
-    :foreground  rhjr-colour-main)
+    :foreground  rhjr-colour-main
+    :background 'unspecified)
 
   (set-face-attribute 'rhjr-face-accent nil
     :inherit    'rhjr-face-default
