@@ -156,6 +156,13 @@
     :background "#510907" 
     :underline nil)
 
+  (set-face-attribute 'tooltip nil
+    :background (face-background 'rhjr-face-default)
+    :foreground (face-foreground 'rhjr-face-accent)
+    :inherit 'rhjr-face-default)
+
+  ;;(set-face-attribute 'tooltip nil :background "yellow" :foreground "black" :box '(:line-width 2 :color "red"))
+
   (with-eval-after-load 'corfu
     (rhjr-set-face 'corfu-default 'rhjr-face-default)
     (rhjr-set-face 'corfu-current 'rhjr-face-accent))

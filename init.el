@@ -131,7 +131,7 @@
     (save-selected-window
       (save-excursion
         (let* ((w (split-window-vertically))
-               (h (window-height w)))
+                (h (window-height w)))
           (select-window w)
           (switch-to-buffer "*compilation*")
           (shrink-window (- h 15)))))))
@@ -203,25 +203,25 @@
   (mapc #'rhjr/display-flycheck-error
     (seq-uniq (seq-mapcat #'flycheck-related-errors errors))))
 
-  ;;language
-  (defconst rhjr/gnuish-c-style
-    '((c-basic-offset . 2)
-       (c-indent-level . 2)
+;;language
+(defconst rhjr/gnuish-c-style
+  '((c-basic-offset . 2)
+     (c-indent-level . 2)
 
-       (c-offsets-alist .
-	       ((statement-cont . +)
-           (substatement . +)
-           (substatement-open . 0)
-           (brace-list-open . 0)
+     (c-offsets-alist .
+	     ((statement-cont . +)
+         (substatement . +)
+         (substatement-open . 0)
+         (brace-list-open . 0)
 
-           ;;functions 
-           (defun-open             . 0)
-           (defun-block-intro      . +)
-           (arglist-intro          . +)
-           (arglist-close          . 0)
+         ;;functions 
+         (defun-open             . 0)
+         (defun-block-intro      . +)
+         (arglist-intro          . +)
+         (arglist-close          . 0)
 
-           ;;switch-case
-           (case-label             . +)
+         ;;switch-case
+         (case-label             . +)
 
          )))
   "rhjr/gnuish-c-style")
