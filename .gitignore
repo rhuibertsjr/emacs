@@ -3,7 +3,7 @@
 !appearance
 !functions
 !templates
-!thirdparty  
+!thirdparty/indentinator.el
 !themes
 !.gitignore
 !early-init.el

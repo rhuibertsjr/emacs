@@ -12,31 +12,28 @@ c-mode c++-mode c-ts-mode c++-ts-mode
  "#ifndef " (s file) "_H" n "#define " file "_H" n n "#endif /* " file "_H */")
 
 (n
- "// - rhjr: " q )
-
-(title
-"//------------------------------------------------------------------------------\n" q )
+  "//- rhjr: " q " ")
 
 ;; Functions
 (main
- "int main(int argc, char *argv[])" n "{" n > q n> "return 0;" n "}")
+  "int main(int argc, char *argv[])" n "{" n > q n> "return 0;" n "}")
 (vmain
- "int main(void)" n "{" n > q n> "return 0;" n "}")
+  "int main(void)" n "{" n > q n> "return 0;" n "}")
 
 (print
- "printf(\"" q "\");")
+  "printf(\"" q "\");")
 
 ;; Statements
 (for
- "for (" p ") {" q "}")
+  "for (" p ") {" q "}")
 (while
- "while (" p ") {" q "}")
+  "while (" p ") {" q "}")
 (if
- "if (" p ") {" n q n> "}")
+  "if (" p ") {" n q n> "}")
 (elif
- "else if (" p ") {" q "}")
+  "else if (" p ") {" q "}")
 (else
- "else {" q "}")
+  "else {" q "}")
 
 org-mode
 

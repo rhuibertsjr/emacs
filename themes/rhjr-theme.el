@@ -152,7 +152,8 @@
   (set-face-attribute 'flycheck-warning nil
     :underline nil)
   (set-face-attribute 'flycheck-error nil
-    :background (face-foreground 'rhjr-face-error) 
+    :extend t
+    :background "#510907" 
     :underline nil)
 
   (with-eval-after-load 'corfu
@@ -193,40 +194,40 @@
     :foreground (face-foreground 'rhjr-face-main)
 
     :overline nil
-      :underline nil
-      :box nil
-      :box `(:line-width 10
-              :color ,(face-background 'default)
-              :style nil)
-      :inherit nil))
+    :underline nil
+    :box nil
+    :box `(:line-width 10
+            :color ,(face-background 'default)
+            :style nil)
+    :inherit nil))
 
-  (defun rhjr-theme ()
-    "The core of the rhuibertsjr theme."
-    (rhjr-theme-basics)
-    (rhjr-theme-modeline)
-    (rhjr-theme-navigation)
-    (rhjr-theme-fontlock)
-    (rhjr-theme-languages))
+(defun rhjr-theme ()
+  "The core of the rhuibertsjr theme."
+  (rhjr-theme-basics)
+  (rhjr-theme-modeline)
+  (rhjr-theme-navigation)
+  (rhjr-theme-fontlock)
+  (rhjr-theme-languages))
 
-  (defun rhjr/refresh-theme ()
-    ""
-    (interactive)
-    (progn
-      (rhjr-faces)
-      (rhjr-theme)))
+(defun rhjr/refresh-theme ()
+  ""
+  (interactive)
+  (progn
+    (rhjr-faces)
+    (rhjr-theme)))
 
-  (defun rhjr/toggle-theme ()
-    ""
-    (interactive)
-    (cond ((string= rhjr-theme-variant "light")
-            (rhjr-set-dark-theme))
-      ((string= rhjr-theme-variant "dark")
-        (rhjr-set-light-theme))
-      (t nil))
-    (rhjr/refresh-theme))
+(defun rhjr/toggle-theme ()
+  ""
+  (interactive)
+  (cond ((string= rhjr-theme-variant "light")
+          (rhjr-set-dark-theme))
+    ((string= rhjr-theme-variant "dark")
+      (rhjr-set-light-theme))
+    (t nil))
+  (rhjr/refresh-theme))
 
-  ;; package
-  (provide 'rhjr-theme)
+;; package
+(provide 'rhjr-theme)
 
-  ;;
+;;
 ;;; rhjr-theme.el ends here.

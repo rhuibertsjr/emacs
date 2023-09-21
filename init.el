@@ -4,7 +4,7 @@
 (package-initialize)
 (setq package-user-dir "~/.emacs.d/elpa/"
   package-archives '(("melpa" . "https://melpa.org/packages/")
-                     ("gnu" . "http://elpa.gnu.org/packages/")))
+                      ("gnu" . "http://elpa.gnu.org/packages/")))
 
 (require 'no-littering)
 
@@ -15,8 +15,6 @@
 (setq-default
   ;;frame
   frame-title-format "%b"
-  split-width-threshold 0
-  split-height-threshold nil
 
   ;;initial
   initial-major-mode 'lisp-mode
@@ -46,22 +44,23 @@
   compile-command "build"
   compilation-scroll-output t
 
-;;corfu
-completion-cycle-threshold 3
-tab-always-indent 'complete
-dabbrev-case-fold-search nil
-dabbrev-case-replace nil
+  ;;corfu
+  completion-cycle-threshold 3
+  tab-always-indent 'complete
+  dabbrev-case-fold-search nil
+  dabbrev-case-replace nil
 
-;;annoyances
-ring-bell-function 'ignore
-bookmark-set-fringe-mark nil
-esup-depth 0
+  ;;annoyances
+  ring-bell-function 'ignore
+  bookmark-set-fringe-mark nil
+  esup-depth 0
 
-;; fill
-display-fill-column-indicator-column 80
-display-fill-column-indicator-character '24
-visual-fill-column-width 80 
-fill-column 80)
+  ;; fill
+  display-fill-column-indicator-column 80
+  display-fill-column-indicator-character '24
+  visual-fill-column-width 80 
+  visual-fill-column-enable-sensible-window-split t
+  fill-column 80)
 
 ;;appearance
 (add-to-list 'default-frame-alist '(internal-border-width . 24)) 
@@ -71,7 +70,7 @@ fill-column 80)
      (:propertize "%m" face rhjr-face-doc)
      (:propertize " - " face rhjr-face-border)
 
-     ;directory path
+                                        ;directory path
      (:eval
        (if (eq major-mode 'dired-mode)
          (if (string-match-p "\\`\\*.*\\*\\'" (buffer-name))
@@ -116,7 +115,7 @@ fill-column 80)
 (defun shorten-directory (dir max-length)
   "Show up to `max-length' characters of a directory name `dir'."
   (let ((path (reverse (split-string (abbreviate-file-name dir) "/")))
-        (output ""))
+         (output ""))
     (when (and path (equal "" (car path)))
       (setq path (cdr path)))
     (while (and path (< (length output) (- max-length 4)))
@@ -126,39 +125,103 @@ fill-column 80)
       (setq output (concat "./" output)))
     output))
 
-;;tree-sitter
-(if (= emacs-major-version 29)
-  (progn
-    (require 'treesit)
-    (defun rhjr/setup-treesitter ()
-      (setq
-        treesit-font-lock-level 4
-        treesit-language-source-alist
-        '((c   "https://github.com/tree-sitter/tree-sitter-c")
-           (cpp "https://github.com/tree-sitter/tree-sitter-cpp")))
-      (treesit-font-lock-recompute-features
-        '(function variable) '(definition)))
-    (add-hook 'c-ts-mode-hook #'rhjr/setup-treesitter)))
+(defun rhjr/compilation-buffer-bottom ()
+  "Compile window always at the bottom."
+  (when (not (get-buffer-window "*compilation*"))
+    (save-selected-window
+      (save-excursion
+        (let* ((w (split-window-vertically))
+               (h (window-height w)))
+          (select-window w)
+          (switch-to-buffer "*compilation*")
+          (shrink-window (- h 15)))))))
 
-;;language
-(defconst rhjr/gnuish-c-style
-  '((c-basic-offset . 2)
-     (c-indent-level . 2)
+;;overlays
+(defun rhjr/comment-dividers ()
+  (save-excursion
+    (goto-char (point-min))
+    (while (re-search-forward "//-.*" nil t)
+      (let* ((start (match-beginning 0))
+             (end (match-end 0)))
+        (remove-overlays start end)
+        (let ((overlay (make-overlay start end)))
+          (overlay-put overlay 'evaporate t)
+          (overlay-put overlay
+		        'after-string (make-string (- 80 (current-column)) ?-)))))
+    (forward-line)))
 
-     (c-offsets-alist .
-       ((statement-cont . +)
-         (substatement . +)
-         (substatement-open . 0)
-         (brace-list-open . 0)
+;; Overlay inspired by 'flycheck-inline-mode' by @fmdkdd.
+(defvar-local rhjr/error-overlays nil
+  "(rhjr) Currently active error overlay.")
 
-         ;;functions 
-         (defun-open             . 0)
-         (defun-block-intro      . +)
-         (arglist-intro          . +)
-         (arglist-close          . 0)
+(defun rhjr/contains-error (overlay &optional pt)
+  (let* ((pos (or pt (point)))
+          (err (overlay-get overlay 'error))
+          (region (flycheck-error-region-for-mode err 'symbols)))
+    (and overlay 
+      (overlay-get overlay 'rhjr)
+      err
+      (memq err flycheck-current-errors)
+      region
+      (>= pos (car region))
+      (<= pos (cdr region)))))
 
-         ;;switch-case
-         (case-label             . +)
+(defun rhjr/remove-overlay ()
+  (setq rhjr/error-overlays 
+    (seq-remove #'rhjr/delete-overlay rhjr/error-overlays)))
+
+(defun rhjr/check-overlay (err)
+  (seq-find (lambda (p) (eq err (overlay-get p 'error)))
+    rhjr/error-overlays))
+
+(defun rhjr/add-error-overlay (msg &optional pos err)
+  (unless (rhjr/check-overlay err)
+    (push (rhjr/create-overlay msg pos err) rhjr/error-overlays)))
+
+(defun rhjr/delete-overlay (overlay)
+  (if (rhjr/contains-error overlay)
+    nil
+    (progn (delete-overlay overlay) t)))
+
+(defun rhjr/create-overlay (msg &optional pos err)
+  (pcase-let*
+    ((overlay (make-overlay
+                (line-beginning-position) (+ (line-end-position) 1))))
+    (overlay-put overlay 'face 'rhjr-face-flycheck-error)
+    (overlay-put overlay 'priority 10)
+    (overlay-put overlay 'extend t)
+    (overlay-put overlay 'rhjr t)
+    (overlay-put overlay 'error err)
+    overlay))
+
+(defun rhjr/display-flycheck-error (error)
+  (let* ((pos (flycheck-error-pos error)))
+    (rhjr/add-error-overlay "" pos error)))
+
+(defun rhjr/display-flycheck-errors (errors)
+  (rhjr/remove-overlay)
+  (mapc #'rhjr/display-flycheck-error
+    (seq-uniq (seq-mapcat #'flycheck-related-errors errors))))
+
+  ;;language
+  (defconst rhjr/gnuish-c-style
+    '((c-basic-offset . 2)
+       (c-indent-level . 2)
+
+       (c-offsets-alist .
+	       ((statement-cont . +)
+           (substatement . +)
+           (substatement-open . 0)
+           (brace-list-open . 0)
+
+           ;;functions 
+           (defun-open             . 0)
+           (defun-block-intro      . +)
+           (arglist-intro          . +)
+           (arglist-close          . 0)
+
+           ;;switch-case
+           (case-label             . +)
 
          )))
   "rhjr/gnuish-c-style")
@@ -175,31 +238,28 @@ fill-column 80)
 (use-package dired-x
   :ensure nil
   :config
-  (setq
-    dired-free-space nil))
-
-(setq-default
-  default-directory "c:\\Users\\Rhjr"
-  ;; dired
-  dired-omit-files
-  (rx (or
-        (seq bol "."    eol)
-        (seq bol ".git" eol)
-        (seq bol "desktop.ini" eol)))
-  dired-use-ls-dired t
-  insert-directory-program "/usr/bin/ls"
-  dired-recursive-copies 'always
-  dired-recursive-deletes 'always
-  dired-listing-switches "-laGh1v --group-directories-first")
+  (setq-default
+    dired-free-space nil
+    default-directory "c:\\Users\\Rhjr"
+    dired-omit-files
+    (rx (or
+          (seq bol "."    eol)
+          (seq bol ".git" eol)
+          (seq bol "desktop.ini" eol)))
+    dired-use-ls-dired t
+    insert-directory-program "/usr/bin/ls"
+    dired-recursive-copies 'always
+    dired-recursive-deletes 'always
+    dired-listing-switches "-laGh1v --group-directories-first"))
 
 ;;evil
 (use-package evil
   :ensure t
   :init
   (setq
-     evil-want-integration t
-     evil-want-keybinding nil
-     evil-respect-visual-line-mode t)
+    evil-want-integration t
+    evil-want-keybinding nil
+    evil-respect-visual-line-mode t)
   :config
   (evil-mode 1))
 
@@ -237,12 +297,12 @@ fill-column 80)
           ("M-*" . tempel-insert))
   :config
   (setq tempel-path
-    "~\\.emacs.d\\templates\\template")
+	  "~\\.emacs.d\\templates\\template")
   :init
   (defun tempel-setup-capf ()
     (setq-local completion-at-point-functions
-      (cons #'tempel-expand
-        completion-at-point-functions)))
+		  (cons #'tempel-expand
+		    completion-at-point-functions)))
 
   (add-hook 'prog-mode-hook 'tempel-setup-capf)
   (add-hook 'text-mode-hook 'tempel-setup-capf)
@@ -258,11 +318,11 @@ fill-column 80)
 (use-package vertico
   :ensure t
   :bind (:map vertico-map
-          ("C-j" . vertico-next)
-          ("C-k" . vertico-previous)
-          ("C-f" . vertico-exit)
-          :map minibuffer-local-map
-          ("M-h" . backward-kill-word))
+	        ("C-j" . vertico-next)
+	        ("C-k" . vertico-previous)
+	        ("C-f" . vertico-exit)
+	        :map minibuffer-local-map
+	        ("M-h" . backward-kill-word))
   :init
   (vertico-mode)
   (vertico-buffer-mode)
@@ -272,7 +332,7 @@ fill-column 80)
 
 (use-package marginalia
   :bind (:map minibuffer-local-map
-          ("M-A" . marginalia-cycle))
+	        ("M-A" . marginalia-cycle))
   :init
   (marginalia-mode))
 
@@ -297,7 +357,10 @@ fill-column 80)
   (setq
     flycheck-highlighting-mode 'lines
     flycheck-check-syntax-automatically '(save)
-    flycheck-indication-mode nil))
+    flycheck-indication-mode nil
+    flycheck-display-errors-function #'rhjr/display-flycheck-errors)
+  :init
+  (global-flycheck-mode))
 
 ;;misc 
 (use-package org-cliplink
@@ -368,26 +431,35 @@ fill-column 80)
 
 ;;hooks
 (add-hook 'emacs-startup-hook
-  (lambda ()
-    (rhjr/profile-startup)
-    (setq gc-cons-threshold (expt 2 23))))
+	(lambda ()
+	  (rhjr/profile-startup)
+	  (setq gc-cons-threshold (expt 2 23))))
 
 (add-hook 'visual-line-mode-hook #'visual-fill-column-mode)
 (add-hook 'prog-mode-hook
-  (lambda ()
-    (hl-line-mode)
-    (indentinator-mode)
-    (show-paren-mode 1)
-    (visual-line-mode 1)
-    (display-fill-column-indicator-mode 1)))
+	(lambda ()
+	  (hl-line-mode)
+	  (indentinator-mode)
+	  (show-paren-mode 1)
+	  (visual-line-mode 1)
+	  (display-fill-column-indicator-mode 1)))
+
+(add-hook 'c-mode-hook
+	(lambda ()
+	  (rhjr/comment-dividers)
+	  (add-hook 'before-save-hook 'rhjr/comment-dividers nil 'local)))
+
+(add-hook 'compilation-mode-hook 'rhjr/compilation-buffer-bottom)
 
 (add-hook 'dired-mode-hook
-  'dired-omit-mode)
+	'dired-omit-mode)
 
 (add-hook 'minibuffer-setup-hook
-  (lambda ()
-    (evil-local-mode -1)
-    (setq truncate-lines t)))
+	(lambda ()
+	  (evil-local-mode -1)
+	  (setq truncate-lines t)))
+
+(add-hook 'post-command-hook #'rhjr/remove-overlay)
 
 ;;fixes
 (add-to-list 'auto-mode-alist '("\\.el\\'" . lisp-mode)) ;; fix lisp mode on .el
@@ -398,15 +470,15 @@ fill-column 80)
 
 ;;; init.el ends here.
 (custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-    '(marginalia aggressive-indent esup magit evil corfu-candidate-overlay vertico orderless consult visual-fill-column use-package tempel pdf-tools org-roam org-cliplink hungry-delete hl-todo goto-chg flycheck exec-path-from-shell corfu cape)))
+  ;; custom-set-variables was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+  '(package-selected-packages
+     '(flycheck-inline flymake-easy marginalia aggressive-indent esup magit evil corfu-candidate-overlay vertico orderless consult visual-fill-column use-package tempel pdf-tools org-roam org-cliplink hungry-delete hl-todo goto-chg flycheck exec-path-from-shell corfu cape)))
 (custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+  ;; custom-set-faces was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+  )

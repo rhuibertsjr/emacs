@@ -96,6 +96,10 @@
   "(rhjr) Vertical-border, dashes, etc."
   :group 'rhjr)
 
+(defface rhjr-face-flycheck-error '((t :extend t))
+  "(rhjr) Face for errors that are marked by flycheck."
+  :group 'rhjr)
+
 ;;- rhjr: initialize all the faces. 
 (defun rhjr-faces ()
   "(rhjr) Initialize all the faces for the 'rhjr' theme."
@@ -136,7 +140,10 @@
 
   (set-face-attribute 'rhjr-face-doc nil
     :inherit    'rhjr-face-default
-    :foreground  rhjr-colour-doc))
+    :foreground  rhjr-colour-doc)
+
+  (set-face-attribute 'rhjr-face-flycheck-error nil
+    :background  "#310201"))
 
 (provide 'rhjr-faces)
 
