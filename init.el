@@ -136,6 +136,15 @@
           (switch-to-buffer "*compilation*")
           (shrink-window (- h 15)))))))
 
+(defun rhjr/programmable-enviroment-mode ()
+  (progn
+	  (hl-line-mode)
+	  (indentinator-mode)
+	  (show-paren-mode 1)
+	  (visual-line-mode 1)
+	  (display-fill-column-indicator-mode 1)))
+
+
 ;;overlays
 (defun rhjr/comment-dividers ()
   (save-excursion
@@ -204,6 +213,16 @@
     (seq-uniq (seq-mapcat #'flycheck-related-errors errors))))
 
 ;;language
+(use-package treesit
+  :custom
+  (treesit-font-lock-level 4)
+  :config
+  (setq
+    treesit-language-source-alist
+    '((c   "https://github.com/tree-sitter/tree-sitter-c")
+       (cpp "https://github.com/tree-sitter/tree-sitter-cpp"))
+    font-lock-maximum-decoration t))
+
 (defconst rhjr/gnuish-c-style
   '((c-basic-offset . 2)
      (c-indent-level . 2)
@@ -215,33 +234,33 @@
          (brace-list-open . 0)
 
          ;;functions 
-         (defun-open             . 0)
-         (defun-block-intro      . +)
-         (arglist-intro          . +)
-         (arglist-close          . 0)
+             (defun-open             . 0)
+             (defun-block-intro      . +)
+             (arglist-intro          . +)
+             (arglist-close          . 0)
 
-         ;;switch-case
-         (case-label             . +)
+             ;;switch-case
+             (case-label             . +)
 
-         )))
-  "rhjr/gnuish-c-style")
+             )))
+      "rhjr/gnuish-c-style")
 
-(c-add-style "rhjr/gnuish-c-style" rhjr/gnuish-c-style)
+    (c-add-style "rhjr/gnuish-c-style" rhjr/gnuish-c-style)
 
-(setq-default
-  indent-tabs-mode nil
-  tab-width 2
-  c-default-style "rhjr/gnuish-c-style"
-  lisp-indent-offset 2)
+    (setq-default
+      indent-tabs-mode nil
+      tab-width 2
+      c-default-style "rhjr/gnuish-c-style"
+      lisp-indent-offset 2)
 
-;;files
-(use-package dired-x
-  :ensure nil
-  :config
-  (setq-default
-    dired-free-space nil
-    default-directory "c:\\Users\\Rhjr"
-    dired-omit-files
+    ;;files
+    (use-package dired-x
+      :ensure nil
+      :config
+      (setq-default
+        dired-free-space nil
+        default-directory "c:\\Users\\Rhjr"
+        dired-omit-files
     (rx (or
           (seq bol "."    eol)
           (seq bol ".git" eol)
@@ -381,7 +400,23 @@
 (add-to-list 'load-path "~\\.emacs.d\\thirdparty")
 (require 'indentinator)
 
-;;theme
+;;rhjr/writing
+(setq
+  Tex-master t
+  TeX-PDF-mode t
+  TeX-auto-save 1
+  TeX-parse-self t
+  TeX-source-correlate-start-server t)
+
+(setq-default
+  TeX-view-program-selection '((output-pdf "PDF Tools")))
+
+;;do not forget to actually install 'auctex' you dummy
+
+(use-package pdf-tools
+  :ensure t)
+
+;;rhjr/theme
 (add-to-list 'load-path "~\\.emacs.d\\themes")
 (add-to-list 'load-path "~\\.emacs.d\\themes\\themes")
 
@@ -395,7 +430,7 @@
 (rhjr-set-dark-theme)
 (rhjr/refresh-theme)
 
-;;keybindings
+;;rhjr/keybindings
 (global-unset-key (kbd "C-x 3"))
 (global-unset-key (kbd "C-x o"))
 (global-unset-key (kbd "C-x C-o"))
@@ -424,61 +459,71 @@
 (global-set-key (kbd "C-u") 'evil-scroll-up)
 (global-set-key (kbd "C-d") 'evil-scroll-down)
 
-;;modes
+;;rhjr/mode
 (tool-bar-mode   0)
 (menu-bar-mode   0)
 (scroll-bar-mode 0)
 
-;;hooks
+;;rhjr/hooks
 (add-hook 'emacs-startup-hook
 	(lambda ()
 	  (rhjr/profile-startup)
 	  (setq gc-cons-threshold (expt 2 23))))
 
-(add-hook 'visual-line-mode-hook #'visual-fill-column-mode)
-(add-hook 'prog-mode-hook
-	(lambda ()
-	  (hl-line-mode)
-	  (indentinator-mode)
-	  (show-paren-mode 1)
-	  (visual-line-mode 1)
-	  (display-fill-column-indicator-mode 1)))
+;;replace c-mode with c-ts-mode
+(add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
+(add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
+(add-to-list 'major-mode-remap-alist
+  '(c-or-c++-mode . c-or-c++-ts-mode))
 
-(add-hook 'c-mode-hook
+(add-hook 'visual-line-mode-hook #'visual-fill-column-mode)
+
+(add-hook 'c-ts-mode-hook
 	(lambda ()
 	  (rhjr/comment-dividers)
 	  (add-hook 'before-save-hook 'rhjr/comment-dividers nil 'local)))
-
-(add-hook 'compilation-mode-hook 'rhjr/compilation-buffer-bottom)
-
-(add-hook 'dired-mode-hook
-	'dired-omit-mode)
 
 (add-hook 'minibuffer-setup-hook
 	(lambda ()
 	  (evil-local-mode -1)
 	  (setq truncate-lines t)))
 
-(add-hook 'post-command-hook #'rhjr/remove-overlay)
+(add-hook 'pdf-view-mode-hook
+	(lambda ()
+    (setq
+      pdf-view-display-size 'fit-page)))
 
-;;fixes
-(add-to-list 'auto-mode-alist '("\\.el\\'" . lisp-mode)) ;; fix lisp mode on .el
+(add-hook 'dired-mode-hook       #'dired-omit-mode)
 
+(add-hook 'compilation-mode-hook #'rhjr/compilation-buffer-bottom)
+
+(add-hook 'post-command-hook     #'rhjr/remove-overlay)
+
+(add-hook 'prog-mode-hook        #'rhjr/programmable-enviroment-mode)
+(add-hook 'text-mode-hook        #'rhjr/programmable-enviroment-mode)
+
+(add-hook 'TeX-after-compilation-finished-functions
+  #'TeX-revert-document-buffer)
+
+(add-to-list 'auto-mode-alist '("\\.el\\'" . lisp-mode)) 
+(add-to-list 'auto-mode-alist '("\\.pdf\\'" . pdf-view-mode)) 
+
+;;rhjr/fix
 (setq minibuffer-prompt-properties ;; cursor in minibuffer-prompt
   '(read-only t cursor-intangible t face minibuffer-prompt))
 (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 
 ;;; init.el ends here.
 (custom-set-variables
-  ;; custom-set-variables was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
-  '(package-selected-packages
-     '(flycheck-inline flymake-easy marginalia aggressive-indent esup magit evil corfu-candidate-overlay vertico orderless consult visual-fill-column use-package tempel pdf-tools org-roam org-cliplink hungry-delete hl-todo goto-chg flycheck exec-path-from-shell corfu cape)))
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+    '(auctex flycheck-inline flymake-easy marginalia aggressive-indent esup magit evil corfu-candidate-overlay vertico orderless consult visual-fill-column use-package tempel pdf-tools org-roam org-cliplink hungry-delete hl-todo goto-chg flycheck exec-path-from-shell corfu cape)))
 (custom-set-faces
-  ;; custom-set-faces was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
-  )
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

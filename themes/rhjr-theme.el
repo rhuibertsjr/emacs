@@ -123,13 +123,20 @@
 
   (rhjr-set-face 'font-lock-keyword-face       'rhjr-face-main)
 
+  (set-face-attribute 'font-lock-function-name-face nil
+    :foreground "#b8bb26")
+
   (with-eval-after-load 'treesit
     (rhjr-set-face 'font-lock-bracket-face 'rhjr-face-accent)
     (rhjr-set-face 'font-lock-delimiter-face 'rhjr-face-accent)
 
+    (set-face-attribute 'font-lock-variable-name-face nil
+      :inherit 'rhjr-face-default
+      ;;:foreground "#82a587"
+      :foreground (face-foreground 'rhjr-face-default)
+      )
+
     ;;function
-    (set-face-attribute 'font-lock-function-name-face nil
-      :foreground "#b8bb26")
     (set-face-attribute 'font-lock-function-call-face nil
       :foreground "#b8bb26")
 
@@ -140,10 +147,37 @@
     ;;numbers
     (set-face-attribute 'font-lock-number-face nil
       :foreground "#d3869b")
+
     (set-face-attribute 'font-lock-escape-face nil
       :foreground (face-foreground 'rhjr-face-accent))
 
-    ))
+    )
+  )
+
+(defun rhjr-theme-tex ()
+  (with-eval-after-load 'font-latex
+    (rhjr-set-face 'font-latex-sectioning-0-face 'rhjr-face-accent)
+    (rhjr-set-face 'font-latex-sectioning-1-face 'rhjr-face-accent)
+    (rhjr-set-face 'font-latex-sectioning-2-face 'rhjr-face-accent)
+    (rhjr-set-face 'font-latex-sectioning-3-face 'rhjr-face-accent)
+    (rhjr-set-face 'font-latex-sectioning-4-face 'rhjr-face-accent)
+    (rhjr-set-face 'font-latex-sectioning-5-face 'rhjr-face-accent)
+
+    (rhjr-set-face 'font-latex-warning-face 'rhjr-face-accent)
+    (set-face-attribute 'font-latex-warning-face nil
+      :bold t)
+
+    (rhjr-set-face 'font-latex-bold-face 'rhjr-face-default)
+    (set-face-attribute 'font-latex-bold-face nil
+      :bold t)
+
+    (rhjr-set-face 'font-latex-italic-face 'rhjr-face-default)
+    (set-face-attribute 'font-latex-italic-face nil
+      :italic t)
+
+    (rhjr-set-face 'font-latex-math-face 'rhjr-face-accent)
+    (set-face-attribute 'font-latex-math-face nil
+      :bold t)))
 
 (defun rhjr-theme-languages ()
   ;;flycheck
@@ -160,8 +194,6 @@
     :background (face-background 'rhjr-face-default)
     :foreground (face-foreground 'rhjr-face-accent)
     :inherit 'rhjr-face-default)
-
-  ;;(set-face-attribute 'tooltip nil :background "yellow" :foreground "black" :box '(:line-width 2 :color "red"))
 
   (with-eval-after-load 'corfu
     (rhjr-set-face 'corfu-default 'rhjr-face-default)
@@ -214,7 +246,9 @@
   (rhjr-theme-modeline)
   (rhjr-theme-navigation)
   (rhjr-theme-fontlock)
-  (rhjr-theme-languages))
+  (rhjr-theme-languages)
+  (rhjr-theme-tex)
+  )
 
 (defun rhjr/refresh-theme ()
   ""
