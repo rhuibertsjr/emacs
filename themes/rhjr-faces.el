@@ -56,7 +56,7 @@
 (defcustom rhjr-font-family "Roboto Mono"
   "(rhjr)" :type 'string :group 'rhjr)
 
-(defcustom rhjr-font-size 12 
+(defcustom rhjr-font-size 12
   "(rhjr)" :type 'integer :group 'rhjr) 
 
 ;;faces
@@ -99,6 +99,31 @@
 (defface rhjr-face-flycheck-error '((t :extend t))
   "(rhjr) Face for errors that are marked by flycheck."
   :group 'rhjr)
+
+;;- rhjr: treesit
+(defface rhjr-ts-preprocess nil
+  "" :group 'rhjr)
+
+(defface rhjr-ts-preprocess-id nil
+  "" :group 'rhjr)
+
+(defface rhjr-ts-preprocess-func nil
+  "" :group 'rhjr)
+
+(defface rhjr-ts-preprocess-include-system nil
+  "" :group 'rhjr)
+
+(defface rhjr-ts-preprocess-include-literal nil
+  "" :group 'rhjr)
+
+(defface rhjr-ts-keywords nil
+  "" :group 'rhjr)
+
+(defface rhjr-ts-statement nil
+  "" :group 'rhjr)
+
+(defface rhjr-ts-punctuation nil
+  "" :group 'rhjr)
 
 ;;- rhjr: initialize all the faces. 
 (defun rhjr-faces ()
@@ -143,7 +168,43 @@
     :foreground  rhjr-colour-doc)
 
   (set-face-attribute 'rhjr-face-flycheck-error nil
-    :background  "#310201"))
+    :background  "#310201")
+
+  ;; treesit
+  ;; rhjr: preprocessor
+  (set-face-attribute 'rhjr-ts-preprocess nil
+    :inherit 'rhjr-face-default
+    :foreground  rhjr-colour-accent)
+
+  (set-face-attribute 'rhjr-ts-preprocess-id nil
+    :inherit 'rhjr-face-default
+    :foreground  rhjr-colour-main)
+
+  (set-face-attribute 'rhjr-ts-preprocess-include-system nil
+    :inherit 'rhjr-face-default
+    :foreground  rhjr-colour-doc)
+
+  (set-face-attribute 'rhjr-ts-preprocess-include-literal nil
+    :inherit 'rhjr-face-default
+    :foreground  rhjr-colour-doc)
+
+  (set-face-attribute 'rhjr-ts-preprocess-func nil
+    :inherit 'rhjr-face-default
+    :foreground  rhjr-colour-doc)
+
+  (set-face-attribute 'rhjr-ts-keywords nil
+    :inherit 'rhjr-face-default
+    :foreground  rhjr-colour-main)
+
+  (set-face-attribute 'rhjr-ts-statement nil
+    :inherit 'rhjr-face-default
+    :foreground "#fb4934")
+
+  (set-face-attribute 'rhjr-ts-punctuation nil
+    :inherit 'rhjr-face-default
+    :foreground rhjr-colour-accent)
+
+  )
 
 (provide 'rhjr-faces)
 

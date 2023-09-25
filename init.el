@@ -138,14 +138,13 @@
 
 (defun rhjr/programmable-enviroment-mode ()
   (progn
-	  (hl-line-mode)
+    ;;(hl-line-mode)
 	  (indentinator-mode)
 	  (show-paren-mode 1)
 	  (visual-line-mode 1)
 	  (display-fill-column-indicator-mode 1)))
 
-
-;;overlays
+;;rhjr/overlays
 (defun rhjr/comment-dividers ()
   (save-excursion
     (goto-char (point-min))
@@ -155,11 +154,14 @@
         (remove-overlays start end)
         (let ((overlay (make-overlay start end)))
           (overlay-put overlay 'evaporate t)
-          (overlay-put overlay
-		        'after-string (make-string (- 80 (current-column)) ?-)))))
+          ;;(overlay-put overlay 'face 'rhjr-face-mute)
+          (overlay-put overlay 'after-string
+            (concat " " (propertize
+                          (make-string (- 79 (current-column)) ?-)
+                          'face 'rhjr-face-mute))))))
     (forward-line)))
 
-;; Overlay inspired by 'flycheck-inline-mode' by @fmdkdd.
+;;inspired by 'flycheck-inline-mode' by @fmdkdd.
 (defvar-local rhjr/error-overlays nil
   "(rhjr) Currently active error overlay.")
 
@@ -204,8 +206,9 @@
     overlay))
 
 (defun rhjr/display-flycheck-error (error)
-  (let* ((pos (flycheck-error-pos error)))
-    (rhjr/add-error-overlay "" pos error)))
+  (let* ((pos (flycheck-error-pos error))
+          (msg (propertize (flycheck-error-message error))))
+    (rhjr/add-error-overlay msg pos error)))
 
 (defun rhjr/display-flycheck-errors (errors)
   (rhjr/remove-overlay)
@@ -213,15 +216,77 @@
     (seq-uniq (seq-mapcat #'flycheck-related-errors errors))))
 
 ;;language
+(defun rhjr/indentation ()
+  `(;;custom rules
+    ;;base rules
+    ,@(alist-get 'bsd (c-ts-mode--indent-styles 'c))))   
+
 (use-package treesit
   :custom
   (treesit-font-lock-level 4)
   :config
   (setq
+    c-ts-mode-indent-offset 2
+    c-ts-mode-indent-style #'rhjr/indentation
     treesit-language-source-alist
     '((c   "https://github.com/tree-sitter/tree-sitter-c")
        (cpp "https://github.com/tree-sitter/tree-sitter-cpp"))
     font-lock-maximum-decoration t))
+
+;;rhjr/c-mode
+(defvar rhjr/c-ts-mode-font-lock-settings 
+  (treesit-font-lock-rules
+    :language 'c :feature 'rhjr-ts-preprocess
+    :override t
+    '(["#if" "#ifdef" "#ifndef" "#else" "#elif" "#endif" "#elifdef" "#elifndef"
+        "#include" "#define" (preproc_directive)] @rhjr-ts-preprocess
+
+       (preproc_def name: (identifier) @rhjr-ts-preprocess-id)
+
+       (preproc_function_def name: (identifier) @rhjr-ts-preprocess-func)
+
+       (preproc_include path: (system_lib_string)
+         @rhjr-ts-preprocess-include-system)
+
+       (preproc_include path: (string_literal)
+         @rhjr-ts-preprocess-include-literal)
+       )
+
+    :language 'c :feature 'rhjr-ts-keywords
+    :override t
+    '(["default" "enum" "struct" "typedef" "union" "goto" "asm" "__asm__"
+        (primitive_type) (type_identifier) (type_descriptor) ]
+       @rhjr-ts-keywords
+
+       ["while" "for" "do" "continue" "break" "if" "else" "case" "switch"
+        "return"] @rhjr-ts-statement
+       )
+
+    :language 'c :feature 'rhjr-ts-punctuation
+    :override t
+    '([ ";" ":" "," "::" "..." "(" ")" "[" "]" "{" "}" ] @rhjr-ts-punctuation)
+
+    :language 'c :feature 'rhjr-ts-literals
+    :override t
+    '((string_literal) @font-lock-string-face
+       (number_literal) @font-lock-number-face
+       (null) @font-lock-constant-face
+       )
+
+    )
+  )
+
+(define-derived-mode rhjr/c-mode c-mode "rhjrc"
+  (cond
+    ((treesit-ready-p 'c)
+      (treesit-parser-create 'c)
+      (setq-local treesit-font-lock-settings rhjr/c-ts-mode-font-lock-settings)
+      (setq-local treesit-font-lock-feature-list
+        '((rhjr-ts-preprocess rhjr-ts-punctuation rhjr-ts-keywords
+            rhjr-ts-literals)
+           () ()))
+      (treesit-major-mode-setup))
+    (t)))
 
 (defconst rhjr/gnuish-c-style
   '((c-basic-offset . 2)
@@ -234,33 +299,33 @@
          (brace-list-open . 0)
 
          ;;functions 
-             (defun-open             . 0)
-             (defun-block-intro      . +)
-             (arglist-intro          . +)
-             (arglist-close          . 0)
+         (defun-open             . 0)
+         (defun-block-intro      . +)
+         (arglist-intro          . +)
+         (arglist-close          . 0)
 
-             ;;switch-case
-             (case-label             . +)
+         ;;switch-case
+         (case-label             . +)
 
-             )))
-      "rhjr/gnuish-c-style")
+         )))
+  "rhjr/gnuish-c-style")
 
-    (c-add-style "rhjr/gnuish-c-style" rhjr/gnuish-c-style)
+(c-add-style "rhjr/gnuish-c-style" rhjr/gnuish-c-style)
 
-    (setq-default
-      indent-tabs-mode nil
-      tab-width 2
-      c-default-style "rhjr/gnuish-c-style"
-      lisp-indent-offset 2)
+(setq-default
+  indent-tabs-mode nil
+  tab-width 2
+  c-default-style "rhjr/gnuish-c-style"
+  lisp-indent-offset 2)
 
-    ;;files
-    (use-package dired-x
-      :ensure nil
-      :config
-      (setq-default
-        dired-free-space nil
-        default-directory "c:\\Users\\Rhjr"
-        dired-omit-files
+;;files
+(use-package dired-x
+  :ensure nil
+  :config
+  (setq-default
+    dired-free-space nil
+    default-directory "c:\\Users\\Rhjr"
+    dired-omit-files
     (rx (or
           (seq bol "."    eol)
           (seq bol ".git" eol)
@@ -466,7 +531,7 @@
 
 ;;rhjr/hooks
 (add-hook 'emacs-startup-hook
-	(lambda ()
+  (lambda ()
 	  (rhjr/profile-startup)
 	  (setq gc-cons-threshold (expt 2 23))))
 
@@ -479,17 +544,17 @@
 (add-hook 'visual-line-mode-hook #'visual-fill-column-mode)
 
 (add-hook 'c-ts-mode-hook
-	(lambda ()
+  (lambda ()
 	  (rhjr/comment-dividers)
 	  (add-hook 'before-save-hook 'rhjr/comment-dividers nil 'local)))
 
 (add-hook 'minibuffer-setup-hook
-	(lambda ()
+  (lambda ()
 	  (evil-local-mode -1)
 	  (setq truncate-lines t)))
 
 (add-hook 'pdf-view-mode-hook
-	(lambda ()
+  (lambda ()
     (setq
       pdf-view-display-size 'fit-page)))
 
@@ -505,7 +570,7 @@
 (add-hook 'TeX-after-compilation-finished-functions
   #'TeX-revert-document-buffer)
 
-(add-to-list 'auto-mode-alist '("\\.el\\'" . lisp-mode)) 
+(add-to-list 'auto-mode-alist '("\\.el\\'" . emacs-lisp-mode)) 
 (add-to-list 'auto-mode-alist '("\\.pdf\\'" . pdf-view-mode)) 
 
 ;;rhjr/fix
@@ -515,15 +580,15 @@
 
 ;;; init.el ends here.
 (custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-    '(auctex flycheck-inline flymake-easy marginalia aggressive-indent esup magit evil corfu-candidate-overlay vertico orderless consult visual-fill-column use-package tempel pdf-tools org-roam org-cliplink hungry-delete hl-todo goto-chg flycheck exec-path-from-shell corfu cape)))
+  ;; custom-set-variables was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+  '(package-selected-packages
+     '(auctex flycheck-inline flymake-easy marginalia aggressive-indent esup magit evil corfu-candidate-overlay vertico orderless consult visual-fill-column use-package tempel pdf-tools org-roam org-cliplink hungry-delete hl-todo goto-chg flycheck exec-path-from-shell corfu cape)))
 (custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+  ;; custom-set-faces was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+  )
