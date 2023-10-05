@@ -146,20 +146,20 @@
 
 ;;rhjr/overlays
 (defun rhjr/comment-dividers ()
+  (interactive)
   (save-excursion
     (goto-char (point-min))
+    (dolist (overlay (overlays-in (point-min) (point-max)))
+      (delete-overlay overlay))
     (while (re-search-forward "//-.*" nil t)
       (let* ((start (match-beginning 0))
-             (end (match-end 0)))
-        (remove-overlays start end)
+              (end (match-end 0)))
         (let ((overlay (make-overlay start end)))
           (overlay-put overlay 'evaporate t)
-          ;;(overlay-put overlay 'face 'rhjr-face-mute)
           (overlay-put overlay 'after-string
             (concat " " (propertize
                           (make-string (- 79 (current-column)) ?-)
-                          'face 'rhjr-face-mute))))))
-    (forward-line)))
+                          'face 'rhjr-face-mute))))))))
 
 ;;inspired by 'flycheck-inline-mode' by @fmdkdd.
 (defvar-local rhjr/error-overlays nil
@@ -218,8 +218,13 @@
 ;;language
 (defun rhjr/indentation ()
   `(;;custom rules
-    ;;base rules
-    ,@(alist-get 'bsd (c-ts-mode--indent-styles 'c))))   
+     ((node-is ")") parent-bol 0)
+     ((match nil "argument_list" nil 1 1) parent-bol c-ts-mode-indent-offset)
+     ((parent-is "argument_list") prev-sibling 0)
+     ((match nil "parameter_list" nil 1 1) parent-bol c-ts-mode-indent-offset)
+     ((parent-is "parameter_list") prev-sibling 0) 
+     ;;base rules
+     ,@(alist-get 'bsd (c-ts-mode--indent-styles 'c))))   
 
 (use-package treesit
   :custom
@@ -515,7 +520,9 @@
 (global-set-key (kbd "C-s") 'consult-ripgrep)
 
 (global-unset-key (kbd "C-x b"))
+(global-unset-key (kbd "C-x p b"))
 (global-set-key (kbd "C-x b") 'consult-buffer)
+(global-set-key (kbd "C-x p b") 'consult-project-buffer)
 
 (global-unset-key (kbd "C-x 4 g"))
 (global-set-key (kbd "C-x 4 g") 'bookmark-jump-other-window)
@@ -543,14 +550,13 @@
 
 (add-hook 'visual-line-mode-hook #'visual-fill-column-mode)
 
-(add-hook 'c-ts-mode-hook
-  (lambda ()
-	  (rhjr/comment-dividers)
-	  (add-hook 'before-save-hook 'rhjr/comment-dividers nil 'local)))
+(add-hook 'c-ts-mode-hook 'rhjr/comment-dividers)
+(add-hook 'after-save-hook 'rhjr/comment-dividers)
 
 (add-hook 'minibuffer-setup-hook
   (lambda ()
-	  (evil-local-mode -1)
+    (if (fboundp 'evil-local-mode)
+	    (evil-local-mode -1))
 	  (setq truncate-lines t)))
 
 (add-hook 'pdf-view-mode-hook
