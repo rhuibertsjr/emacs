@@ -46,7 +46,7 @@
 
   ;;corfu
   completion-cycle-threshold 3
-  tab-always-indent 'complete
+  tab-always-indent t
   dabbrev-case-fold-search nil
   dabbrev-case-replace nil
 
@@ -218,11 +218,14 @@
 ;;language
 (defun rhjr/indentation ()
   `(;;custom rules
-     ((node-is ")") parent-bol 0)
-     ((match nil "argument_list" nil 1 1) parent-bol c-ts-mode-indent-offset)
-     ((parent-is "argument_list") prev-sibling 0)
+     ((query "(if_statement (expression_statement) @indent)")
+       parent-bol c-ts-mode-indent-offset)
+     ((match nil "argument_ist" nil 1 1)
+       parent-bol c-ts-mode-indent-offset)
+     ((parent-is "argument_list")
+       prev-sibling 0)
      ((match nil "parameter_list" nil 1 1) parent-bol c-ts-mode-indent-offset)
-     ((parent-is "parameter_list") prev-sibling 0) 
+     ((parent-is "parameter_list") prev-sibling 0)
      ;;base rules
      ,@(alist-get 'bsd (c-ts-mode--indent-styles 'c))))   
 
