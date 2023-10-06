@@ -100,8 +100,12 @@
   (rhjr-set-face 'dired-directory             'rhjr-face-main)
 
   ;; Parentheses
-  (rhjr-set-face 'show-paren-match            'rhjr-face-accent)
-  (rhjr-set-face 'show-paren-mismatch         'rhjr-face-error)
+  (set-face-attribute 'show-paren-match nil
+    :inherit 'rhjr-face-default
+    :bold t
+    :background (face-background 'rhjr-face-default)
+    :foreground "#8ffff2")
+  (rhjr-set-face 'show-paren-mismatch 'rhjr-face-error)
 
   ;; Searching
   (rhjr-set-face 'isearch                     'rhjr-face-region)
@@ -127,7 +131,7 @@
     :foreground "#b8bb26")
 
   (with-eval-after-load 'treesit
-    (rhjr-set-face 'font-lock-bracket-face 'rhjr-face-accent)
+    (rhjr-set-face 'font-lock-bracket-face   'rhjr-face-default)
     (rhjr-set-face 'font-lock-delimiter-face 'rhjr-face-accent)
 
     (set-face-attribute 'font-lock-variable-name-face nil

@@ -25,12 +25,12 @@
     frame-background-mode  'dark)
   (setq ; Custom variables
     rhjr-theme-variant     "dark"
-    rhjr-colour-foreground "#f5f5f7"
+    rhjr-colour-foreground "#e2d9c3"
     rhjr-colour-background "#020202"
     rhjr-colour-main       "#fcaa05"
     rhjr-colour-accent     "#fe8019"
     rhjr-colour-region     "#1e1e1e"
-    rhjr-colour-mute       "#8e8e93"
+    rhjr-colour-mute       "#4f4f4f"
     rhjr-colour-doc        "#b8bb26"
     rhjr-colour-complete   "#b8bb26"
     rhjr-colour-error      "#ff453a"

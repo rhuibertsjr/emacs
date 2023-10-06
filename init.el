@@ -70,7 +70,7 @@
      (:propertize "%m" face rhjr-face-doc)
      (:propertize " - " face rhjr-face-border)
 
-                                        ;directory path
+     ;;directory path
      (:eval
        (if (eq major-mode 'dired-mode)
          (if (string-match-p "\\`\\*.*\\*\\'" (buffer-name))
@@ -86,7 +86,7 @@
      (:propertize " - " face rhjr-face-border)
      (:propertize "Row: %l" face default)
      (:propertize " - " face rhjr-face-border)
-     (:propertize "Col: %C" face default)
+     (:propertize "Col: %C " face default)
 
      ;;etc
      (:propertize "%-" face rhjr-face-border)))
@@ -95,7 +95,7 @@
   '(;;mode
      (:propertize "%-" face rhjr-face-border)))
 
-;;functions
+;;rhjr/functions
 (defun rhjr/profile-startup ()
   "(rhjr-func) startup profiler."
   (message
@@ -136,13 +136,27 @@
           (switch-to-buffer "*compilation*")
           (shrink-window (- h 15)))))))
 
+(defun rhjr/run-executable ()
+  (interactive)
+  (let ((root (project-root (project-current))))
+    (if root
+      (let ((bin-folder (expand-file-name "bin" root))
+            (exe-file (car
+                        (directory-files-recursively
+                          (expand-file-name "bin" root) "\\.exe$"))))
+        (if exe-file
+          (async-shell-command (concat "start " exe-file) nil nil)
+          (message
+            "(rhjr/run-executable) No .exe files found in the 'bin/' folder.")))
+      (message "(rhjr/run-executable) Currently not in a project."))))
+
 (defun rhjr/programmable-enviroment-mode ()
   (progn
-    ;;(hl-line-mode)
-	  (indentinator-mode)
-	  (show-paren-mode 1)
-	  (visual-line-mode 1)
-	  (display-fill-column-indicator-mode 1)))
+    (hl-line-mode)
+    (indentinator-mode)
+    (show-paren-mode 1)
+    (visual-line-mode 1)
+    (display-fill-column-indicator-mode 1)))
 
 ;;rhjr/overlays
 (defun rhjr/comment-dividers ()
@@ -244,6 +258,17 @@
 ;;rhjr/c-mode
 (defvar rhjr/c-ts-mode-font-lock-settings 
   (treesit-font-lock-rules
+    :language 'c :feature 'rhjr-ts-comments
+    :override t
+    `((comment) @font-lock-comment-face)
+
+    :language 'c :feature 'rhjr-ts-function
+    :override t
+    '((call_expression
+        function:
+        [(identifier) @font-lock-function-call-face
+          (field_expression field: (field_identifier) @font-lock-function-call-face)]))
+
     :language 'c :feature 'rhjr-ts-preprocess
     :override t
     '(["#if" "#ifdef" "#ifndef" "#else" "#elif" "#endif" "#elifdef" "#elifndef"
@@ -267,7 +292,7 @@
        @rhjr-ts-keywords
 
        ["while" "for" "do" "continue" "break" "if" "else" "case" "switch"
-        "return"] @rhjr-ts-statement
+         "return"] @rhjr-ts-statement
        )
 
     :language 'c :feature 'rhjr-ts-punctuation
@@ -291,7 +316,7 @@
       (setq-local treesit-font-lock-settings rhjr/c-ts-mode-font-lock-settings)
       (setq-local treesit-font-lock-feature-list
         '((rhjr-ts-preprocess rhjr-ts-punctuation rhjr-ts-keywords
-            rhjr-ts-literals)
+            rhjr-ts-literals rhjr-ts-comments rhjr-ts-function)
            () ()))
       (treesit-major-mode-setup))
     (t)))
@@ -422,12 +447,6 @@
     vertico-cycle t
     vertico-count 10))
 
-(use-package marginalia
-  :bind (:map minibuffer-local-map
-	        ("M-A" . marginalia-cycle))
-  :init
-  (marginalia-mode))
-
 (use-package orderless
   :ensure t
   :init
@@ -454,7 +473,7 @@
   :init
   (global-flycheck-mode))
 
-;;misc 
+;;rhjr/misc 
 (use-package org-cliplink
   :ensure t)
 
@@ -472,6 +491,12 @@
 
 (add-to-list 'load-path "~\\.emacs.d\\thirdparty")
 (require 'indentinator)
+
+(use-package highlight-parentheses
+  :ensure t
+  :custom
+  (highlight-parentheses-colors
+    '("#8ffff2" "#8ffff2" "#8ffff2" "#8ffff2" "#8ffff2")))
 
 ;;rhjr/writing
 (setq
@@ -530,14 +555,22 @@
 (global-unset-key (kbd "C-x 4 g"))
 (global-set-key (kbd "C-x 4 g") 'bookmark-jump-other-window)
 
-
 (global-set-key (kbd "C-u") 'evil-scroll-up)
 (global-set-key (kbd "C-d") 'evil-scroll-down)
+
+(global-set-key (kbd "<f1>") 'project-compile)
+(global-set-key (kbd "<f2>") 'recompile)
+(global-set-key (kbd "<f3>") 'rhjr/run-executable)
 
 ;;rhjr/mode
 (tool-bar-mode   0)
 (menu-bar-mode   0)
 (scroll-bar-mode 0)
+(pixel-scroll-precision-mode)
+
+(recentf-mode 1)
+(setq recentf-max-menu-items 25)
+(setq recentf-max-saved-items 25)
 
 ;;rhjr/hooks
 (add-hook 'emacs-startup-hook
@@ -574,6 +607,8 @@
 (add-hook 'post-command-hook     #'rhjr/remove-overlay)
 
 (add-hook 'prog-mode-hook        #'rhjr/programmable-enviroment-mode)
+(add-hook 'prog-mode-hook        #'highlight-parentheses-mode)
+
 (add-hook 'text-mode-hook        #'rhjr/programmable-enviroment-mode)
 
 (add-hook 'TeX-after-compilation-finished-functions
@@ -594,7 +629,7 @@
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
   '(package-selected-packages
-     '(auctex flycheck-inline flymake-easy marginalia aggressive-indent esup magit evil corfu-candidate-overlay vertico orderless consult visual-fill-column use-package tempel pdf-tools org-roam org-cliplink hungry-delete hl-todo goto-chg flycheck exec-path-from-shell corfu cape)))
+     '(auctex flycheck-inline flymake-easy aggressive-indent esup magit evil corfu-candidate-overlay vertico orderless consult visual-fill-column use-package tempel pdf-tools org-roam org-cliplink hungry-delete hl-todo goto-chg flycheck exec-path-from-shell corfu cape)))
 (custom-set-faces
   ;; custom-set-faces was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
