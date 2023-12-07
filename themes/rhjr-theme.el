@@ -100,11 +100,7 @@
   (rhjr-set-face 'dired-directory             'rhjr-face-main)
 
   ;; Parentheses
-  (set-face-attribute 'show-paren-match nil
-    :inherit 'rhjr-face-default
-    :bold t
-    :background (face-background 'rhjr-face-default)
-    :foreground "#8ffff2")
+  (rhjr-set-face 'show-paren-match    'rhjr-face-show-parens-match)
   (rhjr-set-face 'show-paren-mismatch 'rhjr-face-error)
 
   ;; Searching
@@ -167,6 +163,8 @@
     (rhjr-set-face 'font-latex-sectioning-4-face 'rhjr-face-accent)
     (rhjr-set-face 'font-latex-sectioning-5-face 'rhjr-face-accent)
 
+    (rhjr-set-face 'font-latex-sedate-face 'rhjr-face-accent)
+
     (rhjr-set-face 'font-latex-warning-face 'rhjr-face-accent)
     (set-face-attribute 'font-latex-warning-face nil
       :bold t)
@@ -193,6 +191,10 @@
     :extend t
     :background (face-background 'rhjr-face-flycheck-error)
     :underline nil)
+
+  (with-eval-after-load 'fia
+    (set-face-attribute 'fia-error nil
+      :foreground (face-foreground 'rhjr-face-error)))
 
   (set-face-attribute 'tooltip nil
     :background (face-background 'rhjr-face-default)
@@ -236,43 +238,50 @@
     :background (face-background 'default)
     :foreground (face-foreground 'rhjr-face-main)
 
-      :overline nil
-      :underline nil
-      :box nil
-      :box `(:line-width 10
-              :color ,(face-background 'default)
-              :style nil)
-      :inherit nil))
+    :overline nil
+    :underline nil
+    :box nil
+    :box `(:line-width 10
+            :color ,(face-background 'default)
+            :style nil)
+    :inherit nil))
 
-  (defun rhjr-theme ()
-    "The core of the rhuibertsjr theme."
-    (rhjr-theme-basics)
-    (rhjr-theme-modeline)
-    (rhjr-theme-navigation)
-    (rhjr-theme-fontlock)
-    (rhjr-theme-languages)
-    (rhjr-theme-tex)
-    )
+(defun rhjr-theme-org ()
+  (with-eval-after-load 'org
+    (rhjr-set-face 'org-level-1 'rhjr-face-org-levels)
+    (rhjr-set-face 'org-level-2 'rhjr-face-org-levels)
+    (rhjr-set-face 'org-level-3 'rhjr-face-org-levels)
+    (rhjr-set-face 'org-level-4 'rhjr-face-org-levels)))
 
-  (defun rhjr/refresh-theme ()
-    ""
-    (interactive)
-    (progn
-      (rhjr-faces)
-      (rhjr-theme)))
+(defun rhjr-theme ()
+  "The core of the rhuibertsjr theme."
+  (rhjr-theme-basics)
+  (rhjr-theme-modeline)
+  (rhjr-theme-navigation)
+  (rhjr-theme-fontlock)
+  (rhjr-theme-languages)
+  (rhjr-theme-tex)
+  (rhjr-theme-org))
 
-  (defun rhjr/toggle-theme ()
-    ""
-    (interactive)
-    (cond ((string= rhjr-theme-variant "light")
-            (rhjr-set-dark-theme))
-      ((string= rhjr-theme-variant "dark")
-        (rhjr-set-light-theme))
-      (t nil))
-    (rhjr/refresh-theme))
+(defun rhjr/refresh-theme ()
+  ""
+  (interactive)
+  (progn
+    (rhjr-faces)
+    (rhjr-theme)))
 
-  ;; package
-  (provide 'rhjr-theme)
+(defun rhjr/toggle-theme ()
+  ""
+  (interactive)
+  (cond ((string= rhjr-theme-variant "light")
+          (rhjr-set-dark-theme))
+    ((string= rhjr-theme-variant "dark")
+      (rhjr-set-light-theme))
+    (t nil))
+  (rhjr/refresh-theme))
 
-  ;;
+;; package
+(provide 'rhjr-theme)
+
+;;
 ;;; rhjr-theme.el ends here.

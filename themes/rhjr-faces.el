@@ -125,6 +125,15 @@
 (defface rhjr-ts-punctuation nil
   "" :group 'rhjr)
 
+;;org-mode
+(defface rhjr-face-org-levels nil
+  "" :group 'rhjr)
+
+;;show-parens
+(defface rhjr-face-show-parens-match nil
+  "(rhjr) Show Parens mode matching parenthesis."
+  :group 'rhjr)
+
 ;;- rhjr: initialize all the faces. 
 (defun rhjr-faces ()
   "(rhjr) Initialize all the faces for the 'rhjr' theme."
@@ -204,6 +213,13 @@
     :inherit 'rhjr-face-default
     :foreground rhjr-colour-accent)
 
+  (set-face-attribute 'rhjr-face-org-levels nil
+    :inherit 'rhjr-face-default
+    :bold t)
+
+  (set-face-attribute 'rhjr-face-show-parens-match nil
+    :inherit 'rhjr-face-default
+    :foreground rhjr-colour-accent)
   )
 
 (provide 'rhjr-faces)

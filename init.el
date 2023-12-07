@@ -11,6 +11,9 @@
 ;;important!
 (global-set-key (kbd "C-x C-g") 'bookmark-jump)
 
+(when (memq window-system '(mac ns x))
+  (exec-path-from-shell-initialize))
+
 ;; defaults
 (setq-default
   ;;frame
@@ -39,6 +42,9 @@
   scroll-down-aggressively  0.01
   scroll-preserve-screen-position t
   auto-window-vscroll       nil
+
+  ;; tramp
+  tramp-default-method "plink"
 
   ;;compilation
   compile-command "build"
@@ -96,6 +102,28 @@
      (:propertize "%-" face rhjr-face-border)))
 
 ;;rhjr/functions
+(defvar rhjr/previous-buffer nil
+  "Variable to store the previous buffer.")
+
+(defun rhjr/is-compilation-buffer ()
+  "Check if the current buffer is the compilation buffer."
+  (string= (buffer-name) "*compilation*"))
+
+(defun rhjr/change-compilation-buffer-size (delta)
+  (let ((current-height (window-total-height)))
+    (if (and (> (+ current-height delta) 0) (< (+ current-height delta) 20))
+      (enlarge-window delta))))
+
+(defun rhjr/compilation-buffer-peek ()
+  "Check if the current buffer is the compilation buffer after a buffer switch."
+  (let ((current-buffer-name (buffer-name)))
+    (if (and rhjr/previous-buffer (string= rhjr/previous-buffer "*compilation*")
+          (not (rhjr/is-compilation-buffer)))
+      (enlarge-window 10)
+      (if (rhjr/is-compilation-buffer)
+        (rhjr/change-compilation-buffer-size 10)))
+    (setq rhjr/previous-buffer current-buffer-name)))
+
 (defun rhjr/profile-startup ()
   "(rhjr-func) startup profiler."
   (message
@@ -128,33 +156,32 @@
 (defun rhjr/compilation-buffer-bottom ()
   "Compile window always at the bottom."
   (when (not (get-buffer-window "*compilation*"))
-    (save-selected-window
-      (save-excursion
-        (let* ((w (split-window-vertically))
-                (h (window-height w)))
-          (select-window w)
-          (switch-to-buffer "*compilation*")
-          (shrink-window (- h 15)))))))
+    (let* ((w (split-window-vertically))
+            (h (window-height w)))
+      (select-window w)
+      (switch-to-buffer "*compilation*")
+      (shrink-window (- h 15)))))
+
+(defun rhjr/build-executable ()
+  (interactive)
+  (let ((root (project-root (project-current))))
+    (if root
+      (compile (concat root "build"))
+      (message "(rhjr) Currently not in a project."))))
 
 (defun rhjr/run-executable ()
   (interactive)
   (let ((root (project-root (project-current))))
     (if root
-      (let ((bin-folder (expand-file-name "bin" root))
-            (exe-file (car
-                        (directory-files-recursively
-                          (expand-file-name "bin" root) "\\.exe$"))))
-        (if exe-file
-          (async-shell-command (concat "start " exe-file) nil nil)
-          (message
-            "(rhjr/run-executable) No .exe files found in the 'bin/' folder.")))
-      (message "(rhjr/run-executable) Currently not in a project."))))
+      (compile (concat root "start.bat"))
+      (message "(rhjr) Currently not in a project."))))
 
 (defun rhjr/programmable-enviroment-mode ()
   (progn
     (hl-line-mode)
     (indentinator-mode)
     (show-paren-mode 1)
+    (visual-fill-column-mode 1)
     (visual-line-mode 1)
     (display-fill-column-indicator-mode 1)))
 
@@ -173,75 +200,85 @@
           (overlay-put overlay 'after-string
             (concat " " (propertize
                           (make-string (- 79 (current-column)) ?-)
+                          'face 'rhjr-face-mute))))))
+    (goto-char (point-min))
+    (while (re-search-forward "//=.*" nil t)
+      (let* ((start (match-beginning 0))
+              (end (match-end 0)))
+        (let ((overlay (make-overlay start end)))
+          (overlay-put overlay 'evaporate t)
+          (overlay-put overlay 'after-string
+            (concat " " (propertize
+                          (make-string (- 79 (current-column)) ?=)
                           'face 'rhjr-face-mute))))))))
 
 ;;inspired by 'flycheck-inline-mode' by @fmdkdd.
-(defvar-local rhjr/error-overlays nil
-  "(rhjr) Currently active error overlay.")
-
-(defun rhjr/contains-error (overlay &optional pt)
-  (let* ((pos (or pt (point)))
-          (err (overlay-get overlay 'error))
-          (region (flycheck-error-region-for-mode err 'symbols)))
-    (and overlay 
-      (overlay-get overlay 'rhjr)
-      err
-      (memq err flycheck-current-errors)
-      region
-      (>= pos (car region))
-      (<= pos (cdr region)))))
-
-(defun rhjr/remove-overlay ()
-  (setq rhjr/error-overlays 
-    (seq-remove #'rhjr/delete-overlay rhjr/error-overlays)))
-
-(defun rhjr/check-overlay (err)
-  (seq-find (lambda (p) (eq err (overlay-get p 'error)))
-    rhjr/error-overlays))
-
-(defun rhjr/add-error-overlay (msg &optional pos err)
-  (unless (rhjr/check-overlay err)
-    (push (rhjr/create-overlay msg pos err) rhjr/error-overlays)))
-
-(defun rhjr/delete-overlay (overlay)
-  (if (rhjr/contains-error overlay)
-    nil
-    (progn (delete-overlay overlay) t)))
-
-(defun rhjr/create-overlay (msg &optional pos err)
-  (pcase-let*
-    ((overlay (make-overlay
-                (line-beginning-position) (+ (line-end-position) 1))))
-    (overlay-put overlay 'face 'rhjr-face-flycheck-error)
-    (overlay-put overlay 'priority 10)
-    (overlay-put overlay 'extend t)
-    (overlay-put overlay 'rhjr t)
-    (overlay-put overlay 'error err)
-    overlay))
-
-(defun rhjr/display-flycheck-error (error)
-  (let* ((pos (flycheck-error-pos error))
-          (msg (propertize (flycheck-error-message error))))
-    (rhjr/add-error-overlay msg pos error)))
-
-(defun rhjr/display-flycheck-errors (errors)
-  (rhjr/remove-overlay)
-  (mapc #'rhjr/display-flycheck-error
-    (seq-uniq (seq-mapcat #'flycheck-related-errors errors))))
+;;(defvar-local rhjr/error-overlays nil
+;;"(rhjr) Currently active error overlay.")
+;;
+;;(defun rhjr/contains-error (overlay &optional pt)
+;;(let* ((pos (or pt (point)))
+;;        (err (overlay-get overlay 'error))
+;;          (region (flycheck-error-region-for-mode err 'symbols)))
+;;    (and overlay 
+;;      (overlay-get overlay 'rhjr)
+;;      err
+;;      (memq err flycheck-current-errors)
+;;      region
+;;      (>= pos (car region))
+;;      (<= pos (cdr region)))))
+;;
+;;(defun rhjr/remove-overlay ()
+;;  (setq rhjr/error-overlays 
+;;    (seq-remove #'rhjr/delete-overlay rhjr/error-overlays)))
+;;
+;;(defun rhjr/check-overlay (err)
+;;  (seq-find (lambda (p) (eq err (overlay-get p 'error)))
+;;    rhjr/error-overlays))
+;;
+;;(defun rhjr/add-error-overlay (msg &optional pos err)
+;;  (unless (rhjr/check-overlay err)
+;;    (push (rhjr/create-overlay msg pos err) rhjr/error-overlays)))
+;;
+;;(defun rhjr/delete-overlay (overlay)
+;;  (if (rhjr/contains-error overlay)
+;;    nil
+;;    (progn (delete-overlay overlay) t)))
+;;
+;;(defun rhjr/create-overlay (msg &optional pos err)
+;;  (pcase-let*
+;;    ((overlay (make-overlay
+;;                (line-beginning-position) (+ (line-end-position) 1))))
+;;    (overlay-put overlay 'face 'rhjr-face-flycheck-error)
+;;    (overlay-put overlay 'priority 10)
+;;    (overlay-put overlay 'extend t)
+;;    (overlay-put overlay 'rhjr t)
+;;    (overlay-put overlay 'error err)
+;;    overlay))
+;;
+;;(defun rhjr/display-flycheck-error (error)
+;;  (let* ((pos (flycheck-error-pos error))
+;;          (msg (propertize (flycheck-error-message error))))
+;;    (rhjr/add-error-overlay msg pos error)))
+;;
+;;(defun rhjr/display-flycheck-errors (errors)
+;;  (rhjr/remove-overlay)
+;;  (mapc #'rhjr/display-flycheck-error
+;;    (seq-uniq (seq-mapcat #'flycheck-related-errors errors))))
 
 ;;language
+(setq treesit--indent-verbose t)
+
 (defun rhjr/indentation ()
-  `(;;custom rules
-     ((query "(if_statement (expression_statement) @indent)")
-       parent-bol c-ts-mode-indent-offset)
-     ((match nil "argument_ist" nil 1 1)
-       parent-bol c-ts-mode-indent-offset)
-     ((parent-is "argument_list")
-       prev-sibling 0)
+  `( ;; custom rules
+     ((match nil "argument_list" nil 1 1) parent-bol c-ts-mode-indent-offset)
+     ((parent-is "argument_list") parent-bol c-ts-mode-indent-offset)  
      ((match nil "parameter_list" nil 1 1) parent-bol c-ts-mode-indent-offset)
-     ((parent-is "parameter_list") prev-sibling 0)
-     ;;base rules
-     ,@(alist-get 'bsd (c-ts-mode--indent-styles 'c))))   
+     ((parent-is "parameter_list") parent-bol c-ts-mode-indent-offset)
+
+     ;; bsd rules
+     ,@(alist-get 'bsd (c-ts-mode--indent-styles 'c))
+     ))       
 
 (use-package treesit
   :custom
@@ -362,6 +399,12 @@
     (rx (or
           (seq bol "."    eol)
           (seq bol ".git" eol)
+          (seq bol ".dir-locals.el" eol)
+          (seq bol "auto" eol)
+          (seq bol "research-paper.log" eol)
+          (seq bol "research-paper.aux" eol)
+          (seq bol "research-paper.toc" eol)
+          (seq bol "research-paper.out" eol)
           (seq bol "desktop.ini" eol)))
     dired-use-ls-dired t
     insert-directory-program "/usr/bin/ls"
@@ -395,8 +438,8 @@
     (org-mode  . corfu-mode))
   :custom
   (corfu-auto t)
-  (corfu-auto-prefix 3)
-  (corfu-auto-delay 0.3)
+  (corfu-auto-prefix 2)
+  (corfu-auto-delay 0.2)
   :config
   (global-corfu-mode)
   (corfu-history-mode))
@@ -442,7 +485,7 @@
 	        ("M-h" . backward-kill-word))
   :init
   (vertico-mode)
-  (vertico-buffer-mode)
+  ;;(vertico-buffer-mode)
   (setq
     vertico-cycle t
     vertico-count 10))
@@ -469,9 +512,7 @@
     flycheck-highlighting-mode 'lines
     flycheck-check-syntax-automatically '(save)
     flycheck-indication-mode nil
-    flycheck-display-errors-function #'rhjr/display-flycheck-errors)
-  :init
-  (global-flycheck-mode))
+    flycheck-display-errors-function #'rhjr/display-flycheck-errors))
 
 ;;rhjr/misc 
 (use-package org-cliplink
@@ -491,6 +532,7 @@
 
 (add-to-list 'load-path "~\\.emacs.d\\thirdparty")
 (require 'indentinator)
+(require 'fia)
 
 (use-package highlight-parentheses
   :ensure t
@@ -499,8 +541,17 @@
     '("#8ffff2" "#8ffff2" "#8ffff2" "#8ffff2" "#8ffff2")))
 
 ;;rhjr/writing
+(use-package org
+  :ensure t
+  :hook
+  (( org-mode . org-indent-mode )
+    ( org-mode . olivetti-mode ))
+  :config
+  (setq
+    org-hide-emphasis-markers t))
+
 (setq
-  Tex-master t
+  Tex-master nil
   TeX-PDF-mode t
   TeX-auto-save 1
   TeX-parse-self t
@@ -513,6 +564,11 @@
 
 (use-package pdf-tools
   :ensure t)
+
+;;rhjr/plots
+(use-package gnuplot
+  :ensure t
+  :mode ("\\.gp\\'" . gnuplot-mode))
 
 ;;rhjr/theme
 (add-to-list 'load-path "~\\.emacs.d\\themes")
@@ -550,7 +606,7 @@
 (global-unset-key (kbd "C-x b"))
 (global-unset-key (kbd "C-x p b"))
 (global-set-key (kbd "C-x b") 'consult-buffer)
-(global-set-key (kbd "C-x p b") 'consult-project-buffer)
+(global-set-key (kbd "C-x p") 'consult-project-buffer)
 
 (global-unset-key (kbd "C-x 4 g"))
 (global-set-key (kbd "C-x 4 g") 'bookmark-jump-other-window)
@@ -558,9 +614,8 @@
 (global-set-key (kbd "C-u") 'evil-scroll-up)
 (global-set-key (kbd "C-d") 'evil-scroll-down)
 
-(global-set-key (kbd "<f1>") 'project-compile)
-(global-set-key (kbd "<f2>") 'recompile)
-(global-set-key (kbd "<f3>") 'rhjr/run-executable)
+(global-set-key (kbd "<f1>") 'rhjr/build-executable)
+(global-set-key (kbd "<f2>") 'rhjr/run-executable)
 
 ;;rhjr/mode
 (tool-bar-mode   0)
@@ -584,8 +639,6 @@
 (add-to-list 'major-mode-remap-alist
   '(c-or-c++-mode . c-or-c++-ts-mode))
 
-(add-hook 'visual-line-mode-hook #'visual-fill-column-mode)
-
 (add-hook 'c-ts-mode-hook 'rhjr/comment-dividers)
 (add-hook 'after-save-hook 'rhjr/comment-dividers)
 
@@ -600,16 +653,20 @@
     (setq
       pdf-view-display-size 'fit-page)))
 
+(add-hook 'org-mode-hook
+  (lambda ()
+    (visual-line-mode)
+    (visual-fill-column-mode -1)))
+
 (add-hook 'dired-mode-hook       #'dired-omit-mode)
 
-(add-hook 'compilation-mode-hook #'rhjr/compilation-buffer-bottom)
+(add-hook 'compilation-mode-hook   #'rhjr/compilation-buffer-bottom)
+(add-hook 'buffer-list-update-hook #'rhjr/compilation-buffer-peek)
 
-(add-hook 'post-command-hook     #'rhjr/remove-overlay)
+;;(add-hook 'post-command-hook     #'rhjr/remove-overlay)
 
 (add-hook 'prog-mode-hook        #'rhjr/programmable-enviroment-mode)
 (add-hook 'prog-mode-hook        #'highlight-parentheses-mode)
-
-(add-hook 'text-mode-hook        #'rhjr/programmable-enviroment-mode)
 
 (add-hook 'TeX-after-compilation-finished-functions
   #'TeX-revert-document-buffer)
@@ -629,7 +686,13 @@
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
   '(package-selected-packages
-     '(auctex flycheck-inline flymake-easy aggressive-indent esup magit evil corfu-candidate-overlay vertico orderless consult visual-fill-column use-package tempel pdf-tools org-roam org-cliplink hungry-delete hl-todo goto-chg flycheck exec-path-from-shell corfu cape)))
+     '(olivetti gnuplot auctex flycheck-inline flymake-easy aggressive-indent esup magit evil corfu-candidate-overlay vertico orderless consult visual-fill-column use-package tempel pdf-tools org-roam org-cliplink hungry-delete hl-todo goto-chg flycheck exec-path-from-shell corfu cape))
+  '(safe-local-variable-values
+     '((eval progn
+         (setenv "IDF_PATH" "C:\\Espressif\\frameworks\\esp-idf-v5.1.1")
+         (setenv "PATH"
+           (concat "C:\\Espressif\\tools\\xtensa-esp-elf-gdb\\12.1_20221002\\xtensa-esp-elf-gdb\\bin;" "C:\\Espressif\\tools\\xtensa-esp32-elf\\esp-12.2.0_20230208\\xtensa-esp32-elf\\bin;" "C:\\Espressif\\tools\\esp32ulp-elf\\2.35_20220830\\esp32ulp-elf\\bin;" "C:\\Espressif\\tools\\cmake\\3.24.0\\bin;" "C:\\Espressif\\tools\\openocd-esp32\\v0.12.0-esp32-20230419\\openocd-esp32\\bin;" "C:\\Espressif\\tools\\ninja\\1.10.2;" "C:\\Espressif\\tools\\idf-exe\\1.0.3;" "C:\\Espressif\\tools\\ccache\\4.8\\ccache-4.8-windows-x86_64;" "C:\\Espressif\\frameworks\\esp-idf-v5.1.1\\tools;" "C:\\Espressif\\python_env\\idf5.1_py3.11_env\\Scripts;" "C:\\Espressif\\tools\\idf-git\\2.39.2\\cmd;" "C:\\Espressif"
+             (getenv "PATH")))))))
 (custom-set-faces
   ;; custom-set-faces was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
