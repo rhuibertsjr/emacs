@@ -53,7 +53,7 @@
   "(rhjr)" :type 'color :group 'rhjr)
 
 ;;fonts
-(defcustom rhjr-font-family "Roboto Mono"
+(defcustom rhjr-font-family "Roboto Mono Medium"
   "(rhjr)" :type 'string :group 'rhjr)
 
 (defcustom rhjr-font-size 12

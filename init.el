@@ -34,7 +34,6 @@
 
   ;;quality-of-life
   select-enable-clipboard t
-  grep-program "C:\\ProgramData\\chocolatey\\bin\\grep.exe"
 
   scroll-margin             3
   scroll-conservatively     101
@@ -64,8 +63,8 @@
   ;; fill
   display-fill-column-indicator-column 80
   display-fill-column-indicator-character '24
-  visual-fill-column-width 80 
-  visual-fill-column-enable-sensible-window-split t
+  ;;visual-fill-column-width 80 
+  ;;visual-fill-column-enable-sensible-window-split t
   fill-column 80)
 
 ;;appearance
@@ -181,7 +180,7 @@
     (hl-line-mode)
     (indentinator-mode)
     (show-paren-mode 1)
-    (visual-fill-column-mode 1)
+    ;;(visual-fill-column-mode 1)
     (visual-line-mode 1)
     (display-fill-column-indicator-mode 1)))
 
@@ -285,7 +284,7 @@
   (treesit-font-lock-level 4)
   :config
   (setq
-    c-ts-mode-indent-offset 2
+    c-ts-mode-indent-offset 4
     c-ts-mode-indent-style #'rhjr/indentation
     treesit-language-source-alist
     '((c   "https://github.com/tree-sitter/tree-sitter-c")
@@ -359,8 +358,8 @@
     (t)))
 
 (defconst rhjr/gnuish-c-style
-  '((c-basic-offset . 2)
-     (c-indent-level . 2)
+  '((c-basic-offset . 4)
+     (c-indent-level . 4)
 
      (c-offsets-alist .
 	     ((statement-cont . +)
@@ -384,7 +383,7 @@
 
 (setq-default
   indent-tabs-mode nil
-  tab-width 2
+  tab-width 4
   c-default-style "rhjr/gnuish-c-style"
   lisp-indent-offset 2)
 
@@ -394,7 +393,7 @@
   :config
   (setq-default
     dired-free-space nil
-    default-directory "c:\\Users\\Rhjr"
+    default-directory "~/"
     dired-omit-files
     (rx (or
           (seq bol "."    eol)
@@ -530,9 +529,9 @@
     hl-todo-keyword-faces
     `(("rhjr"  font-lock-builtin-face   bold))))
 
-(add-to-list 'load-path "~\\.emacs.d\\thirdparty")
+(add-to-list 'load-path "~/.emacs.d/thirdparty")
 (require 'indentinator)
-(require 'fia)
+;;(require 'fia)
 
 (use-package highlight-parentheses
   :ensure t
@@ -571,8 +570,8 @@
   :mode ("\\.gp\\'" . gnuplot-mode))
 
 ;;rhjr/theme
-(add-to-list 'load-path "~\\.emacs.d\\themes")
-(add-to-list 'load-path "~\\.emacs.d\\themes\\themes")
+(add-to-list 'load-path "~/.emacs.d/themes")
+(add-to-list 'load-path "~/.emacs.d/themes/themes")
 
 (require 'rhjr-faces)
 (require 'rhjr-theme)
@@ -681,21 +680,16 @@
 
 ;;; init.el ends here.
 (custom-set-variables
-  ;; custom-set-variables was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
-  '(package-selected-packages
-     '(olivetti gnuplot auctex flycheck-inline flymake-easy aggressive-indent esup magit evil corfu-candidate-overlay vertico orderless consult visual-fill-column use-package tempel pdf-tools org-roam org-cliplink hungry-delete hl-todo goto-chg flycheck exec-path-from-shell corfu cape))
-  '(safe-local-variable-values
-     '((eval progn
-         (setenv "IDF_PATH" "C:\\Espressif\\frameworks\\esp-idf-v5.1.1")
-         (setenv "PATH"
-           (concat "C:\\Espressif\\tools\\xtensa-esp-elf-gdb\\12.1_20221002\\xtensa-esp-elf-gdb\\bin;" "C:\\Espressif\\tools\\xtensa-esp32-elf\\esp-12.2.0_20230208\\xtensa-esp32-elf\\bin;" "C:\\Espressif\\tools\\esp32ulp-elf\\2.35_20220830\\esp32ulp-elf\\bin;" "C:\\Espressif\\tools\\cmake\\3.24.0\\bin;" "C:\\Espressif\\tools\\openocd-esp32\\v0.12.0-esp32-20230419\\openocd-esp32\\bin;" "C:\\Espressif\\tools\\ninja\\1.10.2;" "C:\\Espressif\\tools\\idf-exe\\1.0.3;" "C:\\Espressif\\tools\\ccache\\4.8\\ccache-4.8-windows-x86_64;" "C:\\Espressif\\frameworks\\esp-idf-v5.1.1\\tools;" "C:\\Espressif\\python_env\\idf5.1_py3.11_env\\Scripts;" "C:\\Espressif\\tools\\idf-git\\2.39.2\\cmd;" "C:\\Espressif"
-             (getenv "PATH")))))))
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+    '(visual-fill olivetti gnuplot auctex flycheck-inline flymake-easy aggressive-indent esup magit evil corfu-candidate-overlay vertico orderless consult use-package tempel pdf-tools org-roam org-cliplink hungry-delete hl-todo goto-chg flycheck exec-path-from-shell corfu cape))
+ '(safe-local-variable-values '((eval progn))))
 (custom-set-faces
-  ;; custom-set-faces was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
-  )
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

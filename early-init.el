@@ -30,5 +30,3 @@
   (startup-redirect-eln-cache
    (convert-standard-filename
     (expand-file-name  "var/eln-cache/" user-emacs-directory))))
-
-(setenv "PATH" (concat "C:\\ProgramData\\chocolatey\\bin\\grep.exe;" (getenv "PATH")))
