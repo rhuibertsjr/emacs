@@ -28,32 +28,32 @@
   "" :type 'color :group 'rhjr)
 
 
-(defcustom rhjr-colour-main nil 
+(defcustom rhjr-colour-main 'unspecified 
   "(rhjr)" :type 'color :group 'rhjr)
 
-(defcustom rhjr-colour-accent nil 
+(defcustom rhjr-colour-accent 'unspecified 
   "(rhjr)" :type 'color :group 'rhjr)
 
-(defcustom rhjr-colour-region nil 
+(defcustom rhjr-colour-region 'unspecified 
   "(rhjr)" :type 'color :group 'rhjr)
 
-(defcustom rhjr-colour-mute nil 
+(defcustom rhjr-colour-mute 'unspecified 
   "(rhjr)" :type 'color :group 'rhjr)
 
-(defcustom rhjr-colour-doc nil 
+(defcustom rhjr-colour-doc 'unspecified 
   "(rhjr)" :type 'color :group 'rhjr)
 
-(defcustom rhjr-colour-complete nil 
+(defcustom rhjr-colour-complete 'unspecified 
   "(rhjr)" :type 'color :group 'rhjr)
 
-(defcustom rhjr-colour-error nil 
+(defcustom rhjr-colour-error 'unspecified 
   "(rhjr)" :type 'color :group 'rhjr)
 
-(defcustom rhjr-colour-border nil 
+(defcustom rhjr-colour-border 'unspecified 
   "(rhjr)" :type 'color :group 'rhjr)
 
 ;;fonts
-(defcustom rhjr-font-family "Roboto Mono Medium"
+(defcustom rhjr-font-family "Roboto Mono"
   "(rhjr)" :type 'string :group 'rhjr)
 
 (defcustom rhjr-font-size 12

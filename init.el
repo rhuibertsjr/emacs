@@ -4,7 +4,7 @@
 (package-initialize)
 (setq package-user-dir "~/.emacs.d/elpa/"
   package-archives '(("melpa" . "https://melpa.org/packages/")
-                      ("gnu" . "http://elpa.gnu.org/packages/")))
+                     ("gnu" . "http://elpa.gnu.org/packages/")))
 
 (require 'no-littering)
 
@@ -28,6 +28,9 @@
   create-lockfiles nil
   make-backup-files nil
   auto-save-default nil
+
+  ;;gdb-debugger
+  gdb-many-windows t
 
   ;;prompts
   use-dialog-box nil
@@ -63,8 +66,6 @@
   ;; fill
   display-fill-column-indicator-column 80
   display-fill-column-indicator-character '24
-  ;;visual-fill-column-width 80 
-  ;;visual-fill-column-enable-sensible-window-split t
   fill-column 80)
 
 ;;appearance
@@ -165,14 +166,14 @@
   (interactive)
   (let ((root (project-root (project-current))))
     (if root
-      (compile (concat root "build"))
+      (compile (concat root "./build.sh"))
       (message "(rhjr) Currently not in a project."))))
 
 (defun rhjr/run-executable ()
   (interactive)
   (let ((root (project-root (project-current))))
     (if root
-      (compile (concat root "start.bat"))
+      (compile (concat root "./start.sh"))
       (message "(rhjr) Currently not in a project."))))
 
 (defun rhjr/programmable-enviroment-mode ()
@@ -180,7 +181,6 @@
     (hl-line-mode)
     (indentinator-mode)
     (show-paren-mode 1)
-    ;;(visual-fill-column-mode 1)
     (visual-line-mode 1)
     (display-fill-column-indicator-mode 1)))
 
@@ -266,8 +266,6 @@
 ;;    (seq-uniq (seq-mapcat #'flycheck-related-errors errors))))
 
 ;;language
-(setq treesit--indent-verbose t)
-
 (defun rhjr/indentation ()
   `( ;; custom rules
      ((match nil "argument_list" nil 1 1) parent-bol c-ts-mode-indent-offset)
@@ -400,6 +398,13 @@
           (seq bol ".git" eol)
           (seq bol ".dir-locals.el" eol)
           (seq bol "auto" eol)
+          (seq bol "rhjr-portfolio.log" eol)
+          (seq bol "rhjr-portfolio.out" eol)
+          (seq bol "rhjr-portfolio.aux" eol)
+          (seq bol "rhjr-thesis.log" eol)
+          (seq bol "rhjr-thesis.out" eol)
+          (seq bol "rhjr-thesis.aux" eol)
+          (seq bol "research-paper.log" eol)
           (seq bol "research-paper.log" eol)
           (seq bol "research-paper.aux" eol)
           (seq bol "research-paper.toc" eol)
@@ -442,12 +447,6 @@
   :config
   (global-corfu-mode)
   (corfu-history-mode))
-
-(use-package corfu-candidate-overlay
-  :ensure t
-  :after corfu
-  :config
-  (corfu-candidate-overlay-mode +1))
 
 (use-package tempel
   :after corfu
@@ -600,18 +599,25 @@
 (global-set-key (kbd "M-]")     'tempel-next)
 
 (global-unset-key (kbd "C-s"))
-(global-set-key (kbd "C-s") 'consult-ripgrep)
-
+(global-unset-key (kbd "C-d"))
+(global-unset-key (kbd "C-f"))
+(global-unset-key (kbd "C-l"))
 (global-unset-key (kbd "C-x b"))
-(global-unset-key (kbd "C-x p b"))
+(eval-after-load "evil-maps"
+  (dolist (map '(evil-motion-state-map
+                  evil-insert-state-map
+                  evil-emacs-state-map))
+    (define-key (eval map) "\C-d" nil)
+    (define-key (eval map) "\C-f" nil)))
+(global-set-key (kbd "C-s") 'consult-ripgrep)
+(global-set-key (kbd "C-d") 'consult-find)
+(global-set-key (kbd "C-f") 'consult-imenu)
+(global-set-key (kbd "C-l") 'consult-line)
 (global-set-key (kbd "C-x b") 'consult-buffer)
 (global-set-key (kbd "C-x p") 'consult-project-buffer)
 
 (global-unset-key (kbd "C-x 4 g"))
 (global-set-key (kbd "C-x 4 g") 'bookmark-jump-other-window)
-
-(global-set-key (kbd "C-u") 'evil-scroll-up)
-(global-set-key (kbd "C-d") 'evil-scroll-down)
 
 (global-set-key (kbd "<f1>") 'rhjr/build-executable)
 (global-set-key (kbd "<f2>") 'rhjr/run-executable)
@@ -639,6 +645,7 @@
   '(c-or-c++-mode . c-or-c++-ts-mode))
 
 (add-hook 'c-ts-mode-hook 'rhjr/comment-dividers)
+(add-hook 'c++-ts-mode-hook 'rhjr/comment-dividers)
 (add-hook 'after-save-hook 'rhjr/comment-dividers)
 
 (add-hook 'minibuffer-setup-hook
@@ -654,8 +661,7 @@
 
 (add-hook 'org-mode-hook
   (lambda ()
-    (visual-line-mode)
-    (visual-fill-column-mode -1)))
+    (visual-line-mode)))
 
 (add-hook 'dired-mode-hook       #'dired-omit-mode)
 
@@ -665,6 +671,7 @@
 ;;(add-hook 'post-command-hook     #'rhjr/remove-overlay)
 
 (add-hook 'prog-mode-hook        #'rhjr/programmable-enviroment-mode)
+(add-hook 'TeX-mode-hook         #'rhjr/programmable-enviroment-mode)
 (add-hook 'prog-mode-hook        #'highlight-parentheses-mode)
 
 (add-hook 'TeX-after-compilation-finished-functions
@@ -685,8 +692,14 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-    '(visual-fill olivetti gnuplot auctex flycheck-inline flymake-easy aggressive-indent esup magit evil corfu-candidate-overlay vertico orderless consult use-package tempel pdf-tools org-roam org-cliplink hungry-delete hl-todo goto-chg flycheck exec-path-from-shell corfu cape))
- '(safe-local-variable-values '((eval progn))))
+    '(csv-mode visual-fill olivetti gnuplot auctex flycheck-inline flymake-easy aggressive-indent esup magit evil corfu-candidate-overlay vertico orderless consult use-package tempel pdf-tools org-roam org-cliplink hungry-delete hl-todo goto-chg flycheck exec-path-from-shell corfu cape))
+ '(safe-local-variable-values
+    '((dired-omit-files . "^\\.\\(aux\\|log\\|out\\|toc\\)$\\|^\\.\\(?!\\.\\).*$")
+       (dired-omit-files . "^\\.\\(aux\\|log\\|out\\|toc\\)$\\|^\\..*")
+       (dired-omit-files . "^\\.\\(aux\\|log\\|out\\|toc\\)$")
+       (TeX-master . "rhjr-portfolio.tex")
+       (dired-omit-files . "^\\..*\\|\\.\\(aux\\|log\\|out\\|toc\\)$")
+       (eval progn))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
