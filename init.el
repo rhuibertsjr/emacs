@@ -4,7 +4,7 @@
 (package-initialize)
 (setq package-user-dir "~/.emacs.d/elpa/"
   package-archives '(("melpa" . "https://melpa.org/packages/")
-                     ("gnu" . "http://elpa.gnu.org/packages/")))
+                      ("gnu" . "http://elpa.gnu.org/packages/")))
 
 (require 'no-littering)
 
@@ -31,6 +31,10 @@
 
   ;;gdb-debugger
   gdb-many-windows t
+
+  ;;text
+  truncate-lines t
+  fringe-indicator-alist (assq-delete-all 'truncation fringe-indicator-alist)
 
   ;;prompts
   use-dialog-box nil
@@ -68,6 +72,9 @@
   display-fill-column-indicator-character '24
   fill-column 80)
 
+;;tags
+(setq tags-table-list (list (expand-file-name "~/devel/gazoo-testing/TAGS")))
+
 ;;appearance
 (add-to-list 'default-frame-alist '(internal-border-width . 24)) 
 
@@ -102,6 +109,30 @@
      (:propertize "%-" face rhjr-face-border)))
 
 ;;rhjr/functions
+(defun toggle-compilation-buffer ()
+  "Toggle visibility of the *compilation* buffer."
+  (interactive)
+  (if (get-buffer-window "*compilation*")
+      ;; If *compilation* buffer is already visible, hide it
+      (delete-window (get-buffer-window "*compilation*"))
+    ;; Otherwise, display the *compilation* buffer in a new window
+    (progn
+      (split-window-vertically)
+      (other-window 1)
+      (switch-to-buffer "*compilation*"))))
+
+(defun delete-compilation-buffer-if-cursor-moves-out ()
+  "Delete *compilation* buffer if cursor moves out."
+  (unless (string= (buffer-name) "*compilation*")
+    (when (get-buffer-window "*compilation*")
+      (delete-window (get-buffer-window "*compilation*")))))
+
+;; Bind the function to a key of your choice, for example F5
+(global-set-key (kbd "<f3>") 'toggle-compilation-buffer)
+
+;; Hook the delete function to post-command-hook
+(add-hook 'post-command-hook 'delete-compilation-buffer-if-cursor-moves-out)
+
 (defvar rhjr/previous-buffer nil
   "Variable to store the previous buffer.")
 
@@ -166,7 +197,8 @@
   (interactive)
   (let ((root (project-root (project-current))))
     (if root
-      (compile (concat root "./build.sh"))
+        (let ((compilation-split-window-function #'split-window-horizontally))
+          (compile (concat root "./build.sh")))
       (message "(rhjr) Currently not in a project."))))
 
 (defun rhjr/run-executable ()
@@ -177,11 +209,13 @@
       (message "(rhjr) Currently not in a project."))))
 
 (defun rhjr/programmable-enviroment-mode ()
+  (interactive)
   (progn
     (hl-line-mode)
+    (hl-todo-mode)
     (indentinator-mode)
     (show-paren-mode 1)
-    (visual-line-mode 1)
+    ;;(visual-line-mode 1)
     (display-fill-column-indicator-mode 1)))
 
 ;;rhjr/overlays
@@ -360,7 +394,7 @@
      (c-indent-level . 4)
 
      (c-offsets-alist .
-	     ((statement-cont . +)
+	   ((statement-cont . +)
          (substatement . +)
          (substatement-open . 0)
          (brace-list-open . 0)
@@ -398,6 +432,10 @@
           (seq bol ".git" eol)
           (seq bol ".dir-locals.el" eol)
           (seq bol "auto" eol)
+          (seq bol "TAGS" eol)
+          (seq bol "documentation-paper.log" eol)
+          (seq bol "documentation-paper.out" eol)
+          (seq bol "documentation-paper.aux" eol)
           (seq bol "rhjr-portfolio.log" eol)
           (seq bol "rhjr-portfolio.out" eol)
           (seq bol "rhjr-portfolio.aux" eol)
@@ -455,12 +493,12 @@
           ("M-*" . tempel-insert))
   :config
   (setq tempel-path
-	  "~\\.emacs.d\\templates\\template")
+	"~\\.emacs.d\\templates\\template")
   :init
   (defun tempel-setup-capf ()
     (setq-local completion-at-point-functions
-		  (cons #'tempel-expand
-		    completion-at-point-functions)))
+	  (cons #'tempel-expand
+		completion-at-point-functions)))
 
   (add-hook 'prog-mode-hook 'tempel-setup-capf)
   (add-hook 'text-mode-hook 'tempel-setup-capf)
@@ -476,11 +514,11 @@
 (use-package vertico
   :ensure t
   :bind (:map vertico-map
-	        ("C-j" . vertico-next)
-	        ("C-k" . vertico-previous)
-	        ("C-f" . vertico-exit)
-	        :map minibuffer-local-map
-	        ("M-h" . backward-kill-word))
+	      ("C-j" . vertico-next)
+	      ("C-k" . vertico-previous)
+	      ("C-f" . vertico-exit)
+	      :map minibuffer-local-map
+	      ("M-h" . backward-kill-word))
   :init
   (vertico-mode)
   ;;(vertico-buffer-mode)
@@ -598,23 +636,30 @@
 (global-set-key (kbd "M-[")     'tempel-previous)
 (global-set-key (kbd "M-]")     'tempel-next)
 
-(global-unset-key (kbd "C-s"))
+;;movement
 (global-unset-key (kbd "C-d"))
-(global-unset-key (kbd "C-f"))
-(global-unset-key (kbd "C-l"))
+(global-set-key   (kbd "C-d") 'evil-scroll-down)
+
+(global-unset-key (kbd "C-u"))
+(global-set-key   (kbd "C-u") 'evil-scroll-up)
+
+;;consult
+(global-unset-key (kbd "C-s"))
+(global-set-key   (kbd "C-s") 'consult-ripgrep)
+
 (global-unset-key (kbd "C-x b"))
+(global-set-key   (kbd "C-x b") 'consult-buffer)
+
 (eval-after-load "evil-maps"
   (dolist (map '(evil-motion-state-map
                   evil-insert-state-map
                   evil-emacs-state-map))
-    (define-key (eval map) "\C-d" nil)
+    (define-key (eval map) "\C-z" nil)
     (define-key (eval map) "\C-f" nil)))
-(global-set-key (kbd "C-s") 'consult-ripgrep)
-(global-set-key (kbd "C-d") 'consult-find)
-(global-set-key (kbd "C-f") 'consult-imenu)
-(global-set-key (kbd "C-l") 'consult-line)
-(global-set-key (kbd "C-x b") 'consult-buffer)
-(global-set-key (kbd "C-x p") 'consult-project-buffer)
+(global-set-key (kbd "C-f") 'consult-find)
+
+(global-unset-key (kbd "C-c m"))
+(global-set-key   (kbd "C-c m") 'consult-imenu-multi)
 
 (global-unset-key (kbd "C-x 4 g"))
 (global-set-key (kbd "C-x 4 g") 'bookmark-jump-other-window)
@@ -632,11 +677,17 @@
 (setq recentf-max-menu-items 25)
 (setq recentf-max-saved-items 25)
 
+(use-package csv-mode
+  :ensure t
+  :mode "\\.csv\\'"
+  :hook
+  ((csv-mode . csv-align-mode)))
+
 ;;rhjr/hooks
 (add-hook 'emacs-startup-hook
   (lambda ()
-	  (rhjr/profile-startup)
-	  (setq gc-cons-threshold (expt 2 23))))
+	(rhjr/profile-startup)
+	(setq gc-cons-threshold (expt 2 23))))
 
 ;;replace c-mode with c-ts-mode
 (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
@@ -648,11 +699,14 @@
 (add-hook 'c++-ts-mode-hook 'rhjr/comment-dividers)
 (add-hook 'after-save-hook 'rhjr/comment-dividers)
 
+(add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-ts-mode))
+(add-hook 'yaml-ts-mode #'rhjr/programmable-enviroment-mode)
+
 (add-hook 'minibuffer-setup-hook
   (lambda ()
     (if (fboundp 'evil-local-mode)
-	    (evil-local-mode -1))
-	  (setq truncate-lines t)))
+	  (evil-local-mode -1))
+	(setq truncate-lines t)))
 
 (add-hook 'pdf-view-mode-hook
   (lambda ()
@@ -664,9 +718,6 @@
     (visual-line-mode)))
 
 (add-hook 'dired-mode-hook       #'dired-omit-mode)
-
-(add-hook 'compilation-mode-hook   #'rhjr/compilation-buffer-bottom)
-(add-hook 'buffer-list-update-hook #'rhjr/compilation-buffer-peek)
 
 ;;(add-hook 'post-command-hook     #'rhjr/remove-overlay)
 
@@ -687,22 +738,16 @@
 
 ;;; init.el ends here.
 (custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-    '(csv-mode visual-fill olivetti gnuplot auctex flycheck-inline flymake-easy aggressive-indent esup magit evil corfu-candidate-overlay vertico orderless consult use-package tempel pdf-tools org-roam org-cliplink hungry-delete hl-todo goto-chg flycheck exec-path-from-shell corfu cape))
- '(safe-local-variable-values
-    '((dired-omit-files . "^\\.\\(aux\\|log\\|out\\|toc\\)$\\|^\\.\\(?!\\.\\).*$")
-       (dired-omit-files . "^\\.\\(aux\\|log\\|out\\|toc\\)$\\|^\\..*")
-       (dired-omit-files . "^\\.\\(aux\\|log\\|out\\|toc\\)$")
-       (TeX-master . "rhjr-portfolio.tex")
-       (dired-omit-files . "^\\..*\\|\\.\\(aux\\|log\\|out\\|toc\\)$")
-       (eval progn))))
+  ;; custom-set-variables was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+  '(package-selected-packages
+     '(csv-mode visual-fill olivetti gnuplot auctex flycheck-inline flymake-easy aggressive-indent esup magit evil corfu-candidate-overlay vertico orderless consult use-package tempel pdf-tools org-roam org-cliplink hungry-delete hl-todo goto-chg flycheck exec-path-from-shell corfu cape))
+  '(safe-local-variable-values 'nil))
 (custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+  ;; custom-set-faces was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+  )
