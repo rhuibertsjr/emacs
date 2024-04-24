@@ -109,30 +109,6 @@
      (:propertize "%-" face rhjr-face-border)))
 
 ;;rhjr/functions
-(defun toggle-compilation-buffer ()
-  "Toggle visibility of the *compilation* buffer."
-  (interactive)
-  (if (get-buffer-window "*compilation*")
-      ;; If *compilation* buffer is already visible, hide it
-      (delete-window (get-buffer-window "*compilation*"))
-    ;; Otherwise, display the *compilation* buffer in a new window
-    (progn
-      (split-window-vertically)
-      (other-window 1)
-      (switch-to-buffer "*compilation*"))))
-
-(defun delete-compilation-buffer-if-cursor-moves-out ()
-  "Delete *compilation* buffer if cursor moves out."
-  (unless (string= (buffer-name) "*compilation*")
-    (when (get-buffer-window "*compilation*")
-      (delete-window (get-buffer-window "*compilation*")))))
-
-;; Bind the function to a key of your choice, for example F5
-(global-set-key (kbd "<f3>") 'toggle-compilation-buffer)
-
-;; Hook the delete function to post-command-hook
-(add-hook 'post-command-hook 'delete-compilation-buffer-if-cursor-moves-out)
-
 (defvar rhjr/previous-buffer nil
   "Variable to store the previous buffer.")
 
@@ -184,29 +160,36 @@
       (setq output (concat "./" output)))
     output))
 
-(defun rhjr/compilation-buffer-bottom ()
-  "Compile window always at the bottom."
-  (when (not (get-buffer-window "*compilation*"))
-    (let* ((w (split-window-vertically))
-            (h (window-height w)))
-      (select-window w)
-      (switch-to-buffer "*compilation*")
-      (shrink-window (- h 15)))))
+(setq display-buffer-alist
+  '(("\\*compilation\\*" . ((display-buffer-reuse-window
+                             display-buffer-in-side-window)
+                             (reusable-frames . visible)
+                             (side . bottom)
+                             (window-height . 0.1)))))
 
 (defun rhjr/build-executable ()
   (interactive)
   (let ((root (project-root (project-current))))
     (if root
-        (let ((compilation-split-window-function #'split-window-horizontally))
-          (compile (concat root "./build.sh")))
+        (progn
+          (compile (concat root "build.sh"))
+          (rhjr/resize-compilation-buffer))
       (message "(rhjr) Currently not in a project."))))
 
 (defun rhjr/run-executable ()
   (interactive)
   (let ((root (project-root (project-current))))
     (if root
-      (compile (concat root "./start.sh"))
+        (progn
+          (compile (concat root "start.sh"))
+          (rhjr/resize-compilation-buffer))
       (message "(rhjr) Currently not in a project."))))
+
+(defun rhjr/resize-compilation-buffer ()
+  "Resize the compilation buffer."
+  (with-current-buffer (get-buffer "*compilation*")
+    (when (derived-mode-p 'compilation-mode)
+      (enlarge-window 10))))
 
 (defun rhjr/programmable-enviroment-mode ()
   (interactive)
@@ -238,66 +221,12 @@
     (while (re-search-forward "//=.*" nil t)
       (let* ((start (match-beginning 0))
               (end (match-end 0)))
-        (let ((overlay (make-overlay start end)))
-          (overlay-put overlay 'evaporate t)
-          (overlay-put overlay 'after-string
-            (concat " " (propertize
-                          (make-string (- 79 (current-column)) ?=)
-                          'face 'rhjr-face-mute))))))))
-
-;;inspired by 'flycheck-inline-mode' by @fmdkdd.
-;;(defvar-local rhjr/error-overlays nil
-;;"(rhjr) Currently active error overlay.")
-;;
-;;(defun rhjr/contains-error (overlay &optional pt)
-;;(let* ((pos (or pt (point)))
-;;        (err (overlay-get overlay 'error))
-;;          (region (flycheck-error-region-for-mode err 'symbols)))
-;;    (and overlay 
-;;      (overlay-get overlay 'rhjr)
-;;      err
-;;      (memq err flycheck-current-errors)
-;;      region
-;;      (>= pos (car region))
-;;      (<= pos (cdr region)))))
-;;
-;;(defun rhjr/remove-overlay ()
-;;  (setq rhjr/error-overlays 
-;;    (seq-remove #'rhjr/delete-overlay rhjr/error-overlays)))
-;;
-;;(defun rhjr/check-overlay (err)
-;;  (seq-find (lambda (p) (eq err (overlay-get p 'error)))
-;;    rhjr/error-overlays))
-;;
-;;(defun rhjr/add-error-overlay (msg &optional pos err)
-;;  (unless (rhjr/check-overlay err)
-;;    (push (rhjr/create-overlay msg pos err) rhjr/error-overlays)))
-;;
-;;(defun rhjr/delete-overlay (overlay)
-;;  (if (rhjr/contains-error overlay)
-;;    nil
-;;    (progn (delete-overlay overlay) t)))
-;;
-;;(defun rhjr/create-overlay (msg &optional pos err)
-;;  (pcase-let*
-;;    ((overlay (make-overlay
-;;                (line-beginning-position) (+ (line-end-position) 1))))
-;;    (overlay-put overlay 'face 'rhjr-face-flycheck-error)
-;;    (overlay-put overlay 'priority 10)
-;;    (overlay-put overlay 'extend t)
-;;    (overlay-put overlay 'rhjr t)
-;;    (overlay-put overlay 'error err)
-;;    overlay))
-;;
-;;(defun rhjr/display-flycheck-error (error)
-;;  (let* ((pos (flycheck-error-pos error))
-;;          (msg (propertize (flycheck-error-message error))))
-;;    (rhjr/add-error-overlay msg pos error)))
-;;
-;;(defun rhjr/display-flycheck-errors (errors)
-;;  (rhjr/remove-overlay)
-;;  (mapc #'rhjr/display-flycheck-error
-;;    (seq-uniq (seq-mapcat #'flycheck-related-errors errors))))
+          (let ((overlay (make-overlay start end)))
+            (overlay-put overlay 'evaporate t)
+            (overlay-put overlay 'after-string
+              (concat " " (propertize
+                            (make-string (- 79 (current-column)) ?=)
+                            'face 'rhjr-face-mute))))))))
 
 ;;language
 (defun rhjr/indentation ()
@@ -322,72 +251,6 @@
     '((c   "https://github.com/tree-sitter/tree-sitter-c")
        (cpp "https://github.com/tree-sitter/tree-sitter-cpp"))
     font-lock-maximum-decoration t))
-
-;;rhjr/c-mode
-(defvar rhjr/c-ts-mode-font-lock-settings 
-  (treesit-font-lock-rules
-    :language 'c :feature 'rhjr-ts-comments
-    :override t
-    `((comment) @font-lock-comment-face)
-
-    :language 'c :feature 'rhjr-ts-function
-    :override t
-    '((call_expression
-        function:
-        [(identifier) @font-lock-function-call-face
-          (field_expression field: (field_identifier) @font-lock-function-call-face)]))
-
-    :language 'c :feature 'rhjr-ts-preprocess
-    :override t
-    '(["#if" "#ifdef" "#ifndef" "#else" "#elif" "#endif" "#elifdef" "#elifndef"
-        "#include" "#define" (preproc_directive)] @rhjr-ts-preprocess
-
-       (preproc_def name: (identifier) @rhjr-ts-preprocess-id)
-
-       (preproc_function_def name: (identifier) @rhjr-ts-preprocess-func)
-
-       (preproc_include path: (system_lib_string)
-         @rhjr-ts-preprocess-include-system)
-
-       (preproc_include path: (string_literal)
-         @rhjr-ts-preprocess-include-literal)
-       )
-
-    :language 'c :feature 'rhjr-ts-keywords
-    :override t
-    '(["default" "enum" "struct" "typedef" "union" "goto" "asm" "__asm__"
-        (primitive_type) (type_identifier) (type_descriptor) ]
-       @rhjr-ts-keywords
-
-       ["while" "for" "do" "continue" "break" "if" "else" "case" "switch"
-         "return"] @rhjr-ts-statement
-       )
-
-    :language 'c :feature 'rhjr-ts-punctuation
-    :override t
-    '([ ";" ":" "," "::" "..." "(" ")" "[" "]" "{" "}" ] @rhjr-ts-punctuation)
-
-    :language 'c :feature 'rhjr-ts-literals
-    :override t
-    '((string_literal) @font-lock-string-face
-       (number_literal) @font-lock-number-face
-       (null) @font-lock-constant-face
-       )
-
-    )
-  )
-
-(define-derived-mode rhjr/c-mode c-mode "rhjrc"
-  (cond
-    ((treesit-ready-p 'c)
-      (treesit-parser-create 'c)
-      (setq-local treesit-font-lock-settings rhjr/c-ts-mode-font-lock-settings)
-      (setq-local treesit-font-lock-feature-list
-        '((rhjr-ts-preprocess rhjr-ts-punctuation rhjr-ts-keywords
-            rhjr-ts-literals rhjr-ts-comments rhjr-ts-function)
-           () ()))
-      (treesit-major-mode-setup))
-    (t)))
 
 (defconst rhjr/gnuish-c-style
   '((c-basic-offset . 4)
@@ -418,6 +281,15 @@
   tab-width 4
   c-default-style "rhjr/gnuish-c-style"
   lisp-indent-offset 2)
+
+;;rhjr/projects
+(require 'project)
+(defun rhjr/project-switch-on-gazoo ()
+  "This function will be called after visiting the `gazoo` bookmark."
+  (when (string-equal (bookmark-name) "gazoo")
+    (project-switch-project "~/devel/gazoo-testing/")))
+
+(advice-add 'bookmark-bmenu-this-window :after #'rhjr/project-switch-on-gazoo)
 
 ;;files
 (use-package dired-x
@@ -521,7 +393,6 @@
 	      ("M-h" . backward-kill-word))
   :init
   (vertico-mode)
-  ;;(vertico-buffer-mode)
   (setq
     vertico-cycle t
     vertico-count 10))
@@ -541,15 +412,6 @@
 (use-package consult
   :ensure t)
 
-(use-package flycheck
-  :ensure t
-  :config
-  (setq
-    flycheck-highlighting-mode 'lines
-    flycheck-check-syntax-automatically '(save)
-    flycheck-indication-mode nil
-    flycheck-display-errors-function #'rhjr/display-flycheck-errors))
-
 ;;rhjr/misc 
 (use-package org-cliplink
   :ensure t)
@@ -568,7 +430,6 @@
 
 (add-to-list 'load-path "~/.emacs.d/thirdparty")
 (require 'indentinator)
-;;(require 'fia)
 
 (use-package highlight-parentheses
   :ensure t
@@ -650,6 +511,9 @@
 (global-unset-key (kbd "C-x b"))
 (global-set-key   (kbd "C-x b") 'consult-buffer)
 
+(global-unset-key (kbd "C-x n"))
+(global-set-key   (kbd "C-x n") 'consult-imenu-multi)
+
 (eval-after-load "evil-maps"
   (dolist (map '(evil-motion-state-map
                   evil-insert-state-map
@@ -699,6 +563,8 @@
 (add-hook 'c++-ts-mode-hook 'rhjr/comment-dividers)
 (add-hook 'after-save-hook 'rhjr/comment-dividers)
 
+(add-hook 'buffer-list-update-hook #'rhjr/compilation-buffer-peek)
+
 (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-ts-mode))
 (add-hook 'yaml-ts-mode #'rhjr/programmable-enviroment-mode)
 
@@ -719,10 +585,9 @@
 
 (add-hook 'dired-mode-hook       #'dired-omit-mode)
 
-;;(add-hook 'post-command-hook     #'rhjr/remove-overlay)
-
 (add-hook 'prog-mode-hook        #'rhjr/programmable-enviroment-mode)
 (add-hook 'TeX-mode-hook         #'rhjr/programmable-enviroment-mode)
+
 (add-hook 'prog-mode-hook        #'highlight-parentheses-mode)
 
 (add-hook 'TeX-after-compilation-finished-functions
