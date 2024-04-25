@@ -182,16 +182,6 @@
       :bold t)))
 
 (defun rhjr-theme-languages ()
-  ;;flycheck
-  (set-face-attribute 'flycheck-info nil
-    :underline nil)
-  (set-face-attribute 'flycheck-warning nil
-    :underline nil)
-  (set-face-attribute 'flycheck-error nil
-    :extend t
-    :background (face-background 'rhjr-face-flycheck-error)
-    :underline nil)
-
   (with-eval-after-load 'fia
     (set-face-attribute 'fia-error nil
       :foreground (face-foreground 'rhjr-face-error)))

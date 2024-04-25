@@ -4,5 +4,6 @@
 !thirdparty
 !themes
 !.gitignore
+!.gitmodules
 !early-init.el
 !init.el
