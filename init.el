@@ -81,37 +81,37 @@
   display-fill-column-indicator-character '24)
 
 ;;appearance
-(add-to-list 'default-frame-alist '(internal-border-width . 24)) 
+(add-to-list 'default-frame-alist '(internal-border-width . 24))
 
 (setq-default header-line-format
-  '(;;mode
-     (:propertize "%m" face rhjr-face-doc)
-     (:propertize " - " face rhjr-face-border)
+	      '(;;mode
+		(:propertize "%m" face rhjr-face-doc)
+		(:propertize " - " face rhjr-face-border)
 
-     ;;directory path
-     (:eval
-       (if (eq major-mode 'dired-mode)
-         (if (string-match-p "\\`\\*.*\\*\\'" (buffer-name))
-           ;; Buffer is a special buffer
-           ""
-           ;; Buffer is not a special buffer, display directory
-           (concat " " (shorten-directory default-directory 20)))))
+		;;directory path
+		(:eval
+		 (if (eq major-mode 'dired-mode)
+		     (if (string-match-p "\\`\\*.*\\*\\'" (buffer-name))
+			 ;; Buffer is a special buffer
+			 ""
+		       ;; Buffer is not a special buffer, display directory
+		       (concat " " (shorten-directory default-directory 20)))))
 
-     ;;buffer
-     (:propertize "%b" face rhjr-face-main)
+		;;buffer
+		(:propertize "%b" face rhjr-face-main)
 
-     ;;position
-     (:propertize " - " face rhjr-face-border)
-     (:propertize "Row: %l" face default)
-     (:propertize " - " face rhjr-face-border)
-     (:propertize "Col: %C " face default)
+		;;position
+		(:propertize " - " face rhjr-face-border)
+		(:propertize "Row: %l" face default)
+		(:propertize " - " face rhjr-face-border)
+		(:propertize "Col: %C " face default)
 
-     ;;etc
-     (:propertize "%-" face rhjr-face-border)))
+		;;etc
+		(:propertize "%-" face rhjr-face-border)))
 
 (setq-default mode-line-format
-  '(;;mode
-     (:propertize "%-" face rhjr-face-border)))
+	      '(;;mode
+		(:propertize "%-" face rhjr-face-border)))
 
 ;;rhjr/compilation-buffer
 (setq display-buffer-alist
@@ -243,17 +243,17 @@
     ((node-is "preproc_if") parent-bol 0)
 
     ;; function arguments.
-    ;;((parent-is "argument_list") parent-bol c-ts-mode-indent-offset) 
+    ;;((parent-is "argument_list") parent-bol c-ts-mode-indent-offset)
 
     ;; else indentation fix.
     ((and (node-is "expression_statement") (parent-is "else_clause"))
-     parent-bol c-ts-mode-indent-offset) 
+     parent-bol c-ts-mode-indent-offset)
     ((and (node-is "compound_statement") (parent-is "else_clause"))
-     parent-bol 0) 
+     parent-bol 0)
 
     ;; goto statement fix.
-    ((node-is "labeled_statement") parent-bol 0) 
-    ((parent-is "labeled_statement") parent-bol c-ts-mode-indent-offset) 
+    ((node-is "labeled_statement") parent-bol 0)
+    ((parent-is "labeled_statement") parent-bol c-ts-mode-indent-offset)
 
     ;; no auto indentation for macro functions.
     ((and no-node (parent-is "\\(?: \\|preproc\\)"))
@@ -262,7 +262,8 @@
     ;; Append here the indent style you want as base
     ,@(alist-get 'bsd (c-ts-mode--indent-styles 'cpp))))
 
-(setq treesit--indent-verbose t)
+;; use for debug
+;;(setq treesit--indent-verbose t)
 
 (use-package c-ts-mode
   :if (treesit-language-available-p 'c)
@@ -399,18 +400,24 @@
 ;;(use-package indent-bars
 ;;  :load-path "~\\.emacs.d\\thirdparty\\indent-bars"
 ;;  :config
-;;  (require 'indent-bars-ts) 		
+;;  (require 'indent-bars-ts)
 ;;  :custom
 ;;  (indent-bars-treesit-support t)
 ;;  (indent-bars-treesit-wrap '((c argument_list parameter_list init_declarator)))
 ;;  :hook ((c-mode) . indent-bars-mode))
 
-;;rhjr/misc 
+;;rhjr/misc
 (use-package org-cliplink
   :ensure t)
 
 (use-package hungry-delete
   :ensure t)
+
+(use-package ethan-wspace
+  :ensure t
+  :config
+  (setq mode-require-final-newline nil)
+  (global-ethan-wspace-mode 1))
 
 (use-package hl-todo
   :ensure t
@@ -576,34 +583,34 @@
 (add-hook 'TeX-after-compilation-finished-functions
 	  #'TeX-revert-document-buffer)
 
-(add-to-list 'auto-mode-alist '("\\.el\\'" . emacs-lisp-mode)) 
-(add-to-list 'auto-mode-alist '("\\.pdf\\'" . pdf-view-mode)) 
+(add-to-list 'auto-mode-alist '("\\.el\\'" . emacs-lisp-mode))
+(add-to-list 'auto-mode-alist '("\\.pdf\\'" . pdf-view-mode))
 
 ;;rhjr/fix
 (setq minibuffer-prompt-properties ;; cursor in minibuffer-prompt
       '(read-only t cursor-intangible t face minibuffer-prompt))
 (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 
-(set-display-table-slot standard-display-table 0 ?\ ) 
+(set-display-table-slot standard-display-table 0 ?\ )
 
 
 ;;; init.el ends here.
 (custom-set-variables
-  ;; custom-set-variables was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
-  '(package-selected-packages
-     '(csv-mode olivetti gnuplot auctex flycheck-inline flymake-easy aggressive-indent esup magit evil vertico orderless consult visual-fill-column use-package tempel pdf-tools org-roam org-cliplink hungry-delete hl-todo goto-chg flycheck exec-path-from-shell corfu cape))
-  '(safe-local-variable-values
-     '((eval progn
-         (setenv "IDF_PATH" "C:\\Espressif\\frameworks\\esp-idf-v5.1.1")
-         (setenv "PATH"
-           (concat "C:\\Espressif\\tools\\xtensa-esp-elf-gdb\\12.1_20221002\\xtensa-esp-elf-gdb\\bin;" "C:\\Espressif\\tools\\xtensa-esp32-elf\\esp-12.2.0_20230208\\xtensa-esp32-elf\\bin;" "C:\\Espressif\\tools\\esp32ulp-elf\\2.35_20220830\\esp32ulp-elf\\bin;" "C:\\Espressif\\tools\\cmake\\3.24.0\\bin;" "C:\\Espressif\\tools\\openocd-esp32\\v0.12.0-esp32-20230419\\openocd-esp32\\bin;" "C:\\Espressif\\tools\\ninja\\1.10.2;" "C:\\Espressif\\tools\\idf-exe\\1.0.3;" "C:\\Espressif\\tools\\ccache\\4.8\\ccache-4.8-windows-x86_64;" "C:\\Espressif\\frameworks\\esp-idf-v5.1.1\\tools;" "C:\\Espressif\\python_env\\idf5.1_py3.11_env\\Scripts;" "C:\\Espressif\\tools\\idf-git\\2.39.2\\cmd;" "C:\\Espressif"
-             (getenv "PATH")))))))
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(ethan-wspace csv-mode olivetti gnuplot auctex flycheck-inline flymake-easy aggressive-indent esup magit evil vertico orderless consult visual-fill-column use-package tempel pdf-tools org-roam org-cliplink hungry-delete hl-todo goto-chg flycheck exec-path-from-shell corfu cape))
+ '(safe-local-variable-values
+   '((eval progn
+	   (setenv "IDF_PATH" "C:\\Espressif\\frameworks\\esp-idf-v5.1.1")
+	   (setenv "PATH"
+		   (concat "C:\\Espressif\\tools\\xtensa-esp-elf-gdb\\12.1_20221002\\xtensa-esp-elf-gdb\\bin;" "C:\\Espressif\\tools\\xtensa-esp32-elf\\esp-12.2.0_20230208\\xtensa-esp32-elf\\bin;" "C:\\Espressif\\tools\\esp32ulp-elf\\2.35_20220830\\esp32ulp-elf\\bin;" "C:\\Espressif\\tools\\cmake\\3.24.0\\bin;" "C:\\Espressif\\tools\\openocd-esp32\\v0.12.0-esp32-20230419\\openocd-esp32\\bin;" "C:\\Espressif\\tools\\ninja\\1.10.2;" "C:\\Espressif\\tools\\idf-exe\\1.0.3;" "C:\\Espressif\\tools\\ccache\\4.8\\ccache-4.8-windows-x86_64;" "C:\\Espressif\\frameworks\\esp-idf-v5.1.1\\tools;" "C:\\Espressif\\python_env\\idf5.1_py3.11_env\\Scripts;" "C:\\Espressif\\tools\\idf-git\\2.39.2\\cmd;" "C:\\Espressif"
+			   (getenv "PATH")))))))
 (custom-set-faces
-  ;; custom-set-faces was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
-  )
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
