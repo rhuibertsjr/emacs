@@ -12,16 +12,6 @@
 (global-set-key (kbd "C-x C-g") 'bookmark-jump)
 
 ;;rhjr/theme
-(add-to-list 'load-path "~\\.emacs.d\\themes")
-(add-to-list 'load-path "~\\.emacs.d\\themes\\themes")
-
-(require 'rhjr-faces)
-(require 'rhjr-theme)
-(require 'rhjr-light-theme)
-(require 'rhjr-dark-theme)
-
-(rhjr-faces)
-
 (when (memq window-system '(mac ns x))
   (exec-path-from-shell-initialize))
 
@@ -81,8 +71,6 @@
   display-fill-column-indicator-character '24)
 
 ;;appearance
-(add-to-list 'default-frame-alist '(internal-border-width . 24))
-
 (setq-default header-line-format
 	      '(;;mode
 		(:propertize "%m" face rhjr-face-doc)
@@ -460,6 +448,7 @@
 ;;do not forget to actually install 'auctex' you dummy
 
 (use-package pdf-tools
+  :defer t
   :ensure t)
 
 ;;rhjr/plots
@@ -477,10 +466,6 @@
 	    (auto-fill-mode 1)
 	    (if (eq window-system 'x)
 		(font-lock-mode 1))))
-
-(rhjr-theme)
-(rhjr-set-dark-theme)
-(rhjr/refresh-theme)
 
 ;;rhjr/keybindings
 (global-unset-key (kbd "C-x 3"))

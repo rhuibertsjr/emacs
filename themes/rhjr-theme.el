@@ -96,150 +96,152 @@
   "(rhjr) Initialize faces of the navigation category, like: dired, ido, etc."
 
   ;; Dired
-  (rhjr-set-face 'dired-header                'rhjr-face-accent)
-  (rhjr-set-face 'dired-directory             'rhjr-face-main)
 
-  ;; Parentheses
-  (rhjr-set-face 'show-paren-match    'rhjr-face-show-parens-match)
-  (rhjr-set-face 'show-paren-mismatch 'rhjr-face-error)
+  (with-eval-after-load 'dired
+    (rhjr-set-face 'dired-header                'rhjr-face-accent)
+    (rhjr-set-face 'dired-directory             'rhjr-face-main))
 
-  ;; Searching
-  (rhjr-set-face 'isearch                     'rhjr-face-region)
-  (rhjr-set-face 'isearch-fail                'rhjr-face-error)
-  (rhjr-set-face 'match                       'rhjr-face-complete)
-  (rhjr-set-face 'lazy-highlight              'rhjr-face-region))
+    ;; Parentheses
+    (rhjr-set-face 'show-paren-match    'rhjr-face-show-parens-match)
+    (rhjr-set-face 'show-paren-mismatch 'rhjr-face-error)
 
-(defun rhjr-theme-fontlock ()
-  (rhjr-set-face 'font-lock-comment-face       'rhjr-face-mute)
-  (rhjr-set-face 'font-lock-doc-face           'rhjr-face-doc)
-  (rhjr-set-face 'font-lock-string-face        'rhjr-face-doc)
-  (rhjr-set-face 'font-lock-constant-face      'rhjr-face-accent)
-  (rhjr-set-face 'font-lock-warning-face       'rhjr-face-default)
-  (rhjr-set-face 'font-lock-function-name-face 'rhjr-face-default)
-  (rhjr-set-face 'font-lock-variable-name-face 'rhjr-face-default)
-  (rhjr-set-face 'font-lock-builtin-face       'rhjr-face-accent)
-  (rhjr-set-face 'font-lock-type-face          'rhjr-face-main)
-  (rhjr-set-face 'font-lock-keyword-face       'rhjr-face-main)
+    ;; Searching
+    (rhjr-set-face 'isearch                     'rhjr-face-region)
+    (rhjr-set-face 'isearch-fail                'rhjr-face-error)
+    (rhjr-set-face 'match                       'rhjr-face-complete)
+    (rhjr-set-face 'lazy-highlight              'rhjr-face-region))
 
-  (rhjr-set-face 'font-lock-keyword-face       'rhjr-face-main)
+  (defun rhjr-theme-fontlock ()
+    (rhjr-set-face 'font-lock-comment-face       'rhjr-face-mute)
+    (rhjr-set-face 'font-lock-doc-face           'rhjr-face-doc)
+    (rhjr-set-face 'font-lock-string-face        'rhjr-face-doc)
+    (rhjr-set-face 'font-lock-constant-face      'rhjr-face-accent)
+    (rhjr-set-face 'font-lock-warning-face       'rhjr-face-default)
+    (rhjr-set-face 'font-lock-function-name-face 'rhjr-face-default)
+    (rhjr-set-face 'font-lock-variable-name-face 'rhjr-face-default)
+    (rhjr-set-face 'font-lock-builtin-face       'rhjr-face-accent)
+    (rhjr-set-face 'font-lock-type-face          'rhjr-face-main)
+    (rhjr-set-face 'font-lock-keyword-face       'rhjr-face-main)
 
-  (set-face-attribute 'font-lock-function-name-face nil
-    :foreground "#b8bb26")
+    (rhjr-set-face 'font-lock-keyword-face       'rhjr-face-main)
 
-  (with-eval-after-load 'treesit
-    (rhjr-set-face 'font-lock-bracket-face   'rhjr-face-default)
-    (rhjr-set-face 'font-lock-delimiter-face 'rhjr-face-accent)
+    (set-face-attribute 'font-lock-function-name-face nil
+			:foreground "#b8bb26")
 
-    (set-face-attribute 'font-lock-variable-name-face nil
-      :inherit 'rhjr-face-default
-      ;;:foreground "#82a587"
-      :foreground (face-foreground 'rhjr-face-default)
+    (with-eval-after-load 'treesit
+      (rhjr-set-face 'font-lock-bracket-face   'rhjr-face-default)
+      (rhjr-set-face 'font-lock-delimiter-face 'rhjr-face-accent)
+
+      (set-face-attribute 'font-lock-variable-name-face nil
+			  :inherit 'rhjr-face-default
+			  ;;:foreground "#82a587"
+			  :foreground (face-foreground 'rhjr-face-default)
+			  )
+
+      ;;function
+      (set-face-attribute 'font-lock-function-call-face nil
+			  :foreground "#b8bb26")
+
+      ;;variables
+      (set-face-attribute 'font-lock-variable-name-face nil
+			  :foreground (face-foreground 'default))
+
+      ;;numbers
+      (set-face-attribute 'font-lock-number-face nil
+			  :foreground "#d3869b")
+
+      (set-face-attribute 'font-lock-escape-face nil
+			  :foreground (face-foreground 'rhjr-face-accent))
+
       )
-
-    ;;function
-    (set-face-attribute 'font-lock-function-call-face nil
-      :foreground "#b8bb26")
-
-    ;;variables
-    (set-face-attribute 'font-lock-variable-name-face nil
-      :foreground (face-foreground 'default))
-
-    ;;numbers
-    (set-face-attribute 'font-lock-number-face nil
-      :foreground "#d3869b")
-
-    (set-face-attribute 'font-lock-escape-face nil
-      :foreground (face-foreground 'rhjr-face-accent))
-
     )
-  )
 
-(defun rhjr-theme-tex ()
-  (with-eval-after-load 'font-latex
-    (rhjr-set-face 'font-latex-sectioning-0-face 'rhjr-face-accent)
-    (rhjr-set-face 'font-latex-sectioning-1-face 'rhjr-face-accent)
-    (rhjr-set-face 'font-latex-sectioning-2-face 'rhjr-face-accent)
-    (rhjr-set-face 'font-latex-sectioning-3-face 'rhjr-face-accent)
-    (rhjr-set-face 'font-latex-sectioning-4-face 'rhjr-face-accent)
-    (rhjr-set-face 'font-latex-sectioning-5-face 'rhjr-face-accent)
+  (defun rhjr-theme-tex ()
+    (with-eval-after-load 'font-latex
+      (rhjr-set-face 'font-latex-sectioning-0-face 'rhjr-face-accent)
+      (rhjr-set-face 'font-latex-sectioning-1-face 'rhjr-face-accent)
+      (rhjr-set-face 'font-latex-sectioning-2-face 'rhjr-face-accent)
+      (rhjr-set-face 'font-latex-sectioning-3-face 'rhjr-face-accent)
+      (rhjr-set-face 'font-latex-sectioning-4-face 'rhjr-face-accent)
+      (rhjr-set-face 'font-latex-sectioning-5-face 'rhjr-face-accent)
 
-    (rhjr-set-face 'font-latex-sedate-face 'rhjr-face-accent)
+      (rhjr-set-face 'font-latex-sedate-face 'rhjr-face-accent)
 
-    (rhjr-set-face 'font-latex-warning-face 'rhjr-face-accent)
-    (set-face-attribute 'font-latex-warning-face nil
-      :bold t)
+      (rhjr-set-face 'font-latex-warning-face 'rhjr-face-accent)
+      (set-face-attribute 'font-latex-warning-face nil
+			  :bold t)
 
-    (rhjr-set-face 'font-latex-bold-face 'rhjr-face-default)
-    (set-face-attribute 'font-latex-bold-face nil
-      :bold t)
+      (rhjr-set-face 'font-latex-bold-face 'rhjr-face-default)
+      (set-face-attribute 'font-latex-bold-face nil
+			  :bold t)
 
-    (rhjr-set-face 'font-latex-italic-face 'rhjr-face-default)
-    (set-face-attribute 'font-latex-italic-face nil
-      :italic t)
+      (rhjr-set-face 'font-latex-italic-face 'rhjr-face-default)
+      (set-face-attribute 'font-latex-italic-face nil
+			  :italic t)
 
-    (rhjr-set-face 'font-latex-math-face 'rhjr-face-accent)
-    (set-face-attribute 'font-latex-math-face nil
-      :bold t)))
+      (rhjr-set-face 'font-latex-math-face 'rhjr-face-accent)
+      (set-face-attribute 'font-latex-math-face nil
+			  :bold t)))
 
-(defun rhjr-theme-languages ()
-  (with-eval-after-load 'fia
-    (set-face-attribute 'fia-error nil
-      :foreground (face-foreground 'rhjr-face-error)))
+  (defun rhjr-theme-languages ()
+    (with-eval-after-load 'fia
+      (set-face-attribute 'fia-error nil
+			  :foreground (face-foreground 'rhjr-face-error)))
 
-  (set-face-attribute 'tooltip nil
-    :background (face-background 'rhjr-face-default)
-    :foreground (face-foreground 'rhjr-face-accent)
-    :inherit 'rhjr-face-default)
+    (set-face-attribute 'tooltip nil
+			:background (face-background 'rhjr-face-default)
+			:foreground (face-foreground 'rhjr-face-accent)
+			:inherit 'rhjr-face-default)
 
-  (with-eval-after-load 'corfu
-    (rhjr-set-face 'corfu-default 'rhjr-face-default)
-    (rhjr-set-face 'corfu-current 'rhjr-face-accent))
+    (with-eval-after-load 'corfu
+      (rhjr-set-face 'corfu-default 'rhjr-face-default)
+      (rhjr-set-face 'corfu-current 'rhjr-face-accent))
 
-  (with-eval-after-load 'corfu-candidate-overlay
-    (set-face-attribute 'corfu-candidate-overlay-face nil
-      :foreground (face-foreground 'rhjr-face-mute))
-    (set-face-attribute 'corfu-candidate-overlay-face-exact-match nil
-      :foreground (face-foreground 'rhjr-face-mute)
-      :underline nil)))
+    (with-eval-after-load 'corfu-candidate-overlay
+      (set-face-attribute 'corfu-candidate-overlay-face nil
+			  :foreground (face-foreground 'rhjr-face-mute))
+      (set-face-attribute 'corfu-candidate-overlay-face-exact-match nil
+			  :foreground (face-foreground 'rhjr-face-mute)
+			  :underline nil)))
 
-(defun rhjr-theme-modeline ()
-  (set-face-attribute 'header-line nil
-    :background (face-background 'default)
+  (defun rhjr-theme-modeline ()
+    (set-face-attribute 'header-line nil
+			:background (face-background 'default)
 
-    :overline nil
-    :underline nil
-    :box nil
-    :box `(:line-width 10
-            :color ,(face-background 'default)
-            :style nil)
-    :inherit nil)
-  (set-face-attribute 'mode-line nil
-    :background (face-background 'default)
-    :foreground (face-foreground 'rhjr-face-main)
+			:overline nil
+			:underline nil
+			:box nil
+			:box `(:line-width 10
+					   :color ,(face-background 'default)
+					   :style nil)
+			:inherit nil)
+    (set-face-attribute 'mode-line nil
+			:background (face-background 'default)
+			:foreground (face-foreground 'rhjr-face-main)
 
-    :overline nil
-    :underline nil
-    :box nil
-    :box `(:line-width 10
-            :color ,(face-background 'default)
-            :style nil)
-    :inherit nil)
-  (set-face-attribute 'mode-line-inactive nil
-    :background (face-background 'default)
-    :foreground (face-foreground 'rhjr-face-main)
+			:overline nil
+			:underline nil
+			:box nil
+			:box `(:line-width 10
+					   :color ,(face-background 'default)
+					   :style nil)
+			:inherit nil)
+    (set-face-attribute 'mode-line-inactive nil
+			:background (face-background 'default)
+			:foreground (face-foreground 'rhjr-face-main)
 
-    :overline nil
-    :underline nil
-    :box nil
-    :box `(:line-width 10
-            :color ,(face-background 'default)
-            :style nil)
-    :inherit nil))
+			:overline nil
+			:underline nil
+			:box nil
+			:box `(:line-width 10
+					   :color ,(face-background 'default)
+					   :style nil)
+			:inherit nil))
 
-(defun rhjr-theme-org ()
-  (with-eval-after-load 'org
-    (rhjr-set-face 'org-level-1 'rhjr-face-org-levels)
-    (rhjr-set-face 'org-level-2 'rhjr-face-org-levels)
+  (defun rhjr-theme-org ()
+    (with-eval-after-load 'org
+      (rhjr-set-face 'org-level-1 'rhjr-face-org-levels)
+      (rhjr-set-face 'org-level-2 'rhjr-face-org-levels)
     (rhjr-set-face 'org-level-3 'rhjr-face-org-levels)
     (rhjr-set-face 'org-level-4 'rhjr-face-org-levels)))
 
