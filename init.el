@@ -64,38 +64,40 @@
   esup-depth 0
 
   ;; editing
-  truncate-lines nil
+  truncate-lines   nil
+  indent-tabs-mode nil
 
   ;; fill
   display-fill-column-indicator-column 80
   display-fill-column-indicator-character '24)
 
 ;;appearance
-(setq-default header-line-format
-	      '(;;mode
-		(:propertize "%m" face rhjr-face-doc)
-		(:propertize " - " face rhjr-face-border)
+(setq-default
+ header-line-format
+ '(;;mode
+   (:propertize "%m" face rhjr-face-doc)
+   (:propertize " - " face rhjr-face-border)
 
-		;;directory path
-		(:eval
-		 (if (eq major-mode 'dired-mode)
-		     (if (string-match-p "\\`\\*.*\\*\\'" (buffer-name))
-			 ;; Buffer is a special buffer
-			 ""
-		       ;; Buffer is not a special buffer, display directory
-		       (concat " " (shorten-directory default-directory 20)))))
+   ;;directory path
+   (:eval
+    (if (eq major-mode 'dired-mode)
+	(if (string-match-p "\\`\\*.*\\*\\'" (buffer-name))
+	    ;; Buffer is a special buffer
+	    ""
+	  ;; Buffer is not a special buffer, display directory
+	  (concat " " (shorten-directory default-directory 20)))))
 
-		;;buffer
-		(:propertize "%b" face rhjr-face-main)
+   ;;buffer
+   (:propertize "%b" face rhjr-face-main)
 
-		;;position
-		(:propertize " - " face rhjr-face-border)
-		(:propertize "Row: %l" face default)
-		(:propertize " - " face rhjr-face-border)
-		(:propertize "Col: %C " face default)
+   ;;position
+   (:propertize " - " face rhjr-face-border)
+   (:propertize "Row: %l" face default)
+   (:propertize " - " face rhjr-face-border)
+   (:propertize "Col: %C " face default)
 
-		;;etc
-		(:propertize "%-" face rhjr-face-border)))
+   ;;etc
+   (:propertize "%-" face rhjr-face-border)))
 
 (setq-default mode-line-format
 	      '(;;mode
@@ -218,11 +220,11 @@
   (treesit-font-lock-level 4)
   :config
   (setq
-    c-ts-mode-indent-offset 2
-    treesit-language-source-alist
-    '((c   "https://github.com/tree-sitter/tree-sitter-c")
-      (cpp "https://github.com/tree-sitter/tree-sitter-cpp"))
-    font-lock-maximum-decoration t))
+   c-ts-mode-indent-offset 2
+   treesit-language-source-alist
+   '((c   "https://github.com/tree-sitter/tree-sitter-c")
+     (cpp "https://github.com/tree-sitter/tree-sitter-cpp"))
+   font-lock-maximum-decoration t))
 
 (defun my-indent-style()
   "Override the built-in BSD indentation style with some additional rules"
@@ -233,6 +235,10 @@
     ;; function arguments.
     ;;((parent-is "argument_list") parent-bol c-ts-mode-indent-offset)
 
+    ((and (node-is "else_clause") (parent-is "if_statement"))
+     parent-bol 0)
+    ((and (and (not (node-is "else_clause")) (not (node-is "compound_statement")))
+          (parent-is "if_statement")) parent-bol c-ts-mode-indent-offset)
     ;; else indentation fix.
     ((and (node-is "expression_statement") (parent-is "else_clause"))
      parent-bol c-ts-mode-indent-offset)
@@ -251,7 +257,7 @@
     ,@(alist-get 'bsd (c-ts-mode--indent-styles 'cpp))))
 
 ;; use for debug
-;;(setq treesit--indent-verbose t)
+(setq treesit--indent-verbose t)
 
 (use-package c-ts-mode
   :if (treesit-language-available-p 'c)
@@ -316,223 +322,224 @@
    (org-mode  . corfu-mode))
   :custom
   (corfu-auto t)
-  (corfu-auto-prefix 2)
-  (corfu-auto-delay 0.2)
-  :config
-  (global-corfu-mode)
-  (corfu-history-mode))
+    (corfu-auto-prefix 2)
+    (corfu-auto-delay 0.2)
+    :config
+    (global-corfu-mode)
+    (corfu-history-mode))
 
 
-(use-package tempel
-  :after corfu
-  :ensure t
-  :bind (("M-=" . tempel-complete)
-         ("M-*" . tempel-insert))
-  :config
-  (setq tempel-path
-	"~\\.emacs.d\\templates\\template")
-  :init
-  (defun tempel-setup-capf ()
-    (setq-local completion-at-point-functions
-		(cons #'tempel-expand
-		      completion-at-point-functions)))
+  (use-package tempel
+    :after corfu
+    :ensure t
+    :bind (("M-=" . tempel-complete)
+           ("M-*" . tempel-insert))
+    :config
+    (setq tempel-path
+	  "~\\.emacs.d\\templates\\template")
+    :init
+    (defun tempel-setup-capf ()
+      (setq-local completion-at-point-functions
+		  (cons #'tempel-expand
+		        completion-at-point-functions)))
 
-  (add-hook 'prog-mode-hook 'tempel-setup-capf)
-  (add-hook 'text-mode-hook 'tempel-setup-capf)
-  (add-hook 'org-mode-hook  'tempel-setup-capf))
+    (add-hook 'prog-mode-hook 'tempel-setup-capf)
+    (add-hook 'text-mode-hook 'tempel-setup-capf)
+    (add-hook 'org-mode-hook  'tempel-setup-capf))
 
-(use-package cape
-  :ensure t
-  :init
-  (add-to-list 'completion-at-point-functions 'cape-abbrev)
-  (add-to-list 'completion-at-point-functions 'cape-dabbrev)
-  (add-to-list 'completion-at-point-functions 'cape-file))
+  (use-package cape
+    :ensure t
+    :init
+    (add-to-list 'completion-at-point-functions 'cape-abbrev)
+    (add-to-list 'completion-at-point-functions 'cape-dabbrev)
+    (add-to-list 'completion-at-point-functions 'cape-file))
 
-(use-package vertico
-  :ensure t
-  :bind (:map vertico-map
-	      ("C-j" . vertico-next)
-	      ("C-k" . vertico-previous)
-	      ("C-f" . vertico-exit)
-	      :map minibuffer-local-map
-	      ("M-h" . backward-kill-word))
-  :init
-  (vertico-mode)
-  ;;(vertico-buffer-mode)
-  (setq
-   vertico-cycle t
-   vertico-count 10))
+  (use-package vertico
+    :ensure t
+    :bind (:map vertico-map
+	        ("C-j" . vertico-next)
+	        ("C-k" . vertico-previous)
+	        ("C-f" . vertico-exit)
+	        :map minibuffer-local-map
+	        ("M-h" . backward-kill-word))
+    :init
+    (vertico-mode)
+    ;;(vertico-buffer-mode)
+    (setq
+     vertico-cycle t
+     vertico-count 10))
 
-(use-package orderless
-  :ensure t
-  :init
-  (setq
-   completion-styles '(orderless basic)
-   completion-category-defaults nil
-   completion-category-overrides '((file (styles partial-completion)))))
+  (use-package orderless
+    :ensure t
+    :init
+    (setq
+     completion-styles '(orderless basic)
+     completion-category-defaults nil
+     completion-category-overrides '((file (styles partial-completion)))))
 
-(use-package savehist
-  :init
-  (savehist-mode))
+  (use-package savehist
+    :init
+    (savehist-mode))
 
-(use-package consult
-  :ensure t)
+  (use-package consult
+    :ensure t)
 
-;;(setq
-;;indent-bars-pattern "."
-;;indent-bars-width-frac 0.5
-;;indent-bars-pad-frac 0.25
-;;indent-bars-color-by-depth nil
-;;indent-bars-highlight-current-depth '(:face default :blend 0.4))
-;;
-;;(use-package indent-bars
-;;  :load-path "~\\.emacs.d\\thirdparty\\indent-bars"
-;;  :config
-;;  (require 'indent-bars-ts)
-;;  :custom
-;;  (indent-bars-treesit-support t)
-;;  (indent-bars-treesit-wrap '((c argument_list parameter_list init_declarator)))
-;;  :hook ((c-mode) . indent-bars-mode))
+  ;;(setq
+  ;;indent-bars-pattern "."
+  ;;indent-bars-width-frac 0.5
+  ;;indent-bars-pad-frac 0.25
+  ;;indent-bars-color-by-depth nil
+  ;;indent-bars-highlight-current-depth '(:face default :blend 0.4))
+  ;;
+  ;;(use-package indent-bars
+  ;;  :load-path "~\\.emacs.d\\thirdparty\\indent-bars"
+  ;;  :config
+  ;;  (require 'indent-bars-ts)
+  ;;  :custom
+  ;;  (indent-bars-treesit-support t)
+  ;;  (indent-bars-treesit-wrap '((c argument_list parameter_list init_declarator)))
+  ;;  :hook ((c-mode) . indent-bars-mode))
 
-;;rhjr/misc
-(use-package org-cliplink
-  :ensure t)
+  ;;rhjr/misc
+  (use-package org-cliplink
+    :ensure t)
 
-(use-package hungry-delete
-  :ensure t)
+  (use-package hungry-delete
+    :ensure t)
 
-(use-package ethan-wspace
-  :ensure t
-  :config
-  (setq mode-require-final-newline nil)
-  (global-ethan-wspace-mode 1))
+  (use-package ethan-wspace
+    :ensure t
+       :config
+       (setq mode-require-final-newline nil)
+       (global-ethan-wspace-mode 1))
 
-(use-package hl-todo
-  :ensure t
-  :hook (prog-mode . hl-todo-mode)
-  :init
-  (setq
-   hl-todo-highlight-punctuation ":"
-   hl-todo-keyword-faces
-   `(("rhjr"  font-lock-builtin-face   bold))))
+     (use-package hl-todo
+       :ensure t
+       :hook (prog-mode . hl-todo-mode)
+       :init
+       (setq
+        hl-todo-highlight-punctuation ":"
+        hl-todo-keyword-faces
+        `(("rhjr"  font-lock-builtin-face   bold))))
 
-(add-to-list 'load-path "~\\.emacs.d\\thirdparty")
-(require 'indentinator)
+     (add-to-list 'load-path "~\\.emacs.d\\thirdparty")
+     (require 'indentinator)
 
-(use-package highlight-parentheses
-  :ensure t
-  :custom
-  (highlight-parentheses-colors
-   '("#8ffff2" "#8ffff2" "#8ffff2" "#8ffff2" "#8ffff2")))
+     (use-package highlight-parentheses
+       :ensure t
+       :custom
+       (highlight-parentheses-colors
+        '("#8ffff2" "#8ffff2" "#8ffff2" "#8ffff2" "#8ffff2")))
 
-;;rhjr/writing
-(use-package org
-  :ensure t
-  :hook
-  (( org-mode . org-indent-mode )
-   ( org-mode . olivetti-mode ))
-  :config
-  (setq
-   org-hide-emphasis-markers t))
+     ;;rhjr/writing
+     (use-package org
+       :ensure t
+       :hook
+       (( org-mode . org-indent-mode )
+        ( org-mode . olivetti-mode ))
+       :config
+       (setq
+        org-hide-emphasis-markers t))
 
-(setq
- Tex-master nil
- TeX-PDF-mode t
- TeX-auto-save 1
- TeX-parse-self t
- TeX-source-correlate-start-server t)
+     (setq
+      Tex-master nil
+      TeX-PDF-mode t
+      TeX-auto-save 1
+      TeX-parse-self t
+      TeX-source-correlate-start-server t)
 
-(setq-default
- TeX-view-program-selection '((output-pdf "PDF Tools")))
+     (setq-default
+      TeX-view-program-selection '((output-pdf "PDF Tools")))
 
-;;do not forget to actually install 'auctex' you dummy
+     ;;do not forget to actually install 'auctex' you dummy
 
-(use-package pdf-tools
-  :defer t
-  :ensure t)
+     ;;(use-package pdf-tools
+     ;;:defer t
+     ;;:ensure t)
 
-;;rhjr/plots
-(use-package gnuplot
-  :ensure t
-  :mode ("\\.gp\\'" . gnuplot-mode))
+     ;;rhjr/plots
+     (use-package gnuplot
+       :ensure t
+       :mode ("\\.gp\\'" . gnuplot-mode))
 
-(setq inferior-octave-program "C:\\Users\\Rhjr\\AppData\\Local\\Programs\\GNU Octave\\Octave-8.4.0\\octave-launch.exe")
+     (setq inferior-octave-program
+           "C:\\Users\\Rhjr\\AppData\\Local\\Programs\\GNU Octave\\Octave-8.4.0\\octave-launch.exe")
 
-(setq auto-mode-alist
-      (cons '("\\.m$" . octave-mode) auto-mode-alist))
-(add-hook 'octave-mode-hook
-	  (lambda ()
-	    (abbrev-mode 1)
-	    (auto-fill-mode 1)
-	    (if (eq window-system 'x)
-		(font-lock-mode 1))))
+     (setq auto-mode-alist
+           (cons '("\\.m$" . octave-mode) auto-mode-alist))
+     (add-hook 'octave-mode-hook
+	       (lambda ()
+	         (abbrev-mode 1)
+	         (auto-fill-mode 1)
+	         (if (eq window-system 'x)
+		     (font-lock-mode 1))))
 
-;;rhjr/keybindings
-(global-unset-key (kbd "C-x 3"))
-(global-unset-key (kbd "C-x o"))
-(global-unset-key (kbd "C-x C-o"))
-(global-unset-key (kbd "C-x e"))
-(global-unset-key (kbd "C-x C-q"))
-(global-unset-key (kbd "M-="))
-(global-unset-key (kbd "M-["))
-(global-unset-key (kbd "M-]"))
+     ;;rhjr/keybindings
+     (global-unset-key (kbd "C-x 3"))
+     (global-unset-key (kbd "C-x o"))
+     (global-unset-key (kbd "C-x C-o"))
+     (global-unset-key (kbd "C-x e"))
+     (global-unset-key (kbd "C-x C-q"))
+     (global-unset-key (kbd "M-="))
+     (global-unset-key (kbd "M-["))
+     (global-unset-key (kbd "M-]"))
 
-;;evil
-(global-set-key (kbd "C-u") 'evil-scroll-up)
-(global-set-key (kbd "C-d") 'evil-scroll-down)
+     ;;evil
+     (global-set-key (kbd "C-u") 'evil-scroll-up)
+     (global-set-key (kbd "C-d") 'evil-scroll-down)
 
-;;consult
-(global-unset-key (kbd "C-s"))
-(global-set-key (kbd "C-s") 'consult-ripgrep)
+     ;;consult
+     (global-unset-key (kbd "C-s"))
+     (global-set-key (kbd "C-s") 'consult-ripgrep)
 
-(eval-after-load "evil-maps"
-  (dolist (map '(evil-motion-state-map
-                 evil-insert-state-map
-                 evil-emacs-state-map))
-    (define-key (eval map) "\C-z" nil)
-    (define-key (eval map) "\C-f" nil)))
-(global-set-key (kbd "C-f") 'consult-find)
+     (eval-after-load "evil-maps"
+       (dolist (map '(evil-motion-state-map
+                      evil-insert-state-map
+                      evil-emacs-state-map))
+         (define-key (eval map) "\C-z" nil)
+         (define-key (eval map) "\C-f" nil)))
+     (global-set-key (kbd "C-f") 'consult-find)
 
-(global-unset-key (kbd "C-x b"))
-(global-set-key (kbd "C-x b") 'consult-buffer)
+     (global-unset-key (kbd "C-x b"))
+     (global-set-key (kbd "C-x b") 'consult-buffer)
 
-(global-set-key (kbd "C-x C-r") 'recompile)
-(global-set-key (kbd "C-x C-q") 'rhjr/close-compilation-buffer)
+     (global-set-key (kbd "C-x C-r") 'recompile)
+     (global-set-key (kbd "C-x C-q") 'rhjr/close-compilation-buffer)
 
-(global-set-key (kbd "M-[")     'tempel-previous)
-(global-set-key (kbd "M-]")     'tempel-next)
+     (global-set-key (kbd "M-[")     'tempel-previous)
+     (global-set-key (kbd "M-]")     'tempel-next)
 
-(global-unset-key (kbd "C-s"))
-(global-set-key (kbd "C-s") 'consult-ripgrep)
+     (global-unset-key (kbd "C-s"))
+     (global-set-key (kbd "C-s") 'consult-ripgrep)
 
-(global-unset-key (kbd "C-x b"))
-(global-set-key (kbd "C-x b") 'consult-buffer)
-(global-set-key (kbd "C-x p") 'consult-project-buffer)
+     (global-unset-key (kbd "C-x b"))
+     (global-set-key (kbd "C-x b") 'consult-buffer)
+     (global-set-key (kbd "C-x p") 'consult-project-buffer)
 
-(global-unset-key (kbd "C-x 4 g"))
-(global-set-key (kbd "C-x 4 g") 'bookmark-jump-other-window)
+     (global-unset-key (kbd "C-x 4 g"))
+     (global-set-key (kbd "C-x 4 g") 'bookmark-jump-other-window)
 
-(global-set-key (kbd "C-u") 'evil-scroll-up)
-(global-set-key (kbd "C-d") 'evil-scroll-down)
+     (global-set-key (kbd "C-u") 'evil-scroll-up)
+     (global-set-key (kbd "C-d") 'evil-scroll-down)
 
-(global-set-key (kbd "<f1>") 'rhjr/build-executable)
-(global-set-key (kbd "<f2>") 'rhjr/run-executable)
+     (global-set-key (kbd "<f1>") 'rhjr/build-executable)
+     (global-set-key (kbd "<f2>") 'rhjr/run-executable)
 
-;;rhjr/mode
-(tool-bar-mode   0)
-(menu-bar-mode   0)
-(scroll-bar-mode 0)
-(pixel-scroll-precision-mode)
+     ;;rhjr/mode
+     (tool-bar-mode   0)
+     (menu-bar-mode   0)
+     (scroll-bar-mode 0)
+     (pixel-scroll-precision-mode)
 
-(recentf-mode 1)
-(setq recentf-max-menu-items 25)
-(setq recentf-max-saved-items 25)
+     (recentf-mode 1)
+     (setq recentf-max-menu-items 25)
+     (setq recentf-max-saved-items 25)
 
-;;rhjr/hooks
-(add-hook 'emacs-startup-hook
-	  (lambda ()
-	    (rhjr/profile-startup)
-	    (setq gc-cons-threshold (expt 2 23))))
+     ;;rhjr/hooks
+     (add-hook 'emacs-startup-hook
+	       (lambda ()
+	         (rhjr/profile-startup)
+	         (setq gc-cons-threshold (expt 2 23))))
 
 ;;replace c-mode with c-ts-mode
 (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
