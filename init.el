@@ -1,194 +1,230 @@
-;;; init.el --- rhjr's emacs configurations          -*- lexical-binding: t; -*-
+(defconst rhjr/base-config-dir
+  (if (eq system-type 'windows-nt)
+      "C:\\Users\\Rhjr\\AppData\\Roaming\\.emacs.d\\"
+      "~/.config/emacs/"))
 
-;;packages
+(defconst rhjr/paths/config rhjr/base-config-dir)
+(defconst rhjr/paths/packages (concat rhjr/paths/config "packages/"))
+(defconst rhjr/paths/thirdparty (concat rhjr/paths/config "thirdparty/"))
+
+(defconst rhjr/paths/no-littering/etc (concat rhjr/paths/config "config/"))
+(defconst rhjr/paths/no-littering/var (concat rhjr/paths/config "data/"))
+
+(defconst rhjr/paths/eln-cache (concat rhjr/paths/config "data/eln-cache"))
+
+(defconst rhjr/paths/home
+  (if (eq system-type 'windows-nt)
+      "C:\\Users\\Rhjr\\Home\\"
+      "~"))
+
+
+(setq tramp-ssh-program "C:\\Windows\\System32\\openSSH\\ssh.exe")
+(setq tramp-default-method "ssh"
+      tramp-use-ssh-controlmaster-options nil)
+
+(when (eq system-type 'windows-nt)
+  (require 'cl-lib)
+  (with-eval-after-load 'tramp
+    (cl-pushnew '("-tt")
+                (car (alist-get 'tramp-login-args
+                                (cdr (assoc "ssh" tramp-methods))))
+                :test #'equal)))
+
+;; rhjr/archives
+(require 'package)
+(setq package-user-dir rhjr/paths/packages
+      package-archives '(("melpa" . "https://melpa.org/packages/")
+                         ("gnu"   . "http://elpa.gnu.org/packages/")))
 (package-initialize)
-(setq package-user-dir "~/.emacs.d/elpa/"
-  package-archives '(("melpa" . "https://melpa.org/packages/")
-                      ("gnu" . "http://elpa.gnu.org/packages/")))
 
-(require 'no-littering)
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+  (eval-and-compile
+    (setq use-package-always-ensure t
+          use-package-expand-minimally t))
 
-;;important!
-(global-set-key (kbd "C-x C-g") 'bookmark-jump)
+(require 'use-package)
 
-;;rhjr/theme
-(when (memq window-system '(mac ns x))
-  (exec-path-from-shell-initialize))
+;;; rhjr/config-folder
+(setq user-emacs-directory rhjr/paths/config)
 
-;; defaults
+(use-package compat
+  :ensure t) ; no-littering dependency
+(add-to-list'load-path rhjr/paths/thirdparty)
+(eval-and-compile
+  (setq no-littering-etc-directory rhjr/paths/no-littering/etc)
+  (setq no-littering-var-directory rhjr/paths/no-littering/var)
+  (require 'no-littering))
+
+(when (fboundp 'startup-redirect-eln-cache)
+  (startup-redirect-eln-cache
+    (convert-standard-filename rhjr/paths/eln-cache)))
+
+;;; rhjr/defaults
 (setq-default
-  ;;frame
-  frame-title-format "%b"
-
-  ;;initial
-  initial-major-mode 'lisp-mode
+  initial-major-mode 'text-mode
   initial-scratch-message ""
-  inhibit-startup-message ""
 
-  ;;file-generation
-  create-lockfiles nil
-  make-backup-files nil
-  auto-save-default nil
-
-  ;;prompts
   use-dialog-box nil
 
-  ;;quality-of-life
-  select-enable-clipboard t
-  grep-program "C:\\ProgramData\\chocolatey\\bin\\grep.exe"
-  find-program "C:\\Windows\\System32\\find.exe"
+  inhibit-startup-message ""
+  inhibit-splash-screen t
+  inhibit-startup-echo-area-message t
 
-  scroll-margin             3
-  scroll-conservatively     101
-  scroll-up-aggressively    0.01
-  scroll-down-aggressively  0.01
-  scroll-preserve-screen-position t
-  auto-window-vscroll       nil
+  display-line-numbers-width 4
 
-  ;; tramp
-  tramp-default-method "plink"
-
-  ;;compilation
-  compile-command "build"
-  compilation-scroll-output t
-
-  ;;corfu
-  completion-cycle-threshold 3
-  tab-always-indent t
-  dabbrev-case-fold-search nil
-  dabbrev-case-replace nil
-
-  ;;annoyances
   ring-bell-function 'ignore
-  bookmark-set-fringe-mark nil
-  esup-depth 0
 
-  ;; editing
-  truncate-lines   nil
+  tab-width 2
   indent-tabs-mode nil
 
-  ;; fill
-  display-fill-column-indicator-column 80
-  display-fill-column-indicator-character '24)
+  create-lockfiles nil
+  make-backup-files nil
+  auto-save-default nil)
 
-;;appearance
-(setq-default
- header-line-format
- '(;;mode
-   (:propertize "%m" face rhjr-face-doc)
-   (:propertize " - " face rhjr-face-border)
+;;; rhjr/standard-packages
+(use-package dired-x
+  :ensure nil
+  :config
+  (setq-default
+   dired-free-space nil
+   default-directory rhjr/paths/home
+   dired-omit-files
+   (rx (or
+        (seq bol "."    eol)
+        (seq bol ".git" eol)
+        (seq bol ".dir-locals.el" eol)))
+   dired-use-ls-dired t
+   insert-directory-program "/usr/bin/ls"
+   dired-recursive-copies 'always
+   dired-recursive-deletes 'always
+   dired-listing-switches "-laGh1v --group-directories-first"))
 
-   ;;directory path
-   (:eval
-    (if (eq major-mode 'dired-mode)
-	(if (string-match-p "\\`\\*.*\\*\\'" (buffer-name))
-	    ;; Buffer is a special buffer
-	    ""
-	  ;; Buffer is not a special buffer, display directory
-	  (concat " " (shorten-directory default-directory 20)))))
+;;; rhjr/win32
+(when (eq system-type 'windows-nt)
+  (setq select-enable-clipboard t
+        grep-program "C:\\ProgramData\\chocolatey\\bin\\grep.exe"
+        find-program "C:\\Windows\\System32\\find.exe"))
 
-   ;;buffer
-   (:propertize "%b" face rhjr-face-main)
+;;; rhjr/functions
+;; private functions
+(defun display-startup-echo-area-message ()
+  (message ""))
 
-   ;;position
-   (:propertize " - " face rhjr-face-border)
-   (:propertize "Row: %l" face default)
-   (:propertize " - " face rhjr-face-border)
-   (:propertize "Col: %C " face default)
+;; public functions
 
-   ;;etc
-   (:propertize "%-" face rhjr-face-border)))
+;;; rhjr/mode
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
+(set-fringe-mode '(0 . 0))
+(pixel-scroll-precision-mode)
+(global-display-line-numbers-mode 1)
 
-(setq-default mode-line-format
-	      '(;;mode
-		(:propertize "%-" face rhjr-face-border)))
+;;; rhjr/packages
+(use-package magit
+  :defer t)
 
-;;rhjr/compilation-buffer
-(setq display-buffer-alist
-  '(("\\*compilation\\*" .
-      ((display-buffer-reuse-window display-buffer-in-side-window)
-        (reusable-frames . visible)
-        (side . bottom)
-        (window-height . 0.1)))))
+(use-package dabbrev
+  :ensure nil
+  :custom
+  (dabbrev-case-fold-search t)
+  (dabbrev-case-replace nil))
 
-(defvar rhjr/previous-buffer nil
-  "Variable to store the previous buffer.")
+(use-package corfu
+  :custom
+  (corfu-auto t)
+  (corfu-cycle t)
+  (corfu-preview-current nil)
 
-(defun rhjr/is-compilation-buffer ()
-  "Check if the current buffer is the compilation buffer."
-  (string= (buffer-name) "*compilation*"))
+  :config
+  (keymap-unset corfu-map "RET")
 
-(defun rhjr/change-compilation-buffer-size (delta)
-  (let ((current-height (window-total-height)))
-    (if (and (> (+ current-height delta) 0) (< (+ current-height delta) 20))
-      (enlarge-window delta))))
+  :init
+  (global-corfu-mode)
+  (corfu-history-mode))
 
-(defun rhjr/compilation-buffer-peek ()
-  "Check if the current buffer is the compilation buffer after a buffer switch."
-  (let ((current-buffer-name (buffer-name)))
-    (if (and rhjr/previous-buffer (string= rhjr/previous-buffer "*compilation*")
-          (not (rhjr/is-compilation-buffer)))
-      (enlarge-window 10)
-      (if (rhjr/is-compilation-buffer)
-        (rhjr/change-compilation-buffer-size 10)))
-    (setq rhjr/previous-buffer current-buffer-name)))
+(use-package consult
+  :bind (("C-x b"   . consult-buffer)
+         ("C-x 4 b" . consult-buffer-other-window)
+         ("C-x 5 b" . consult-buffer-other-frame)
+         ;; M-s bindings in `search-map'
+         ("C-x f" . consult-find)
+         ("C-x s" . consult-ripgrep))
 
-(defun rhjr/build-executable ()
+  :config
+  (setq consult-find-args
+      "find . -not -path \"*/.git/*\"")
+
+  :init
+  ;; use consult to select xref locations with preview.
+  (setq xref-show-xrefs-function #'consult-xref
+        xref-show-definitions-function #'consult-xref))
+
+(defun rhjr/load-all-project-files ()
+  "Open all files in the current project."
   (interactive)
-  (let ((root (project-root (project-current))))
-    (if root
-        (progn
-          (compile (concat root "build"))
-          (rhjr/resize-compilation-buffer))
-      (message "(rhjr) Currently not in a project."))))
+  (let ((files (project-files (project-current t))))
+    (dolist (file files)
+      (find-file-noselect file))))
 
-(defun rhjr/run-executable ()
-  (interactive)
-  (let ((root (project-root (project-current))))
-    (if root
-        (progn
-          (compile (concat root "start.bat"))
-          (rhjr/resize-compilation-buffer))
-      (message "(rhjr) Currently not in a project."))))
+(use-package vertico
+  :custom
+  ;; (vertico-scroll-margin 0) ;; Different scroll margin
+  ;; (vertico-count 20) ;; Show more candidates
+  ;; (vertico-resize t) ;; Grow and shrink the Vertico minibuffer
+  (vertico-cycle t) ;; Enable cycling for `vertico-next/previous'
+  :init
+  (vertico-mode))
 
-(defun rhjr/resize-compilation-buffer ()
-  "Resize the compilation buffer."
-  (with-current-buffer (get-buffer "*compilation*")
-    (when (derived-mode-p 'compilation-mode)
-      (enlarge-window 10))))
+(use-package savehist ;; store history when emacs closes.
+  :init
+  (savehist-mode))
 
-;;rhjr/functions
+(use-package orderless
+  :custom
+  ;; (orderless-style-dispatchers '(orderless-affix-dispatch))
+  ;; (orderless-component-separator #'orderless-escapable-split-on-space)
+  (completion-styles '(orderless basic))
+  (completion-category-overrides '((file (styles partial-completion))))
+  (completion-category-defaults nil) ;; Disable defaults, use our settings
+  (completion-pcm-leading-wildcard t))
 
-(defun rhjr/profile-startup ()
-  "(rhjr-func) startup profiler."
-  (message
-    "Emacs loaded in %s with %d garbage collections."
-    (format "%.2f seconds"
-      (float-time (time-subtract after-init-time before-init-time)))
-    gcs-done))
+(use-package cape
+  ;; Bind prefix keymap providing all Cape commands under a mnemonic key.
+  ;; Press C-c p ? to for help.
+  :bind ("C-c p" . cape-prefix-map) ;; Alternative key: M-<tab>, M-p, M-+
+  ;; Alternatively bind Cape commands individually.
+  ;; :bind (("C-c p d" . cape-dabbrev)
+  ;;        ("C-c p h" . cape-history)
+  ;;        ("C-c p f" . cape-file)
+  ;;        ...)
+  :init
+  ;; Add to the global default value of `completion-at-point-functions' which is
+  ;; used by `completion-at-point'.  The order of the functions matters, the
+  ;; first function returning a result wins.  Note that the list of buffer-local
+  ;; completion functions takes precedence over the global list.
+  (add-hook 'completion-at-point-functions #'cape-abbrev)
+  (add-hook 'completion-at-point-functions #'cape-dabbrev)
+  (add-hook 'completion-at-point-functions #'cape-file)
+  )
 
-(defun shorten-directory (dir max-length)
-  "Show up to `max-length' characters of a directory name `dir'."
-  (let ((path (reverse (split-string (abbreviate-file-name dir) "/")))
-         (output ""))
-    (when (and path (equal "" (car path)))
-      (setq path (cdr path)))
-    (while (and path (< (length output) (- max-length 4)))
-      (setq output (concat (car path) "/" output))
-      (setq path (cdr path)))
-    (when path
-      (setq output (concat "./" output)))
-    output))
+(use-package highlight-parentheses
+  :ensure t
+  :hook (prog-mode . highlight-parentheses-mode)
+  :custom
+  (highlight-parentheses-colors
+   '("#8ffff2" "#8ffff2" "#8ffff2" "#8ffff2" "#8ffff2")))
 
-(defun rhjr/programmable-enviroment-mode ()
-  (interactive)
-  (progn
-    (hl-line-mode)
-    (indentinator-mode)
-    (show-paren-mode 1)
-    (display-fill-column-indicator-mode 1)))
+(use-package dumb-jump
+  :ensure t
+  :config
+  (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
+  (setq dumb-jump-force-searcher 'rg)
+  ;; use completion-read instead of a separate buffer with candidates
+  (setq xref-show-definitions-function #'xref-show-definitions-completing-read))
 
-;;rhjr/overlays
 (defun rhjr/comment-dividers ()
   (interactive)
   (save-excursion
@@ -197,409 +233,181 @@
       (delete-overlay overlay))
     (while (re-search-forward "//-.*" nil t)
       (let* ((start (match-beginning 0))
-              (end (match-end 0)))
+             (end (match-end 0)))
         (let ((overlay (make-overlay start end)))
           (overlay-put overlay 'evaporate t)
           (overlay-put overlay 'after-string
-            (concat " " (propertize
-                          (make-string (- 79 (current-column)) ?-)
-                          'face 'rhjr-face-mute))))))
+                       (concat " " (propertize
+                                    (make-string (- 79 (current-column)) ?-)
+                                    'face 'rhjr-face-mute))))))
     (goto-char (point-min))
     (while (re-search-forward "//=.*" nil t)
       (let* ((start (match-beginning 0))
-              (end (match-end 0)))
+             (end (match-end 0)))
         (let ((overlay (make-overlay start end)))
           (overlay-put overlay 'evaporate t)
           (overlay-put overlay 'after-string
-            (concat " " (propertize
-                          (make-string (- 79 (current-column)) ?=)
-                          'face 'rhjr-face-mute))))))))
+                       (concat " " (propertize
+                                    (make-string (- 79 (current-column)) ?=)
+                                    'face 'rhjr-face-mute))))))))
 
-(use-package treesit
-  :custom
-  (treesit-font-lock-level 4)
-  :config
-  (setq
-   c-ts-mode-indent-offset 2
-   treesit-language-source-alist
-   '((c   "https://github.com/tree-sitter/tree-sitter-c")
-     (cpp "https://github.com/tree-sitter/tree-sitter-cpp"))
-   font-lock-maximum-decoration t))
-
-(defun my-indent-style()
-  "Override the built-in BSD indentation style with some additional rules"
-  `(;; Here are your custom rules
-    ((node-is ")") parent-bol 0)
-    ((node-is "preproc_if") parent-bol 0)
-
-    ;; function arguments.
-    ;;((parent-is "argument_list") parent-bol c-ts-mode-indent-offset)
-
-    ((and (node-is "else_clause") (parent-is "if_statement"))
-     parent-bol 0)
-    ((and (and (not (node-is "else_clause")) (not (node-is "compound_statement")))
-          (parent-is "if_statement")) parent-bol c-ts-mode-indent-offset)
-    ;; else indentation fix.
-    ((and (node-is "expression_statement") (parent-is "else_clause"))
-     parent-bol c-ts-mode-indent-offset)
-    ((and (node-is "compound_statement") (parent-is "else_clause"))
-     parent-bol 0)
-
-    ;; goto statement fix.
-    ((node-is "labeled_statement") parent-bol 0)
-    ((parent-is "labeled_statement") parent-bol c-ts-mode-indent-offset)
-
-    ;; no auto indentation for macro functions.
-    ((and no-node (parent-is "\\(?: \\|preproc\\)"))
-     no-indent nil)
-
-    ;; Append here the indent style you want as base
-    ,@(alist-get 'bsd (c-ts-mode--indent-styles 'cpp))))
-
-;; use for debug
-(setq treesit--indent-verbose t)
-
-(use-package c-ts-mode
-  :if (treesit-language-available-p 'c)
-  :custom
-  (c-ts-mode-indent-offset 2)
-  (c-ts-mode-indent-style #'my-indent-style)
-  :init
-  ;; Remap the standard C/C++ modes
-  (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(c-or-c++-mode . c-or-c++-ts-mode)))
-
-;;files
-(use-package dired-x
-  :ensure nil
-  :config
-  (setq-default
-   dired-free-space nil
-   default-directory "c:\\Users\\Rhjr"
-   dired-omit-files
-   (rx (or
-        (seq bol "."    eol)
-        (seq bol ".git" eol)
-        (seq bol ".dir-locals.el" eol)
-        (seq bol "auto" eol)
-        (seq bol "ltximg" eol)
-        (seq bol "__pycache__" eol)
-        (seq bol "research-paper.log" eol)
-        (seq bol "research-paper.aux" eol)
-        (seq bol "research-paper.toc" eol)
-        (seq bol "research-paper.out" eol)
-        (seq bol "desktop.ini" eol)))
-   dired-use-ls-dired t
-   insert-directory-program "/usr/bin/ls"
-   dired-recursive-copies 'always
-   dired-recursive-deletes 'always
-   dired-listing-switches "-laGh1v --group-directories-first"))
-
-;;evil
-(use-package evil
-  :ensure t
-  :init
-  (setq
-   evil-want-integration t
-   evil-want-keybinding nil
-   evil-respect-visual-line-mode t)
-  :config
-  (evil-mode 1))
-
-(use-package evil-collection
-  :after evil
-  :ensure t
-  :init
-  (evil-collection-init))
-
-;;completion
-;; @Minad you beautiful man.
-(use-package corfu
-  :ensure t
-  :hook
-  ((prog-mode . corfu-mode)
-   (org-mode  . corfu-mode))
-  :custom
-  (corfu-auto t)
-    (corfu-auto-prefix 2)
-    (corfu-auto-delay 0.2)
-    :config
-    (global-corfu-mode)
-    (corfu-history-mode))
-
-
-  (use-package tempel
-    :after corfu
-    :ensure t
-    :bind (("M-=" . tempel-complete)
-           ("M-*" . tempel-insert))
-    :config
-    (setq tempel-path
-	  "~\\.emacs.d\\templates\\template")
-    :init
-    (defun tempel-setup-capf ()
-      (setq-local completion-at-point-functions
-		  (cons #'tempel-expand
-		        completion-at-point-functions)))
-
-    (add-hook 'prog-mode-hook 'tempel-setup-capf)
-    (add-hook 'text-mode-hook 'tempel-setup-capf)
-    (add-hook 'org-mode-hook  'tempel-setup-capf))
-
-  (use-package cape
-    :ensure t
-    :init
-    (add-to-list 'completion-at-point-functions 'cape-abbrev)
-    (add-to-list 'completion-at-point-functions 'cape-dabbrev)
-    (add-to-list 'completion-at-point-functions 'cape-file))
-
-  (use-package vertico
-    :ensure t
-    :bind (:map vertico-map
-	        ("C-j" . vertico-next)
-	        ("C-k" . vertico-previous)
-	        ("C-f" . vertico-exit)
-	        :map minibuffer-local-map
-	        ("M-h" . backward-kill-word))
-    :init
-    (vertico-mode)
-    ;;(vertico-buffer-mode)
-    (setq
-     vertico-cycle t
-     vertico-count 10))
-
-  (use-package orderless
-    :ensure t
-    :init
-    (setq
-     completion-styles '(orderless basic)
-     completion-category-defaults nil
-     completion-category-overrides '((file (styles partial-completion)))))
-
-  (use-package savehist
-    :init
-    (savehist-mode))
-
-  (use-package consult
-    :ensure t)
-
-  ;;(setq
-  ;;indent-bars-pattern "."
-  ;;indent-bars-width-frac 0.5
-  ;;indent-bars-pad-frac 0.25
-  ;;indent-bars-color-by-depth nil
-  ;;indent-bars-highlight-current-depth '(:face default :blend 0.4))
-  ;;
-  ;;(use-package indent-bars
-  ;;  :load-path "~\\.emacs.d\\thirdparty\\indent-bars"
-  ;;  :config
-  ;;  (require 'indent-bars-ts)
-  ;;  :custom
-  ;;  (indent-bars-treesit-support t)
-  ;;  (indent-bars-treesit-wrap '((c argument_list parameter_list init_declarator)))
-  ;;  :hook ((c-mode) . indent-bars-mode))
-
-  ;;rhjr/misc
-  (use-package org-cliplink
-    :ensure t)
-
-  (use-package hungry-delete
-    :ensure t)
-
-  (use-package ethan-wspace
-    :ensure t
-       :config
-       (setq mode-require-final-newline nil)
-       (global-ethan-wspace-mode 1))
-
-     (use-package hl-todo
-       :ensure t
-       :hook (prog-mode . hl-todo-mode)
-       :init
-       (setq
-        hl-todo-highlight-punctuation ":"
-        hl-todo-keyword-faces
-        `(("rhjr"  font-lock-builtin-face   bold))))
-
-     (add-to-list 'load-path "~\\.emacs.d\\thirdparty")
-     (require 'indentinator)
-
-     (use-package highlight-parentheses
-       :ensure t
-       :custom
-       (highlight-parentheses-colors
-        '("#8ffff2" "#8ffff2" "#8ffff2" "#8ffff2" "#8ffff2")))
-
-     ;;rhjr/writing
-     (use-package org
-       :ensure t
-       :hook
-       (( org-mode . org-indent-mode )
-        ( org-mode . olivetti-mode ))
-       :config
-       (setq
-        org-hide-emphasis-markers t))
-
-     (setq
-      Tex-master nil
-      TeX-PDF-mode t
-      TeX-auto-save 1
-      TeX-parse-self t
-      TeX-source-correlate-start-server t)
-
-     (setq-default
-      TeX-view-program-selection '((output-pdf "PDF Tools")))
-
-     ;;do not forget to actually install 'auctex' you dummy
-
-     ;;(use-package pdf-tools
-     ;;:defer t
-     ;;:ensure t)
-
-     ;;rhjr/plots
-     (use-package gnuplot
-       :ensure t
-       :mode ("\\.gp\\'" . gnuplot-mode))
-
-     (setq inferior-octave-program
-           "C:\\Users\\Rhjr\\AppData\\Local\\Programs\\GNU Octave\\Octave-8.4.0\\octave-launch.exe")
-
-     (setq auto-mode-alist
-           (cons '("\\.m$" . octave-mode) auto-mode-alist))
-     (add-hook 'octave-mode-hook
-	       (lambda ()
-	         (abbrev-mode 1)
-	         (auto-fill-mode 1)
-	         (if (eq window-system 'x)
-		     (font-lock-mode 1))))
-
-     ;;rhjr/keybindings
-     (global-unset-key (kbd "C-x 3"))
-     (global-unset-key (kbd "C-x o"))
-     (global-unset-key (kbd "C-x C-o"))
-     (global-unset-key (kbd "C-x e"))
-     (global-unset-key (kbd "C-x C-q"))
-     (global-unset-key (kbd "M-="))
-     (global-unset-key (kbd "M-["))
-     (global-unset-key (kbd "M-]"))
-
-     ;;evil
-     (global-set-key (kbd "C-u") 'evil-scroll-up)
-     (global-set-key (kbd "C-d") 'evil-scroll-down)
-
-     ;;consult
-     (global-unset-key (kbd "C-s"))
-     (global-set-key (kbd "C-s") 'consult-ripgrep)
-
-     (eval-after-load "evil-maps"
-       (dolist (map '(evil-motion-state-map
-                      evil-insert-state-map
-                      evil-emacs-state-map))
-         (define-key (eval map) "\C-z" nil)
-         (define-key (eval map) "\C-f" nil)))
-     (global-set-key (kbd "C-f") 'consult-find)
-
-     (global-unset-key (kbd "C-x b"))
-     (global-set-key (kbd "C-x b") 'consult-buffer)
-
-     (global-set-key (kbd "C-x C-r") 'recompile)
-     (global-set-key (kbd "C-x C-q") 'rhjr/close-compilation-buffer)
-
-     (global-set-key (kbd "M-[")     'tempel-previous)
-     (global-set-key (kbd "M-]")     'tempel-next)
-
-     (global-unset-key (kbd "C-s"))
-     (global-set-key (kbd "C-s") 'consult-ripgrep)
-
-     (global-unset-key (kbd "C-x b"))
-     (global-set-key (kbd "C-x b") 'consult-buffer)
-     (global-set-key (kbd "C-x p") 'consult-project-buffer)
-
-     (global-unset-key (kbd "C-x 4 g"))
-     (global-set-key (kbd "C-x 4 g") 'bookmark-jump-other-window)
-
-     (global-set-key (kbd "C-u") 'evil-scroll-up)
-     (global-set-key (kbd "C-d") 'evil-scroll-down)
-
-     (global-set-key (kbd "<f1>") 'rhjr/build-executable)
-     (global-set-key (kbd "<f2>") 'rhjr/run-executable)
-
-     ;;rhjr/mode
-     (tool-bar-mode   0)
-     (menu-bar-mode   0)
-     (scroll-bar-mode 0)
-     (pixel-scroll-precision-mode)
-
-     (recentf-mode 1)
-     (setq recentf-max-menu-items 25)
-     (setq recentf-max-saved-items 25)
-
-     ;;rhjr/hooks
-     (add-hook 'emacs-startup-hook
-	       (lambda ()
-	         (rhjr/profile-startup)
-	         (setq gc-cons-threshold (expt 2 23))))
-
-;;replace c-mode with c-ts-mode
-(add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
-(add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
-(add-to-list 'major-mode-remap-alist
-	     '(c-or-c++-mode . c-or-c++-ts-mode))
-
-(add-hook 'c-ts-mode-hook 'rhjr/comment-dividers)
+(add-hook 'c-mode-hook 'rhjr/comment-dividers)
 (add-hook 'after-save-hook 'rhjr/comment-dividers)
 
-(add-hook 'minibuffer-setup-hook
-	  (lambda ()
-	    (if (fboundp 'evil-local-mode)
-		(evil-local-mode -1))))
+(use-package gruber-darker-theme
+  :ensure t
+  :config
+  (load-theme 'gruber-darker t))
 
-(add-hook 'pdf-view-mode-hook
-	  (lambda ()
-	    (setq
-	     pdf-view-display-size 'fit-page)))
+(use-package emacs
+  :custom
+  ;; Enable context menu. `vertico-multiform-mode' adds a menu in the minibuffer
+  ;; to switch display modes.
+  (context-menu-mode t)
+  ;; Support opening new minibuffers from inside existing minibuffers.
+  (enable-recursive-minibuffers t)
+  ;; Hide commands in M-x which do not work in the current mode.  Vertico
+  ;; commands are hidden in normal buffers. This setting is useful beyond
+  ;; Vertico.
+  (read-extended-command-predicate #'command-completion-default-include-p)
+  ;; Do not allow the cursor in the minibuffer prompt
+  (minibuffer-prompt-properties
+   '(read-only t cursor-intangible t face minibuffer-prompt))
 
-(add-hook 'org-mode-hook
-	  (lambda ()
-	    (visual-line-mode)
-	    (visual-fill-column-mode -1)))
+  ;; TAB cycle if there are only few candidates
+  (completion-cycle-threshold 3)
 
-(add-hook 'dired-mode-hook       #'dired-omit-mode)
+  ;; Enable indentation+completion using the TAB key.
+  ;; `completion-at-point' is often bound to M-TAB.
+  (tab-always-indent 'complete)
 
-(add-hook 'buffer-list-update-hook #'rhjr/compilation-buffer-peek)
+  ;; Emacs 30 and newer: Disable Ispell completion function.
+  ;; Try `cape-dict' as an alternative.
+  (text-mode-ispell-word-completion nil)
 
-(add-hook 'prog-mode-hook        #'rhjr/programmable-enviroment-mode)
-(add-hook 'prog-mode-hook        #'highlight-parentheses-mode)
+  ;; Hide commands in M-x which do not apply to the current mode.  Corfu
+  ;; commands are hidden, since they are not used via M-x. This setting is
+  ;; useful beyond Corfu.
+  (read-extended-command-predicate #'command-completion-default-include-p))
 
-(add-hook 'TeX-after-compilation-finished-functions
-	  #'TeX-revert-document-buffer)
+;;; rhjr/keybindings
+(global-set-key (kbd "C-x C-g") 'bookmark-jump)
 
-(add-to-list 'auto-mode-alist '("\\.el\\'" . emacs-lisp-mode))
-(add-to-list 'auto-mode-alist '("\\.pdf\\'" . pdf-view-mode))
+;;; rhjr/programming
+(defconst rhjr/c-style
+  `((c-basic-offset  . 2)
+    (c-hanging-braces-alist . ((defun-open)))
+    (c-offsets-alist .((statement . 0)
+		       (statement-cont . 2)
+		       (substatement-open . 0)
+		       (arglist-intro . 2)
+		       (case-label . 2)
+		       (label . 0)
+
+		       ;; functions
+		       (func-decl-cont . 0)))))
+
+(defun rhjr/set-c-style ()
+  ""
+  (interactive)
+  (setq tab-width 2
+	indent-tabs-mode nil)
+
+  (c-add-style "rhjr/c-style" rhjr/c-style t)
+  (c-set-style "rhjr/c-style"))
+
+(add-hook 'c-mode-common-hook #'rhjr/set-c-style)
+
+(setq-default show-trailing-whitespace t)
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
+
+;;rhjr/comp
+(setq compilation-directory-locked nil)
+
+(defvar project-command-arg nil
+  "Stored argument used by project commands.")
+
+(defun set-project-command-arg (arg)
+  "Set and remember ARG for project commands."
+  (interactive "sSet project argument: ")
+  (setq project-command-arg arg)
+  (message "Project argument set to: %s" project-command-arg))
+
+(defun find-project-directory-recursive (command)
+  "Recursively search upward until COMMAND exists."
+  (if (file-exists-p command)
+      t
+    (let ((parent (file-name-directory (directory-file-name default-directory))))
+      (unless (or (null parent) (string= parent default-directory))
+        (cd parent)
+        (find-project-directory-recursive command)))))
+
+(defun lock-compilation-directory ()
+  (interactive)
+  (setq compilation-directory-locked t)
+  (message "Compilation directory is locked."))
+
+(defun unlock-compilation-directory ()
+  (interactive)
+  (setq compilation-directory-locked nil)
+  (message "Compilation directory is roaming."))
+
+(defun find-project-directory (command)
+  (let ((start-dir default-directory))
+    (switch-to-buffer-other-window "*compilation*")
+    (if compilation-directory-locked
+        (cd last-compilation-directory)
+      (cd start-dir)
+      (find-project-directory-recursive command)
+      (setq last-compilation-directory default-directory))))
+
+(defun run-project-command (command)
+  "Run COMMAND from the project root using stored argument."
+  (interactive)
+  (find-project-directory command)
+  (compile
+   (if project-command-arg
+       (concat command " " project-command-arg)
+     command))
+  (other-window 1))
+
+(global-set-key [f1] (lambda () (interactive)
+                        (run-project-command "build.bat")))
+
+(global-set-key [f2] (lambda () (interactive)
+                        (run-project-command "start.bat")))
+
+(global-set-key [f3] #'set-project-command-arg)
 
 ;;rhjr/fix
 (setq minibuffer-prompt-properties ;; cursor in minibuffer-prompt
       '(read-only t cursor-intangible t face minibuffer-prompt))
 (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 
-(set-display-table-slot standard-display-table 0 ?\ )
+(add-hook 'text-mode-hook
+          '(lambda ()
+             (setq indent-tabs-mode nil)
+             (setq tab-width 2)
+             (setq indent-line-function (quote insert-tab))))
 
+;;;rhjr/styling
+(set-face-attribute 'default nil
+                    :family "Consolas"
+                    :height 150
+                    :weight 'normal)
 
-;;; init.el ends here.
+(add-to-list 'exec-path "C:\\Program Files\\Git\\usr\\bin")
+(setenv "PATH"
+        (concat "C:\\Program Files\\Git\\usr\\bin;"
+                (getenv "PATH")))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(ethan-wspace csv-mode olivetti gnuplot auctex flycheck-inline flymake-easy aggressive-indent esup magit evil vertico orderless consult visual-fill-column use-package tempel pdf-tools org-roam org-cliplink hungry-delete hl-todo goto-chg flycheck exec-path-from-shell corfu cape))
- '(safe-local-variable-values
-   '((eval progn
-	   (setenv "IDF_PATH" "C:\\Espressif\\frameworks\\esp-idf-v5.1.1")
-	   (setenv "PATH"
-		   (concat "C:\\Espressif\\tools\\xtensa-esp-elf-gdb\\12.1_20221002\\xtensa-esp-elf-gdb\\bin;" "C:\\Espressif\\tools\\xtensa-esp32-elf\\esp-12.2.0_20230208\\xtensa-esp32-elf\\bin;" "C:\\Espressif\\tools\\esp32ulp-elf\\2.35_20220830\\esp32ulp-elf\\bin;" "C:\\Espressif\\tools\\cmake\\3.24.0\\bin;" "C:\\Espressif\\tools\\openocd-esp32\\v0.12.0-esp32-20230419\\openocd-esp32\\bin;" "C:\\Espressif\\tools\\ninja\\1.10.2;" "C:\\Espressif\\tools\\idf-exe\\1.0.3;" "C:\\Espressif\\tools\\ccache\\4.8\\ccache-4.8-windows-x86_64;" "C:\\Espressif\\frameworks\\esp-idf-v5.1.1\\tools;" "C:\\Espressif\\python_env\\idf5.1_py3.11_env\\Scripts;" "C:\\Espressif\\tools\\idf-git\\2.39.2\\cmd;" "C:\\Espressif"
-			   (getenv "PATH")))))))
+   '(dumb-jump cape consult corfu corfu-candidate-overlay gruber-darker-theme highlight-parentheses magit orderless vertico)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

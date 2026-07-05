@@ -52,7 +52,6 @@
 (defcustom rhjr-colour-border 'unspecified 
   "(rhjr)" :type 'color :group 'rhjr)
 
-;;fonts
 (defcustom rhjr-font-family "Roboto Mono"
   "(rhjr)" :type 'string :group 'rhjr)
 
